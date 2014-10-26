@@ -28,6 +28,10 @@ using namespace std;
 // Macros.
 #define UNUSED(a) ((void)(a))
 
+#define FULSCREEN   false
+#define WIDTH       860
+#define HEIGHT      640
+
 #define TEX_WALL    0
 #define TEX_FLOOR   1
 #define TEX_STONE   2
@@ -44,7 +48,7 @@ using namespace std;
 #define MAP_PLAYER  3
 #define MAP_BACKG   4
 
-#define ANIM_PLAYER_TIME    0.05f
+#define ANIM_PLAYER_TIME    0.1f
 #define ANIM_BACKG_TIME     10.0f
 #define ANIM_BACKG_SPEED    0.1f
 
@@ -235,18 +239,30 @@ static void Scene()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glTranslatef(0.0f, 0.0f, -15.0f);
+	glTranslatef( 0.0, 0.0, -17.0f);
 	glScalef(1.0f, -1.0f, 1.0f);
 
 	glPushMatrix();
 	static float trans;
 	glTranslatef(trans += ANIM_BACKG_SPEED * ratio * backdir, 0.0f, 0.0f);
-	float skalar = 7.0f;
+	float skalar = 7.5f;
 	DrawQuadTexture(
 	    0.0f, 0.0f,
 	    4.0f * skalar, 3.0f * skalar, -0.1f,
 	    texturki[TEX_BACKG] );
 	glPopMatrix();
+
+	glPushMatrix();
+	if (anim_player.active)
+		glTranslatef(
+		    -(float)anim_player.x + 7.5f,
+		    -(float)anim_player.y + 7.5f,
+		    -0.0f);
+	else
+		glTranslatef(
+		    -(float)map_player.x + 7.5f,
+		    -(float)map_player.y + 7.5f,
+		    -0.0f);
 
 	// Draw map
 	for (int i = 0; i < 16; i++)
@@ -310,18 +326,6 @@ static void Scene()
 		    texturki[TEX_PLAYER]
 		);
 
-	string scores = "Score: ";
-	stringstream ss;
-	ss << scores << score;
-	string result = ss.str();
-	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
-	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
-	DrawQuadTexture(
-	    10.0f, -7.5f,
-	    3.0f, 1.0f, 0.2f,
-	    texturki[TEX_SCORE]
-	);
-
 	if (win)
 	{
 		DrawQuadTexture(
@@ -330,6 +334,26 @@ static void Scene()
 		    texturki[TEX_WIN]
 		);
 	}
+
+	glPopMatrix();
+
+	string scores = "Score: ";
+	stringstream ss;
+	ss << scores << score;
+	string result = ss.str();
+	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
+	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
+	DrawQuadRGBA(
+	    10.0f, -7.5f,
+	    3.5f, 1.5f,
+	    78, 158, 116, 0.6,
+	    1.1f
+	);
+	DrawQuadTexture(
+	    10.0f, -7.5f,
+	    3.0f, 1.0f, 1.2f,
+	    texturki[TEX_SCORE]
+	);
 
 	glDisable(GL_BLEND);
 
@@ -344,7 +368,7 @@ int main(int argc, char **argv, char **envp)
 	UNUSED(envp);
 
 	// Init SDL.
-	if (!InitSDL())
+	if (!InitSDL(FULSCREEN, WIDTH, HEIGHT))
 		return 1;
 
 	// Init OpenGL.
@@ -433,7 +457,8 @@ static bool InitSDL(bool fullscreen, int width, int height)
 
 	surface = SDL_SetVideoMode(
 	              screen_width, screen_height,
-	              screen_bpp, screen_flag);
+	              screen_bpp, screen_flag
+	          );
 
 	if (surface == NULL)
 		goto err;

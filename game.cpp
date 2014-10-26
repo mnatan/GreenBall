@@ -35,7 +35,7 @@ using namespace std;
 #define TEX_BACKG   4
 #define TEX_GEM     5
 #define TEX_SCORE   6
-#define TEX_WIN		7
+#define TEX_WIN     7
 
 #define MAP_NONE    -1
 #define MAP_WALL    0
@@ -103,9 +103,12 @@ static bool InitOpenGL();
 
 unsigned int ImgToTexture(const char *filename);
 unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
-void DrawQuad(float x, float y, float w, float h);
-void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a);
-void DrawQuadTexture(float x, float y, float w, float h, unsigned int texture_id);
+void DrawQuad(float x, float y, float w, float h, float d);
+void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a, float d);
+void DrawQuadTexture(float x, float y, float w, float h, float d, unsigned int texture_id);
+void DrawCube(float x, float y, float d, float a);
+void DrawCubeTexture(float x, float y, float d, float a, unsigned int texture_id);
+
 bool LoadMap(const char *filename);
 
 static bool Events();
@@ -205,7 +208,7 @@ static void Logic()
 			{
 				kamienie.erase(gem);
 				score += 1;
-				if(kamienie.empty())
+				if (kamienie.empty())
 					win = true;
 			}
 		}
@@ -241,7 +244,7 @@ static void Scene()
 	float skalar = 7.0f;
 	DrawQuadTexture(
 	    0.0f, 0.0f,
-	    4.0f * skalar, 3.0f * skalar,
+	    4.0f * skalar, 3.0f * skalar, -0.1f,
 	    texturki[TEX_BACKG] );
 	glPopMatrix();
 
@@ -252,11 +255,23 @@ static void Scene()
 		{
 			if (map[i][j] != MAP_NONE)
 			{
-				DrawQuadTexture(
-				    (float)i - 7.5f, (float)j - 7.5f,
-				    1.0f, 1.0f,
-				    texturki[map[i][j]]
-				);
+				if (map[i][j] == MAP_WALL)
+				{
+					glPushMatrix();
+					//glTranslatef(0.0f, 0.0f, 1.2f);
+					DrawCubeTexture(
+					    (float)i - 7.5f, (float)j - 7.5f, 0.5f,
+					    1.0f,
+					    texturki[TEX_WALL]
+					);
+					glPopMatrix();
+				}
+				else
+					DrawQuadTexture(
+					    (float)i - 7.5f, (float)j - 7.5f,
+					    1.0f, 1.0f, 0.0f,
+					    texturki[map[i][j]]
+					);
 			}
 		}
 	}
@@ -268,23 +283,30 @@ static void Scene()
 	size_t s = kamienie.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
+		glPushMatrix();
+		static float rot;
+		glTranslatef((float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f, 0.5f);
+		glRotatef(rot += 10.0f * ratio, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-(float)kamienie[i].x + 7.5f, -(float)kamienie[i].y + 7.5f, -0.5f);
+		//glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
 		DrawQuadTexture(
 		    (float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f,
-		    1.0f, 1.0f,
+		    1.0f, 1.0f, 0.5f,
 		    texturki[TEX_GEM]
 		);
+		glPopMatrix();
 	}
 
 	if (anim_player.active)
 		DrawQuadTexture(
 		    (float)anim_player.x - 7.5f, (float)anim_player.y - 7.5f,
-		    1.0f, 1.0f,
+		    1.0f, 1.0f, 0.5f,
 		    texturki[TEX_PLAYER]
 		);
 	else
 		DrawQuadTexture(
 		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f,
-		    1.0f, 1.0f,
+		    1.0f, 1.0f, 0.5f,
 		    texturki[TEX_PLAYER]
 		);
 
@@ -296,16 +318,17 @@ static void Scene()
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
 	DrawQuadTexture(
 	    10.0f, -7.5f,
-	    3.0f, 1.0f,
+	    3.0f, 1.0f, 0.2f,
 	    texturki[TEX_SCORE]
 	);
 
-	if(win){
-	DrawQuadTexture(
-	    0.0f, 0.0f,
-	    7.0f, 2.0f,
-	    texturki[TEX_WIN]
-	);
+	if (win)
+	{
+		DrawQuadTexture(
+		    0.0f, 0.0f,
+		    7.0f, 2.0f, 1.5f,
+		    texturki[TEX_WIN]
+		);
 	}
 
 	glDisable(GL_BLEND);
@@ -356,7 +379,7 @@ int main(int argc, char **argv, char **envp)
 	f_time = (float)last_time / 1000.0f;
 
 	//ImgToTexture( "background.jpg" );
-	LoadMap("map1.txt");
+	LoadMap("maps/map1.txt");
 
 	for (;;)
 	{
@@ -435,7 +458,8 @@ static bool InitOpenGL()
 	glLoadIdentity( );
 	gluPerspective( 60.0, ratio, 1.0, 1024.0 );
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glDisable(GL_DEPTH_TEST); // uncomment this if going 2D
+	//glDisable(GL_DEPTH_TEST); // uncomment this if going 2D
+	glEnable(GL_DEPTH_TEST);
 
 	//  A pointer to a font style..
 	//  Fonts supported by GLUT are: GLUT_BITMAP_8_BY_13,
@@ -579,36 +603,77 @@ unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id)
 	// Done
 	return texture_id + 1;
 }
-void DrawQuad(float x, float y, float w, float h)
+void DrawCube(float x, float y, float d, float a)
 {
-	w /= 2.0f;
-	h /= 2.0f;
+	a /= 2.0f;
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex2f(x - w, y - h);
+	glVertex3f(x + a, y + a, d + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex2f(x + w, y - h);
+	glVertex3f(x + a, y + -a, d + a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex2f(x + w, y + h);
+	glVertex3f(x + -a, y + -a, d + a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex2f(x - w, y + h);
+	glVertex3f(x + -a, y + a, d + a);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x + a, y + a, d + -a);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + a, y + -a, d + -a);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + -a, y + -a, d + -a);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x + -a, y + a, d + -a);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x + a, y + a, d + a);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + a, y + -a, d + a);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + a, y + -a, d + -a);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x + a, y + a, d + -a);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x + a, y + -a, d + a);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + a, y + -a, d + -a);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + -a, y + -a, d + -a);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x + -a, y + -a, d + a);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x + -a, y + a, d + a);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + -a, y + -a, d + a);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + -a, y + -a, d + -a);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x + -a, y + a, d + -a);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x + a, y + a, d + a);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + a, y + a, d + -a);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + -a, y + a, d + -a);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x + -a, y + a, d + a);
 	glEnd();
 }
-void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a)
-{
-	// Get old color.
-	float current_color[4];
-	glGetFloatv(GL_CURRENT_COLOR, current_color);
-
-	// Set new color and draw quad.
-	glColor4f(r, g, b, a);
-	DrawQuad(x, y, w, h);
-
-	// Set old color.
-	glColor4fv(current_color);
-}
-void DrawQuadTexture(float x, float y, float w, float h, unsigned int texture_id)
+void DrawCubeTexture(float x, float y, float d, float a, unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -617,9 +682,53 @@ void DrawQuadTexture(float x, float y, float w, float h, unsigned int texture_id
 
 	// Bind texture and draw.
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	DrawQuad(x, y, w, h);
+	DrawCube(x, y, d, a);
 
-	// Disable if was disable.
+	// Disable if was disabled.
+	if (!texturing_enabled)
+		glDisable(GL_TEXTURE_2D);
+}
+void DrawQuad(float x, float y, float w, float h, float d)
+{
+	w /= 2.0f;
+	h /= 2.0f;
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(x - w, y - h, d);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(x + w, y - h, d);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(x + w, y + h, d);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(x - w, y + h, d);
+	glEnd();
+}
+void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a, float d)
+{
+	// Get old color.
+	float current_color[4];
+	glGetFloatv(GL_CURRENT_COLOR, current_color);
+
+	// Set new color and draw quad.
+	glColor4f(r, g, b, a);
+	DrawQuad(x, y, w, h, d);
+
+	// Set old color.
+	glColor4fv(current_color);
+}
+void DrawQuadTexture(float x, float y, float w, float h, float d, unsigned int texture_id)
+{
+	// Enable texturing if needed.
+	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
+	if (!texturing_enabled)
+		glEnable(GL_TEXTURE_2D);
+
+	// Bind texture and draw.
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	DrawQuad(x, y, w, h, d);
+
+	// Disable if was disabled.
 	if (!texturing_enabled)
 		glDisable(GL_TEXTURE_2D);
 }

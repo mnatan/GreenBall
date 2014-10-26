@@ -44,7 +44,7 @@ using namespace std;
 #define MAP_PLAYER  3
 #define MAP_BACKG   4
 
-#define ANIM_PLAYER_TIME    0.05f
+#define ANIM_PLAYER_TIME    0.1f
 #define ANIM_BACKG_TIME     10.0f
 #define ANIM_BACKG_SPEED    0.1f
 
@@ -248,6 +248,52 @@ static void Scene()
 	    texturki[TEX_BACKG] );
 	glPopMatrix();
 
+	// draw statics
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	if (win)
+	{
+		DrawQuadTexture(
+		    0.0f, 0.0f,
+		    7.0f, 2.0f, 1.5f,
+		    texturki[TEX_WIN]
+		);
+	}
+
+	string scores = "Score: ";
+	stringstream ss;
+	ss << scores << score;
+	string result = ss.str();
+	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
+	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
+
+	DrawQuadTexture(
+	    9.0f, -7.5f,
+	    3.0f, 1.0f, 0.2f,
+	    texturki[TEX_SCORE]
+	);
+
+	if (anim_player.active)
+	{
+		DrawQuadTexture(
+		    0.0, 0.0,
+		    1.0f, 1.0f, 0.5f,
+		    texturki[TEX_PLAYER]
+		);
+		glTranslatef( -(float)anim_player.x + 7.5f, -(float)anim_player.y + 7.5f, 0.0f);
+	}
+	else
+	{
+		DrawQuadTexture(
+		    0.0, 0.0,
+		    1.0f, 1.0f, 0.5f,
+		    texturki[TEX_PLAYER]
+		);
+		glTranslatef( -(float)map_player.x + 7.5f, -(float)map_player.y + 7.5f, 0.0f);
+	}
+
+	glDisable(GL_BLEND);
+
 	// Draw map
 	for (int i = 0; i < 16; i++)
 	{
@@ -276,10 +322,6 @@ static void Scene()
 		}
 	}
 
-	// draw player
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-
 	size_t s = kamienie.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
@@ -296,42 +338,6 @@ static void Scene()
 		);
 		glPopMatrix();
 	}
-
-	if (anim_player.active)
-		DrawQuadTexture(
-		    (float)anim_player.x - 7.5f, (float)anim_player.y - 7.5f,
-		    1.0f, 1.0f, 0.5f,
-		    texturki[TEX_PLAYER]
-		);
-	else
-		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f,
-		    1.0f, 1.0f, 0.5f,
-		    texturki[TEX_PLAYER]
-		);
-
-	string scores = "Score: ";
-	stringstream ss;
-	ss << scores << score;
-	string result = ss.str();
-	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
-	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
-	DrawQuadTexture(
-	    10.0f, -7.5f,
-	    3.0f, 1.0f, 0.2f,
-	    texturki[TEX_SCORE]
-	);
-
-	if (win)
-	{
-		DrawQuadTexture(
-		    0.0f, 0.0f,
-		    7.0f, 2.0f, 1.5f,
-		    texturki[TEX_WIN]
-		);
-	}
-
-	glDisable(GL_BLEND);
 
 	SDL_GL_SwapBuffers();
 }

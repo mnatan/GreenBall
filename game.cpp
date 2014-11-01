@@ -255,14 +255,14 @@ static void Scene()
 	glPushMatrix();
 	if (anim_player.active)
 		glTranslatef(
-		    -(float)anim_player.x + 7.5f,
-		    -(float)anim_player.y + 7.5f,
-		    -0.0f);
+			-(float)anim_player.x + 7.5f,
+			-(float)anim_player.y + 7.5f,
+			-0.0f);
 	else
 		glTranslatef(
-		    -(float)map_player.x + 7.5f,
-		    -(float)map_player.y + 7.5f,
-		    -0.0f);
+			-(float)map_player.x + 7.5f,
+			-(float)map_player.y + 7.5f,
+			-0.0f);
 
 	// Draw map
 	for (int i = 0; i < 16; i++)

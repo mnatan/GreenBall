@@ -258,9 +258,9 @@ static void Scene()
 		    -0.0f);
 
 	// Draw map
-	for (int i = 0; i < map_width; i++)
+	for (int i = 0; i < map_height; i++)
 	{
-		for (int j = 0; j < map_height; j++)
+		for (int j = 0; j < map_width; j++)
 		{
 			if (map[i][j] != MAP_NONE)
 			{
@@ -787,15 +787,17 @@ bool LoadMap(const char *filename)
 		fprintf(stderr, "error: could not open file: \"%s\"\n", filename);
 		return false;
 	}
-	fscanf(f, "%d", &map_width);
 	fscanf(f, "%d", &map_height);
+	fscanf(f, "%d", &map_width);
 	std::cout << "width: " << map_width << std::endl;
 	std::cout << "height: " << map_height << std::endl;
 	char line[64];
 	fgets(line, sizeof(line), f);
-	map = new int* [map_width];
-	for (int i = 0; i < map_width ; i++)
-		map[i] = new int[map_height];
+
+	map = new int* [map_height];
+	for (int i = 0; i < map_height ; i++)
+		map[i] = new int[map_width];
+
 	for (int i = 0; i < map_width; i++)
 	{
 		for (int j = 0; j < map_height; j++)

@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #include <GL/glut.h>
 
@@ -23,70 +24,41 @@
 #  undef main
 #endif
 
-using namespace std;
+#include "define.cpp"
+#include "game.h"
 
-// Macros.
-#define UNUSED(a) ((void)(a))
-
-#define FULSCREEN   false
-#define WIDTH       860
-#define HEIGHT      640
-
-#define TEX_WALL    0
-#define TEX_FLOOR   1
-#define TEX_STONE   2
-#define TEX_PLAYER  3
-#define TEX_BACKG   4
-#define TEX_GEM     5
-#define TEX_SCORE   6
-#define TEX_WIN     7
-
-#define MAP_NONE    -1
-#define MAP_WALL    0
-#define MAP_FLOOR   1
-#define MAP_STONE   2
-#define MAP_PLAYER  3
-#define MAP_BACKG   4
-
-#define ANIM_PLAYER_TIME    0.1f
-#define ANIM_BACKG_TIME     10.0f
-#define ANIM_BACKG_SPEED    0.1f
+//using namespace std;
 
 // Globals.
 bool win = false;
+bool fail = false;
+int score = 0;
+
 static int screen_width;
 static int screen_height;
 bool keys[SDLK_LAST];
+
 float ratio;
 float f_time;
 float backdir = 1.0f;
 float background_start_time;
+
 unsigned int texturki[10];
-int map[16][16];
-int score = 0;
+int map_width;
+int map_height;
+int **map;
+std::vector<gem> kamienie;
+
+SDL_Color redFont = {255, 0, 0, 0};
+SDL_Color greenFont = {0, 255, 0, 0};
+SDL_Color blueFont = {0, 0, 255, 0};
 SDL_Surface *scoresurf;
-SDL_Color blueFont = {0, 0, 255, 0}; // Blue ("Fg" is foreground)
 TTF_Font *fontKomoda;
 
-// Strukturki
 struct player_st
 {
 	int x, y;
 } map_player;
-
-struct anim
-{
-	bool active;
-
-	//intput
-	float x_s, y_s; //start pos
-	float x_e, y_e; //end pos
-	float t_s, t_e; //start/end time
-
-	//output
-	float x, y; //w czasie t
-} anim_player;
-
 struct gem
 {
 	int x, y;
@@ -99,30 +71,34 @@ struct gem
 	}
 };
 
-vector<gem> kamienie;
+struct anim_move_pl
+{
+	bool active;
 
-// Functions.
-static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
-static bool InitOpenGL();
+	//intput
+	float x_s, y_s; //start pos
+	float x_e, y_e; //end pos
+	float t_s, t_e; //start/end time
 
-unsigned int ImgToTexture(const char *filename);
-unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
-void DrawQuad(float x, float y, float w, float h, float d);
-void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a, float d);
-void DrawQuadTexture(float x, float y, float w, float h, float d, unsigned int texture_id);
-void DrawCube(float x, float y, float d, float a);
-void DrawCubeTexture(float x, float y, float d, float a, unsigned int texture_id);
+	//output
+	float x, y; //w czasie t
+} anim_player_move;
+struct anim_fall_pl
+{
+	bool active;
 
-bool LoadMap(const char *filename);
+	//intput
+	float t_s, t_e; //start/end time
+	float z_s;
+	float z_e;
 
-static bool Events();
-static void Logic();
-static void Scene();
+	//output
+	float z; //w czasie t
+} anim_player_fall;
 
-static bool AnimUpdate(anim *a);
-vector<gem>::iterator getGemByXY(int x, int y);
 
-// Events
+// Functions
+
 static bool Events()
 {
 	SDL_Event ev;
@@ -150,33 +126,48 @@ static bool Events()
 	return true;
 }
 
-// Logic
 static void Logic()
 {
 	int p_dx = 0;
 	int p_dy = 0;
 
-	if (!anim_player.active)
+	if (!anim_player_move.active)
 	{
-		if (keys[SDLK_UP])
+		if (map[map_player.x][map_player.y] == MAP_NONE)
 		{
-			p_dy = -1;
-			keys[SDLK_UP] = false;
+			if (!fail)
+			{
+				fail = true;
+
+				anim_player_fall.active = true;
+				anim_player_fall.t_s = f_time;
+				anim_player_fall.t_e = f_time + ANIM_PLAYER_TIME_FALL;
+				anim_player_fall.z_s = 0;
+				anim_player_fall.z_e = -21.0f;
+			}
 		}
-		else if (keys[SDLK_DOWN])
+		if (!fail)
 		{
-			p_dy = 1;
-			keys[SDLK_DOWN] = false;
-		}
-		else if (keys[SDLK_LEFT])
-		{
-			p_dx = -1;
-			keys[SDLK_LEFT] = false;
-		}
-		else if (keys[SDLK_RIGHT])
-		{
-			p_dx = 1;
-			keys[SDLK_RIGHT] = false;
+			if (keys[SDLK_UP])
+			{
+				p_dy = -1;
+				keys[SDLK_UP] = false;
+			}
+			else if (keys[SDLK_DOWN])
+			{
+				p_dy = 1;
+				keys[SDLK_DOWN] = false;
+			}
+			else if (keys[SDLK_LEFT])
+			{
+				p_dx = -1;
+				keys[SDLK_LEFT] = false;
+			}
+			else if (keys[SDLK_RIGHT])
+			{
+				p_dx = 1;
+				keys[SDLK_RIGHT] = false;
+			}
 		}
 	}
 
@@ -188,26 +179,25 @@ static void Logic()
 
 		bool moveok = true;
 
-		if ( map[p_nx][p_ny] == MAP_WALL ||
-		        map[p_nx][p_ny] == MAP_NONE)
+		if ( map[p_nx][p_ny] == MAP_WALL)
 		{
 			moveok = false;
 		}
 
 		if (moveok)
 		{
-			anim_player.active = true;
-			anim_player.t_s = f_time;
-			anim_player.t_e = f_time + ANIM_PLAYER_TIME;
-			anim_player.x_s = (float)map_player.x;
-			anim_player.y_s = (float)map_player.y;
-			anim_player.x_e = (float)p_nx;
-			anim_player.y_e = (float)p_ny;
+			anim_player_move.active = true;
+			anim_player_move.t_s = f_time;
+			anim_player_move.t_e = f_time + ANIM_PLAYER_TIME;
+			anim_player_move.x_s = (float)map_player.x;
+			anim_player_move.y_s = (float)map_player.y;
+			anim_player_move.x_e = (float)p_nx;
+			anim_player_move.y_e = (float)p_ny;
 
 			map_player.x = p_nx;
 			map_player.y = p_ny;
 
-			vector<gem>::iterator gem = getGemByXY( map_player.x, map_player.y);
+			std::vector<gem>::iterator gem = getGemByXY( map_player.x, map_player.y);
 			if ( gem != kamienie.end())
 			{
 				kamienie.erase(gem);
@@ -217,22 +207,16 @@ static void Logic()
 			}
 		}
 	}
-	if (anim_player.active)
+	if (anim_player_move.active)
 	{
-		anim_player.active = AnimUpdate(&anim_player);
+		anim_player_move.active = AnimUpdate(&anim_player_move);
 	}
-	// animacja tła - czasowo lewo prawo
-	if (f_time - background_start_time > ANIM_BACKG_TIME)
+	if (anim_player_fall.active)
 	{
-		if (backdir == 1.0f)
-			backdir = -1.0f;
-		else
-			backdir = 1.0f;
-		background_start_time = f_time;
+		anim_player_fall.active = AnimUpdate2(&anim_player_fall);
 	}
 }
 
-// Scene
 static void Scene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -242,57 +226,75 @@ static void Scene()
 	glTranslatef( 0.0, 0.0, -17.0f);
 	glScalef(1.0f, -1.0f, 1.0f);
 
+	// animacja tła - czasowo lewo prawo
+	if (f_time - background_start_time > ANIM_BACKG_TIME)
+	{
+		if (backdir == 1.0f)
+			backdir = -1.0f;
+		else
+			backdir = 1.0f;
+		background_start_time = f_time;
+	}
 	glPushMatrix();
 	static float trans;
 	glTranslatef(trans += ANIM_BACKG_SPEED * ratio * backdir, 0.0f, 0.0f);
-	float skalar = 7.5f;
+	float skalar = 16.5f;
 	DrawQuadTexture(
-	    0.0f, 0.0f,
-	    4.0f * skalar, 3.0f * skalar, -0.1f,
+	    0.0f, 0.0f, -20.1f,
+	    4.0f * skalar, 3.0f * skalar,
 	    texturki[TEX_BACKG] );
 	glPopMatrix();
 
 	glPushMatrix();
-	if (anim_player.active)
+	if (anim_player_move.active)
 		glTranslatef(
-			-(float)anim_player.x + 7.5f,
-			-(float)anim_player.y + 7.5f,
-			-0.0f);
+		    -(float)anim_player_move.x + 7.5f,
+		    -(float)anim_player_move.y + 7.5f,
+		    -0.0f);
 	else
 		glTranslatef(
-			-(float)map_player.x + 7.5f,
-			-(float)map_player.y + 7.5f,
-			-0.0f);
+		    -(float)map_player.x + 7.5f,
+		    -(float)map_player.y + 7.5f,
+		    -0.0f);
 
 	// Draw map
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < map_width; i++)
 	{
-		for (int j = 0; j < 16; j++)
+		for (int j = 0; j < map_height; j++)
 		{
 			if (map[i][j] != MAP_NONE)
 			{
 				if (map[i][j] == MAP_WALL)
 				{
-					glPushMatrix();
-					//glTranslatef(0.0f, 0.0f, 1.2f);
 					DrawCubeTexture(
 					    (float)i - 7.5f, (float)j - 7.5f, 0.5f,
 					    1.0f,
 					    texturki[TEX_WALL]
 					);
-					glPopMatrix();
+					DrawCubeTexture(
+					    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+					    1.0f,
+					    texturki[TEX_FLOOR]
+					);
+				}
+				else if (map[i][j] == MAP_FLOOR)
+				{
+					DrawCubeTexture(
+					    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+					    1.0f,
+					    texturki[TEX_FLOOR]
+					);
 				}
 				else
 					DrawQuadTexture(
-					    (float)i - 7.5f, (float)j - 7.5f,
-					    1.0f, 1.0f, 0.0f,
+					    (float)i - 7.5f, (float)j - 7.5f, 0.0f,
+					    1.0f, 1.0f,
 					    texturki[map[i][j]]
 					);
 			}
 		}
 	}
 
-	// draw player
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
@@ -306,52 +308,66 @@ static void Scene()
 		glTranslatef(-(float)kamienie[i].x + 7.5f, -(float)kamienie[i].y + 7.5f, -0.5f);
 		//glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
 		DrawQuadTexture(
-		    (float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f,
-		    1.0f, 1.0f, 0.5f,
+		    (float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f, 0.5f,
+		    1.0f, 1.0f,
 		    texturki[TEX_GEM]
 		);
 		glPopMatrix();
 	}
 
-	if (anim_player.active)
+	// draw player
+	if (anim_player_move.active)
 		DrawQuadTexture(
-		    (float)anim_player.x - 7.5f, (float)anim_player.y - 7.5f,
-		    1.0f, 1.0f, 0.5f,
+		    (float)anim_player_move.x - 7.5f, (float)anim_player_move.y - 7.5f, 0.5f,
+		    1.0f, 1.0f,
+		    texturki[TEX_PLAYER]
+		);
+	else if (fail)
+		DrawQuadTexture(
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, anim_player_fall.z,
+		    1.0f, 1.0f,
 		    texturki[TEX_PLAYER]
 		);
 	else
 		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f,
-		    1.0f, 1.0f, 0.5f,
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 0.5f,
+		    1.0f, 1.0f,
 		    texturki[TEX_PLAYER]
 		);
 
 	if (win)
 	{
 		DrawQuadTexture(
-		    0.0f, 0.0f,
-		    7.0f, 2.0f, 1.5f,
+		    0.0f, 0.0f, 1.5f,
+		    7.0f, 2.0f,
 		    texturki[TEX_WIN]
+		);
+	}
+	if (fail)
+	{
+		DrawQuadTexture(
+		    0.0f, 0.0f, 1.5f,
+		    7.0f, 2.0f,
+		    texturki[TEX_FAIL]
 		);
 	}
 
 	glPopMatrix();
 
-	string scores = "Score: ";
-	stringstream ss;
+	std::string scores = "Score: ";
+	std::stringstream ss;
 	ss << scores << score;
-	string result = ss.str();
+	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
 	DrawQuadRGBA(
-	    10.0f, -7.5f,
+	    10.0f, -7.5f, 1.1f,
 	    3.5f, 1.5f,
-	    78, 158, 116, 0.6,
-	    1.1f
+	    78, 158, 116, 0.6
 	);
 	DrawQuadTexture(
-	    10.0f, -7.5f,
-	    3.0f, 1.0f, 1.2f,
+	    10.0f, -7.5f, 1.2f,
+	    3.0f, 1.0f,
 	    texturki[TEX_SCORE]
 	);
 
@@ -393,6 +409,7 @@ int main(int argc, char **argv, char **envp)
 
 	// z jakiegoś powodu musi być po score !! FIXME
 	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
+	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
 
 	fontKomoda = TTF_OpenFont( "font/Komoda.ttf" , 35 );
 
@@ -426,6 +443,8 @@ int main(int argc, char **argv, char **envp)
 	SDL_Quit();
 	return 0;
 }
+
+
 
 static bool InitSDL(bool fullscreen, int width, int height)
 {
@@ -628,77 +647,78 @@ unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id)
 	// Done
 	return texture_id + 1;
 }
-void DrawCube(float x, float y, float d, float a)
+
+void DrawCube(float x, float y, float z, float a)
 {
 	a /= 2.0f;
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + a, y + a, d + a);
+	glVertex3f(x + a, y + a, z + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + a, y + -a, d + a);
+	glVertex3f(x + a, y + -a, z + a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + -a, y + -a, d + a);
+	glVertex3f(x + -a, y + -a, z + a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + -a, y + a, d + a);
+	glVertex3f(x + -a, y + a, z + a);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + a, y + a, d + -a);
+	glVertex3f(x + a, y + a, z + -a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + a, y + -a, d + -a);
+	glVertex3f(x + a, y + -a, z + -a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + -a, y + -a, d + -a);
+	glVertex3f(x + -a, y + -a, z + -a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + -a, y + a, d + -a);
+	glVertex3f(x + -a, y + a, z + -a);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + a, y + a, d + a);
+	glVertex3f(x + a, y + a, z + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + a, y + -a, d + a);
+	glVertex3f(x + a, y + -a, z + a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + a, y + -a, d + -a);
+	glVertex3f(x + a, y + -a, z + -a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + a, y + a, d + -a);
+	glVertex3f(x + a, y + a, z + -a);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + a, y + -a, d + a);
+	glVertex3f(x + a, y + -a, z + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + a, y + -a, d + -a);
+	glVertex3f(x + a, y + -a, z + -a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + -a, y + -a, d + -a);
+	glVertex3f(x + -a, y + -a, z + -a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + -a, y + -a, d + a);
+	glVertex3f(x + -a, y + -a, z + a);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + -a, y + a, d + a);
+	glVertex3f(x + -a, y + a, z + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + -a, y + -a, d + a);
+	glVertex3f(x + -a, y + -a, z + a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + -a, y + -a, d + -a);
+	glVertex3f(x + -a, y + -a, z + -a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + -a, y + a, d + -a);
+	glVertex3f(x + -a, y + a, z + -a);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x + a, y + a, d + a);
+	glVertex3f(x + a, y + a, z + a);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + a, y + a, d + -a);
+	glVertex3f(x + a, y + a, z + -a);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + -a, y + a, d + -a);
+	glVertex3f(x + -a, y + a, z + -a);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x + -a, y + a, d + a);
+	glVertex3f(x + -a, y + a, z + a);
 	glEnd();
 }
-void DrawCubeTexture(float x, float y, float d, float a, unsigned int texture_id)
+void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -707,29 +727,30 @@ void DrawCubeTexture(float x, float y, float d, float a, unsigned int texture_id
 
 	// Bind texture and draw.
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	DrawCube(x, y, d, a);
+	DrawCube(x, y, z, a);
 
 	// Disable if was disabled.
 	if (!texturing_enabled)
 		glDisable(GL_TEXTURE_2D);
 }
-void DrawQuad(float x, float y, float w, float h, float d)
+
+void DrawQuad(float x, float y, float z, float w, float h)
 {
 	w /= 2.0f;
 	h /= 2.0f;
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(x - w, y - h, d);
+	glVertex3f(x - w, y - h, z);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(x + w, y - h, d);
+	glVertex3f(x + w, y - h, z);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(x + w, y + h, d);
+	glVertex3f(x + w, y + h, z);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(x - w, y + h, d);
+	glVertex3f(x - w, y + h, z);
 	glEnd();
 }
-void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b, float a, float d)
+void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g, float b, float a)
 {
 	// Get old color.
 	float current_color[4];
@@ -737,12 +758,12 @@ void DrawQuadRGBA(float x, float y, float w, float h, float r, float g, float b,
 
 	// Set new color and draw quad.
 	glColor4f(r, g, b, a);
-	DrawQuad(x, y, w, h, d);
+	DrawQuad(x, y, z, w, h);
 
 	// Set old color.
 	glColor4fv(current_color);
 }
-void DrawQuadTexture(float x, float y, float w, float h, float d, unsigned int texture_id)
+void DrawQuadTexture(float x, float y, float z, float w, float h, unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -751,31 +772,39 @@ void DrawQuadTexture(float x, float y, float w, float h, float d, unsigned int t
 
 	// Bind texture and draw.
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	DrawQuad(x, y, w, h, d);
+	DrawQuad(x, y, z, w, h);
 
 	// Disable if was disabled.
 	if (!texturing_enabled)
 		glDisable(GL_TEXTURE_2D);
 }
+
 bool LoadMap(const char *filename)
 {
-	for (int i = 0; i < 16; i++)
-	{
-		for (int j = 0; j < 16; j++)
-		{
-			map[i][j] = -1;
-		}
-	}
-
 	FILE *f = fopen(filename, "r");
 	if (!f)
 	{
 		fprintf(stderr, "error: could not open file: \"%s\"\n", filename);
 		return false;
 	}
-	for (int i = 0; i < 16; i++)
+	fscanf(f, "%d", &map_width);
+	fscanf(f, "%d", &map_height);
+	std::cout << "width: " << map_width << std::endl;
+	std::cout << "height: " << map_height << std::endl;
+	char line[64];
+	fgets(line, sizeof(line), f);
+	map = new int* [map_width];
+	for (int i = 0; i < map_width ; i++)
+		map[i] = new int[map_height];
+	for (int i = 0; i < map_width; i++)
 	{
-		char line[64];
+		for (int j = 0; j < map_height; j++)
+		{
+			map[i][j] = -1;
+		}
+	}
+	for (int i = 0; i < map_width; i++)
+	{
 		fgets(line, sizeof(line), f);
 		if (feof(f))
 		{
@@ -783,7 +812,7 @@ bool LoadMap(const char *filename)
 			fclose(f);
 			return false;
 		}
-		for (int j = 0; j < 16; j++)
+		for (int j = 0; j < map_height; j++)
 		{
 			switch ( line[j] )
 			{
@@ -816,7 +845,7 @@ bool LoadMap(const char *filename)
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
 	return true;
 }
-static bool AnimUpdate(anim *a)
+static bool AnimUpdate(anim_move_pl *a)
 {
 	if (!a->active)
 		return false;
@@ -833,10 +862,25 @@ static bool AnimUpdate(anim *a)
 
 	return true;
 }
-vector<gem>::iterator getGemByXY(int x, int y)
+static bool AnimUpdate2(anim_fall_pl *a)
 {
-	vector<gem>::iterator s = kamienie.end();
-	for ( vector<gem>::iterator i = kamienie.begin() ; i < s; i++)
+	if (!a->active)
+		return false;
+
+	if (f_time >= a->t_e)
+		return false;
+
+	float d = (f_time - a->t_s) / (a->t_e - a->t_s);
+	float dz = a->z_e - a->z_s;
+
+	a->z = a->z_s + d * dz;
+
+	return true;
+}
+std::vector<gem>::iterator getGemByXY(int x, int y)
+{
+	std::vector<gem>::iterator s = kamienie.end();
+	for ( std::vector<gem>::iterator i = kamienie.begin() ; i < s; i++)
 	{
 		if ( i->x == x &&
 		        i->y == y)

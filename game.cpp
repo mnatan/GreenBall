@@ -203,7 +203,10 @@ static void Logic()
 				kamienie.erase(gem);
 				score += 1;
 				if (kamienie.empty())
+				{
 					win = true;
+
+				}
 			}
 		}
 	}
@@ -338,7 +341,7 @@ static void Scene()
 	if (win)
 	{
 		DrawQuadTexture(
-		    0.0f, 0.0f, 1.5f,
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.5f,
 		    7.0f, 2.0f,
 		    texturki[TEX_WIN]
 		);
@@ -346,7 +349,7 @@ static void Scene()
 	if (fail)
 	{
 		DrawQuadTexture(
-		    0.0f, 0.0f, 1.5f,
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.5f,
 		    7.0f, 2.0f,
 		    texturki[TEX_FAIL]
 		);

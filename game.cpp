@@ -9,6 +9,8 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 
 #include <GL/glut.h>
 
@@ -32,7 +34,11 @@
 // Globals.
 bool win = false;
 bool fail = false;
+bool game_complete = false;
 int score = 0;
+
+float win_countdown;
+unsigned int level = 0;
 
 static int screen_width;
 static int screen_height;
@@ -48,6 +54,7 @@ int map_width;
 int map_height;
 int **map;
 std::vector<gem> kamienie;
+std::vector<blinker> blinkery;
 
 SDL_Color redFont = {255, 0, 0, 0};
 SDL_Color greenFont = {0, 255, 0, 0};
@@ -67,6 +74,29 @@ struct gem
 	static struct gem mk(int x, int y)
 	{
 		gem g = {x, y};
+		return g;
+	}
+};
+struct blinker
+{
+	int x, y, z;
+	float time_dead;
+	float time_alive;
+
+	float next_switch;
+	int state; // 1-jest, 2-zmiana, 3-nie ma, 4-zmiana
+	float anim_start;
+	float anim_end;
+
+	float curr_d;
+
+	//lolwut fabryka?
+	static struct blinker mk(int x, int y, int z, float time_dead, float time_alive)
+	{
+		blinker g = {x, y, z, time_dead, time_alive};
+		g.next_switch = f_time + time_alive;
+		g.state = 1;
+		g.curr_d = 1;
 		return g;
 	}
 };
@@ -96,7 +126,6 @@ struct anim_fall_pl
 	float z; //w czasie t
 } anim_player_fall;
 
-
 // Functions
 
 static bool Events()
@@ -120,6 +149,15 @@ static bool Events()
 
 		case SDL_QUIT:
 			return false;
+		}
+	}
+
+	if (win && win_countdown < f_time)
+	{
+		win = false;
+		if ( !LoadNextLevel() )
+		{
+			game_complete = true;
 		}
 	}
 
@@ -205,7 +243,7 @@ static void Logic()
 				if (kamienie.empty())
 				{
 					win = true;
-
+					win_countdown = f_time + WIN_WAIT_TIME;
 				}
 			}
 		}
@@ -265,7 +303,10 @@ static void Scene()
 	{
 		for (int j = 0; j < map_width; j++)
 		{
-			if (map[i][j] != MAP_NONE)
+			if (
+			    map[i][j] != MAP_NONE &&
+			    map[i][j] != MAP_BLINKER
+			)
 			{
 				if (map[i][j] == MAP_WALL)
 				{
@@ -301,7 +342,18 @@ static void Scene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	size_t s = kamienie.size();
+	size_t s = blinkery.size();
+	for (size_t i = 0 ; i < s; i++)
+	{
+		UpdateBlinker(i);
+		DrawCubeTexture(
+		    (float)blinkery[i].x - 7.5f, (float)blinkery[i].y - 7.5f, (float)blinkery[i].z - 0.5f,
+		    blinkery[i].curr_d,
+		    texturki[TEX_FLOOR]
+		);
+	}
+
+	s = kamienie.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
 		glPushMatrix();
@@ -343,15 +395,23 @@ static void Scene()
 		DrawQuadTexture(
 		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.5f,
 		    7.0f, 2.0f,
-		    texturki[TEX_WIN]
+		    texturki[TEX_LVLCMP]
 		);
 	}
 	if (fail)
 	{
 		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.5f,
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.6f,
 		    7.0f, 2.0f,
 		    texturki[TEX_FAIL]
+		);
+	}
+	if (game_complete)
+	{
+		DrawQuadTexture(
+		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.7f,
+		    7.0f, 2.0f,
+		    texturki[TEX_WIN]
 		);
 	}
 
@@ -360,6 +420,9 @@ static void Scene()
 	std::string scores = "Score: ";
 	std::stringstream ss;
 	ss << scores << score;
+	//std::string scores = "delta: ";
+	//std::stringstream ss;
+	//ss << scores << blinkery[0].curr_d;
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
@@ -385,6 +448,8 @@ int main(int argc, char **argv, char **envp)
 	UNUSED(argc);
 	UNUSED(argv);
 	UNUSED(envp);
+
+	srand(time(NULL));
 
 	// Init SDL.
 	if (!InitSDL(FULSCREEN, WIDTH, HEIGHT))
@@ -413,6 +478,7 @@ int main(int argc, char **argv, char **envp)
 	// z jakiegoś powodu musi być po score !! FIXME
 	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
 	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
+	texturki[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
 
 	fontKomoda = TTF_OpenFont( "font/Komoda.ttf" , 35 );
 
@@ -423,7 +489,8 @@ int main(int argc, char **argv, char **envp)
 	f_time = (float)last_time / 1000.0f;
 
 	//ImgToTexture( "background.jpg" );
-	LoadMap("maps/map1.txt");
+	//LoadMap("maps/map1.txt");
+	LoadNextLevel();
 
 	for (;;)
 	{
@@ -782,8 +849,16 @@ void DrawQuadTexture(float x, float y, float z, float w, float h, unsigned int t
 		glDisable(GL_TEXTURE_2D);
 }
 
+bool LoadNextLevel()
+{
+	level++;
+	char filename[256] = {0};
+	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
+	return LoadMap(filename);
+}
 bool LoadMap(const char *filename)
 {
+	blinkery.clear();
 	FILE *f = fopen(filename, "r");
 	if (!f)
 	{
@@ -792,8 +867,6 @@ bool LoadMap(const char *filename)
 	}
 	fscanf(f, "%d", &map_height);
 	fscanf(f, "%d", &map_width);
-	std::cout << "width: " << map_width << std::endl;
-	std::cout << "height: " << map_height << std::endl;
 	char line[64];
 	fgets(line, sizeof(line), f);
 
@@ -842,12 +915,68 @@ bool LoadMap(const char *filename)
 			case 'o':
 				map[j][i] = MAP_STONE;
 				break;
+			case 'b':
+				map[j][i] = MAP_NONE;
+				blinkery.push_back(blinker::mk(j, i, 0,
+				                               (float)((rand() % 2 ) + 1),
+				                               (float)((rand() % 2 ) + 1)
+				                              ));
+				break;
 			default:
 				fprintf(stderr, "error: unexpected char \"%c\" in %d %d: \"%s\"\n", line[j], i, j, filename);
 			}
 		}
 	}
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
+	return true;
+}
+static bool UpdateBlinker(size_t id)
+{
+	if (f_time > blinkery[id].next_switch)
+	{
+		if (blinkery[id].state == 1)
+		{
+			blinkery[id].state = 2;
+			blinkery[id].next_switch =  f_time + BLINK_FADE_TIME + blinkery[id].time_alive;
+			blinkery[id].anim_end =     f_time + BLINK_FADE_TIME;
+			blinkery[id].anim_start =   f_time;
+		}
+		else if (blinkery[id].state == 3)
+		{
+			blinkery[id].state = 4;
+			blinkery[id].next_switch =  f_time + BLINK_FADE_TIME + blinkery[id].time_alive;
+			blinkery[id].anim_end =     f_time + BLINK_FADE_TIME;
+			blinkery[id].anim_start =   f_time;
+			map[blinkery[id].x][blinkery[id].y] = MAP_BLINKER;
+		}
+	}
+	else if (blinkery[id].state == 2)
+	{
+		if (blinkery[id].anim_end < f_time)
+		{
+			blinkery[id].state = 3;
+			blinkery[id].curr_d = 0;
+			map[blinkery[id].x][blinkery[id].y] = MAP_NONE;
+		}
+		else
+		{
+			float delta = (f_time - blinkery[id].anim_start) / (blinkery[id].anim_end - blinkery[id].anim_start);
+			blinkery[id].curr_d = 1 - delta;
+		}
+	}
+	else if (blinkery[id].state == 4)
+	{
+		if (blinkery[id].anim_end < f_time)
+		{
+			blinkery[id].state = 1;
+			blinkery[id].curr_d = 1;
+		}
+		else
+		{
+			float delta = (f_time - blinkery[id].anim_start) / (blinkery[id].anim_end - blinkery[id].anim_start);
+			blinkery[id].curr_d = delta;
+		}
+	}
 	return true;
 }
 static bool AnimUpdate(anim_move_pl *a)

@@ -21,6 +21,8 @@ void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id
 
 bool LoadNextLevel();
 bool LoadMap(const char *filename);
+
+static bool UpdateBlinker(size_t id);
 static bool AnimUpdate(anim_move_pl *a);
 static bool AnimUpdate2(anim_fall_pl *a);
 std::vector<gem>::iterator getGemByXY(int x, int y);

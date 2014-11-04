@@ -1,10 +1,10 @@
-//
-// First testing game by Marcin Natanek
-// created using Mini Game Template Gynvael Coldwind
-//
-// win32: g++ game.cpp -Wall -pedantic -lSDL -lopengl32 -lglu32 -lSDL_image
-// linux: g++ game.cpp -Wall -pedantic -lSDL -lGL -lGLU -lSDL_image
-//
+/*
+ * First testing game by Marcin Natanek
+ * created using Mini Game Template Gynvael Coldwind
+ *
+ * win32: g++ game.cpp -Wall -pedantic -lSDL -lopengl32 -lglu32 -lSDL_image
+ * linux: g++ game.cpp -Wall -pedantic -lSDL -lGL -lGLU -lSDL_image
+ */
 
 #include <vector>
 #include <sstream>
@@ -49,12 +49,15 @@ float f_time;
 float backdir = 1.0f;
 float background_start_time;
 
-unsigned int texturki[10];
+unsigned int texturki[20];
 int map_width;
 int map_height;
 int **map;
 std::vector<gem> kamienie;
 std::vector<blinker> blinkery;
+std::vector<door> drzwi;
+std::vector<switcher> guziki;
+std::vector<box> pudelka;
 
 SDL_Color redFont = {255, 0, 0, 0};
 SDL_Color greenFont = {0, 255, 0, 0};
@@ -97,6 +100,43 @@ struct blinker
 		g.next_switch = f_time + time_alive;
 		g.state = 1;
 		g.curr_d = 1;
+		return g;
+	}
+};
+struct door
+{
+	int x, y, z;
+
+	bool closed;
+
+	static struct door mk(int x, int y, int z)
+	{
+		door g = {x, y, z};
+		g.closed = true;
+		return g;
+	}
+};
+struct switcher
+{
+	int x, y, z;
+
+	bool on;
+
+	static struct switcher mk(int x, int y, int z)
+	{
+		switcher g = {x, y, z};
+		g.on = false;
+		return g;
+	}
+};
+struct box
+{
+	int x, y, z;
+
+	//lolwut fabryka?
+	static struct box mk(int x, int y, int z)
+	{
+		box g = {x, y, z};
 		return g;
 	}
 };
@@ -267,6 +307,20 @@ static void Scene()
 	glTranslatef( 0.0, 0.0, -17.0f);
 	glScalef(1.0f, -1.0f, 1.0f);
 
+	/*
+	 *glPushMatrix();
+	 *static float rotat;
+	 *glTranslatef(9.5f, 7.5f, 0.0f);
+	 *glRotatef(rotat += 50000.0f * ratio, 0.5f, 1.0f, 0.3f);
+	 *glTranslatef(-9.5f, -7.5f, 0.0f);
+	 *DrawCubeTexture(
+	 *    9.5f, 7.5f, 0.0f,
+	 *    2.0f,
+	 *    texturki[TEX_KUCYK]
+	 *);
+	 *glPopMatrix();
+	 */
+
 	// animacja tła - czasowo lewo prawo
 	if (f_time - background_start_time > ANIM_BACKG_TIME)
 	{
@@ -303,38 +357,48 @@ static void Scene()
 	{
 		for (int j = 0; j < map_width; j++)
 		{
-			if (
-			    map[i][j] != MAP_NONE &&
-			    map[i][j] != MAP_BLINKER
-			)
+			//if (
+			//map[i][j] != MAP_NONE &&
+			//map[i][j] != MAP_BLINKER
+			//)
+			switch (map[i][j])
 			{
-				if (map[i][j] == MAP_WALL)
-				{
-					DrawCubeTexture(
-					    (float)i - 7.5f, (float)j - 7.5f, 0.5f,
-					    1.0f,
-					    texturki[TEX_WALL]
-					);
-					DrawCubeTexture(
-					    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-					    1.0f,
-					    texturki[TEX_FLOOR]
-					);
-				}
-				else if (map[i][j] == MAP_FLOOR)
-				{
-					DrawCubeTexture(
-					    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-					    1.0f,
-					    texturki[TEX_FLOOR]
-					);
-				}
-				else
-					DrawQuadTexture(
-					    (float)i - 7.5f, (float)j - 7.5f, 0.0f,
-					    1.0f, 1.0f,
-					    texturki[map[i][j]]
-					);
+			case MAP_WALL:
+				DrawCubeTexture(
+				    (float)i - 7.5f, (float)j - 7.5f, 0.5f,
+				    1.0f,
+				    texturki[TEX_WALL]
+				);
+				DrawCubeTexture(
+				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+				    1.0f,
+				    texturki[TEX_FLOOR]
+				);
+				break;
+			case MAP_FLOOR:
+				DrawCubeTexture(
+				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+				    1.0f,
+				    texturki[TEX_FLOOR]
+				);
+				break;
+			case MAP_DOOR:
+				break;
+			case MAP_SWITCH:
+				break;
+			case MAP_BOX:
+				break;
+			case MAP_BLINKER:
+				break;
+			case MAP_NONE:
+				break;
+			default:
+				DrawQuadTexture(
+				    (float)i - 7.5f, (float)j - 7.5f, 0.0f,
+				    1.0f, 1.0f,
+				    texturki[map[i][j]]
+				);
+				break;
 			}
 		}
 	}
@@ -350,6 +414,33 @@ static void Scene()
 		    (float)blinkery[i].x - 7.5f, (float)blinkery[i].y - 7.5f, (float)blinkery[i].z - 0.5f,
 		    blinkery[i].curr_d,
 		    texturki[TEX_FLOOR]
+		);
+	}
+	s = drzwi.size();
+	for (size_t i = 0 ; i < s; i++)
+	{
+		DrawCubeTexture(
+		    (float)drzwi[i].x - 7.5f, (float)drzwi[i].y - 7.5f, (float)drzwi[i].z + 0.5f,
+		    1.0f,
+		    texturki[TEX_DOOR]
+		);
+	}
+	s = guziki.size();
+	for (size_t i = 0 ; i < s; i++)
+	{
+		DrawQuadTexture(
+		    (float)guziki[i].x - 7.5f, (float)guziki[i].y - 7.5f, (float)guziki[i].z + 0.1f,
+		    1.0f, 1.0f,
+		    texturki[TEX_SWITCH]
+		);
+	}
+	s = pudelka.size();
+	for (size_t i = 0 ; i < s; i++)
+	{
+		DrawCubeTexture(
+		    (float)pudelka[i].x - 7.5f, (float)pudelka[i].y - 7.5f, (float)pudelka[i].z + 0.5f,
+		    1.0f,
+		    texturki[TEX_BOX]
 		);
 	}
 
@@ -479,6 +570,10 @@ int main(int argc, char **argv, char **envp)
 	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
 	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
 	texturki[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
+	texturki[TEX_DOOR] = ImgToTexture("gfx/door.png");
+	texturki[TEX_KUCYK] = ImgToTexture("gfx/kucyk.png");
+	texturki[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
+	texturki[TEX_BOX] = ImgToTexture("gfx/box.png");
 
 	fontKomoda = TTF_OpenFont( "font/Komoda.ttf" , 35 );
 
@@ -916,11 +1011,23 @@ bool LoadMap(const char *filename)
 				map[j][i] = MAP_STONE;
 				break;
 			case 'b':
-				map[j][i] = MAP_NONE;
+				map[j][i] = MAP_BLINKER;
 				blinkery.push_back(blinker::mk(j, i, 0,
 				                               (float)((rand() % 2 ) + 1),
 				                               (float)((rand() % 2 ) + 1)
 				                              ));
+				break;
+			case 'd':
+				map[j][i] = MAP_FLOOR;
+				drzwi.push_back(door::mk(j, i, 0));
+				break;
+			case 'x':
+				map[j][i] = MAP_FLOOR;
+				pudelka.push_back(box::mk(j, i, 0));
+				break;
+			case 's':
+				map[j][i] = MAP_FLOOR;
+				guziki.push_back(switcher::mk(j, i, 0));
 				break;
 			default:
 				fprintf(stderr, "error: unexpected char \"%c\" in %d %d: \"%s\"\n", line[j], i, j, filename);

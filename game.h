@@ -8,6 +8,7 @@ static void Scene();
 
 static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
 static bool InitOpenGL();
+void display_ready3d();
 
 unsigned int ImgToTexture(const char *filename);
 unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
@@ -23,6 +24,7 @@ bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
 static bool UpdateBlinker(size_t id);
-static bool AnimUpdate(anim_move_pl *a);
-static bool AnimUpdate2(anim_fall_pl *a);
+
+template <class T>
+	static bool Move(T *a);
 std::vector<gem>::iterator getGemByXY(int x, int y);

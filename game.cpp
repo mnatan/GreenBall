@@ -67,7 +67,14 @@ TTF_Font *fontKomoda;
 
 struct player_st
 {
-	int x, y;
+	float x, y, z;
+
+	bool active;
+
+	//do animacji
+	float x_s, y_s, z_s; //start pos
+	float x_e, y_e, z_e; //end pos
+	float t_s, t_e; //start/end time
 } map_player;
 struct gem
 {
@@ -141,18 +148,6 @@ struct box
 	}
 };
 
-struct anim_move_pl
-{
-	bool active;
-
-	//intput
-	float x_s, y_s; //start pos
-	float x_e, y_e; //end pos
-	float t_s, t_e; //start/end time
-
-	//output
-	float x, y; //w czasie t
-} anim_player_move;
 struct anim_fall_pl
 {
 	bool active;
@@ -209,19 +204,23 @@ static void Logic()
 	int p_dx = 0;
 	int p_dy = 0;
 
-	if (!anim_player_move.active)
+	if (!map_player.active)
 	{
-		if (map[map_player.x][map_player.y] == MAP_NONE)
+		if (map[(int)map_player.x][(int)map_player.y] == MAP_NONE)
 		{
 			if (!fail)
 			{
 				fail = true;
 
-				anim_player_fall.active = true;
-				anim_player_fall.t_s = f_time;
-				anim_player_fall.t_e = f_time + ANIM_PLAYER_TIME_FALL;
-				anim_player_fall.z_s = 0;
-				anim_player_fall.z_e = -21.0f;
+				map_player.active = true;
+				map_player.t_s = f_time;
+				map_player.t_e = f_time + ANIM_PLAYER_TIME_FALL;
+				map_player.x_s = map_player.x;
+				map_player.x_e = map_player.x;
+				map_player.y_s = map_player.y;
+				map_player.y_e = map_player.y;
+				map_player.z_s = 0;
+				map_player.z_e = -21.0f;
 			}
 		}
 		if (!fail)
@@ -264,13 +263,15 @@ static void Logic()
 
 		if (moveok)
 		{
-			anim_player_move.active = true;
-			anim_player_move.t_s = f_time;
-			anim_player_move.t_e = f_time + ANIM_PLAYER_TIME;
-			anim_player_move.x_s = (float)map_player.x;
-			anim_player_move.y_s = (float)map_player.y;
-			anim_player_move.x_e = (float)p_nx;
-			anim_player_move.y_e = (float)p_ny;
+			map_player.active = true;
+			map_player.t_s = f_time;
+			map_player.t_e = f_time + ANIM_PLAYER_TIME;
+			map_player.x_s = (float)map_player.x;
+			map_player.y_s = (float)map_player.y;
+			map_player.x_e = (float)p_nx;
+			map_player.y_e = (float)p_ny;
+			map_player.z_e = map_player.z;
+			map_player.z_s = map_player.z;
 
 			map_player.x = p_nx;
 			map_player.y = p_ny;
@@ -288,13 +289,9 @@ static void Logic()
 			}
 		}
 	}
-	if (anim_player_move.active)
+	if (map_player.active)
 	{
-		anim_player_move.active = AnimUpdate(&anim_player_move);
-	}
-	if (anim_player_fall.active)
-	{
-		anim_player_fall.active = AnimUpdate2(&anim_player_fall);
+		map_player.active = Move<player_st>(&map_player);
 	}
 }
 
@@ -304,22 +301,21 @@ static void Scene()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glTranslatef( 0.0, 0.0, -17.0f);
+	glTranslatef( 0.0, 0.0, -14.0f);
 	glScalef(1.0f, -1.0f, 1.0f);
 
-	/*
-	 *glPushMatrix();
-	 *static float rotat;
-	 *glTranslatef(9.5f, 7.5f, 0.0f);
-	 *glRotatef(rotat += 50000.0f * ratio, 0.5f, 1.0f, 0.3f);
-	 *glTranslatef(-9.5f, -7.5f, 0.0f);
-	 *DrawCubeTexture(
-	 *    9.5f, 7.5f, 0.0f,
-	 *    2.0f,
-	 *    texturki[TEX_KUCYK]
-	 *);
-	 *glPopMatrix();
-	 */
+	glPushMatrix();
+	gluPerspective( 0.0, (float)screen_width / (float)screen_height, 0.0, 1024.0 );
+	static float rotat;
+	glTranslatef(9.5f, 7.0f, 0.0f);
+	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.3f);
+	glTranslatef(-9.5f, -7.0f, 0.0f);
+	DrawCubeTexture(
+		9.5f, 7.0f, 0.0f,
+		0.9f,
+		texturki[TEX_KUCYK]
+	);
+	glPopMatrix();
 
 	// animacja tła - czasowo lewo prawo
 	if (f_time - background_start_time > ANIM_BACKG_TIME)
@@ -341,16 +337,10 @@ static void Scene()
 	glPopMatrix();
 
 	glPushMatrix();
-	if (anim_player_move.active)
-		glTranslatef(
-		    -(float)anim_player_move.x + 7.5f,
-		    -(float)anim_player_move.y + 7.5f,
-		    -0.0f);
-	else
-		glTranslatef(
-		    -(float)map_player.x + 7.5f,
-		    -(float)map_player.y + 7.5f,
-		    -0.0f);
+	glTranslatef(
+	    -map_player.x + 7.5f,
+	    -map_player.y + 7.5f,
+	    -0.0f);
 
 	// Draw map
 	for (int i = 0; i < map_height; i++)
@@ -364,11 +354,13 @@ static void Scene()
 			switch (map[i][j])
 			{
 			case MAP_WALL:
+				for(int k = 0; k<2; k++){
 				DrawCubeTexture(
-				    (float)i - 7.5f, (float)j - 7.5f, 0.5f,
+				    (float)i - 7.5f, (float)j - 7.5f, 0.5f+(float)k,
 				    1.0f,
 				    texturki[TEX_WALL]
 				);
+				}
 				DrawCubeTexture(
 				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
 				    1.0f,
@@ -462,24 +454,11 @@ static void Scene()
 	}
 
 	// draw player
-	if (anim_player_move.active)
-		DrawQuadTexture(
-		    (float)anim_player_move.x - 7.5f, (float)anim_player_move.y - 7.5f, 0.5f,
-		    1.0f, 1.0f,
-		    texturki[TEX_PLAYER]
-		);
-	else if (fail)
-		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, anim_player_fall.z,
-		    1.0f, 1.0f,
-		    texturki[TEX_PLAYER]
-		);
-	else
-		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 0.5f,
-		    1.0f, 1.0f,
-		    texturki[TEX_PLAYER]
-		);
+	DrawQuadTexture(
+	    map_player.x - 7.5f, map_player.y - 7.5f, map_player.z,
+	    0.8f, 0.8f,
+	    texturki[TEX_PLAYER]
+	);
 
 	if (win)
 	{
@@ -511,19 +490,19 @@ static void Scene()
 	std::string scores = "Score: ";
 	std::stringstream ss;
 	ss << scores << score;
-	//std::string scores = "delta: ";
+	//std::string scores = "(";
 	//std::stringstream ss;
-	//ss << scores << blinkery[0].curr_d;
+	//ss << scores << map_player.x << "," << map_player.y << "," << map_player.z << ")";
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
 	DrawQuadRGBA(
-	    10.0f, -7.5f, 1.1f,
+	    7.0f, -6.0f, 2.1f,
 	    3.5f, 1.5f,
 	    78, 158, 116, 0.6
 	);
 	DrawQuadTexture(
-	    10.0f, -7.5f, 1.2f,
+	    7.0f, -6.0f, 2.2f,
 	    3.0f, 1.0f,
 	    texturki[TEX_SCORE]
 	);
@@ -949,11 +928,14 @@ bool LoadNextLevel()
 	level++;
 	char filename[256] = {0};
 	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
+	blinkery.clear();
+	drzwi.clear();
+	guziki.clear();
+	pudelka.clear();
 	return LoadMap(filename);
 }
 bool LoadMap(const char *filename)
 {
-	blinkery.clear();
 	FILE *f = fopen(filename, "r");
 	if (!f)
 	{
@@ -995,6 +977,7 @@ bool LoadMap(const char *filename)
 			case 'p':
 				map_player.x = j;
 				map_player.y = i;
+				map_player.z = 0.5;
 				map[j][i] = MAP_FLOOR;
 				break;
 			case '#':
@@ -1035,6 +1018,29 @@ bool LoadMap(const char *filename)
 		}
 	}
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
+	return true;
+}
+
+template <class T>
+	static bool Move(T *a)
+{
+	if (f_time >= a->t_e)
+	{
+		a->x = a->x_e;
+		a->y = a->y_e;
+		a->z = a->z_e;
+		return false;
+	}
+
+	float d = (f_time  - a->t_s) / (a->t_e - a->t_s);
+	float dx = a->x_e - a->x_s;
+	float dy = a->y_e - a->y_s;
+	float dz = a->z_e - a->z_s;
+
+	a->x = a->x_s + d * dx;
+	a->y = a->y_s + d * dy;
+	a->z = a->z_s + d * dz;
+
 	return true;
 }
 static bool UpdateBlinker(size_t id)
@@ -1084,38 +1090,6 @@ static bool UpdateBlinker(size_t id)
 			blinkery[id].curr_d = delta;
 		}
 	}
-	return true;
-}
-static bool AnimUpdate(anim_move_pl *a)
-{
-	if (!a->active)
-		return false;
-
-	if (f_time >= a->t_e)
-		return false;
-
-	float d = (f_time  - a->t_s) / (a->t_e - a->t_s);
-	float dx = a->x_e - a->x_s;
-	float dy = a->y_e - a->y_s;
-
-	a->x = a->x_s + d * dx;
-	a->y = a->y_s + d * dy;
-
-	return true;
-}
-static bool AnimUpdate2(anim_fall_pl *a)
-{
-	if (!a->active)
-		return false;
-
-	if (f_time >= a->t_e)
-		return false;
-
-	float d = (f_time - a->t_s) / (a->t_e - a->t_s);
-	float dz = a->z_e - a->z_s;
-
-	a->z = a->z_s + d * dz;
-
 	return true;
 }
 std::vector<gem>::iterator getGemByXY(int x, int y)

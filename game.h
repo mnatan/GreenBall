@@ -1,6 +1,7 @@
 // Functions.
 
 #include <vector>
+#include "class/rotated.cpp"
 
 static bool Events();
 static void Logic();
@@ -8,7 +9,6 @@ static void Scene();
 
 static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
 static bool InitOpenGL();
-void display_ready3d();
 
 unsigned int ImgToTexture(const char *filename);
 unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
@@ -23,8 +23,4 @@ void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id
 bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
-static bool UpdateBlinker(size_t id);
-
-template <class T>
-	static bool Move(T *a);
-std::vector<gem>::iterator getGemByXY(int x, int y);
+std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z);

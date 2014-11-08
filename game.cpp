@@ -29,35 +29,13 @@
 #include "define.cpp"
 #include "game.h"
 
+#include "class/game_obj.cpp"
+#include "class/Player.cpp"
+#include "class/blinker.cpp"
+
 //using namespace std;
 
 // Globals.
-bool win = false;
-bool fail = false;
-bool game_complete = false;
-int score = 0;
-
-float win_countdown;
-unsigned int level = 0;
-
-static int screen_width;
-static int screen_height;
-bool keys[SDLK_LAST];
-
-float ratio;
-float f_time;
-float backdir = 1.0f;
-float background_start_time;
-
-unsigned int texturki[20];
-int map_width;
-int map_height;
-int **map;
-std::vector<gem> kamienie;
-std::vector<blinker> blinkery;
-std::vector<door> drzwi;
-std::vector<switcher> guziki;
-std::vector<box> pudelka;
 
 SDL_Color redFont = {255, 0, 0, 0};
 SDL_Color greenFont = {0, 255, 0, 0};
@@ -65,51 +43,7 @@ SDL_Color blueFont = {0, 0, 255, 0};
 SDL_Surface *scoresurf;
 TTF_Font *fontKomoda;
 
-struct player_st
-{
-	float x, y, z;
-
-	bool active;
-
-	//do animacji
-	float x_s, y_s, z_s; //start pos
-	float x_e, y_e, z_e; //end pos
-	float t_s, t_e; //start/end time
-} map_player;
-struct gem
-{
-	int x, y;
-
-	//lolwut fabryka?
-	static struct gem mk(int x, int y)
-	{
-		gem g = {x, y};
-		return g;
-	}
-};
-struct blinker
-{
-	int x, y, z;
-	float time_dead;
-	float time_alive;
-
-	float next_switch;
-	int state; // 1-jest, 2-zmiana, 3-nie ma, 4-zmiana
-	float anim_start;
-	float anim_end;
-
-	float curr_d;
-
-	//lolwut fabryka?
-	static struct blinker mk(int x, int y, int z, float time_dead, float time_alive)
-	{
-		blinker g = {x, y, z, time_dead, time_alive};
-		g.next_switch = f_time + time_alive;
-		g.state = 1;
-		g.curr_d = 1;
-		return g;
-	}
-};
+Player map_player;
 struct door
 {
 	int x, y, z;
@@ -148,21 +82,7 @@ struct box
 	}
 };
 
-struct anim_fall_pl
-{
-	bool active;
-
-	//intput
-	float t_s, t_e; //start/end time
-	float z_s;
-	float z_e;
-
-	//output
-	float z; //w czasie t
-} anim_player_fall;
-
 // Functions
-
 static bool Events()
 {
 	SDL_Event ev;
@@ -187,7 +107,7 @@ static bool Events()
 		}
 	}
 
-	if (win && win_countdown < f_time)
+	if (win && win_countdown < current_time)
 	{
 		win = false;
 		if ( !LoadNextLevel() )
@@ -206,21 +126,27 @@ static void Logic()
 
 	if (!map_player.active)
 	{
-		if (map[(int)map_player.x][(int)map_player.y] == MAP_NONE)
+		if (map[(int)map_player.pos.x][(int)map_player.pos.y] == MAP_NONE)
 		{
 			if (!fail)
 			{
 				fail = true;
 
 				map_player.active = true;
-				map_player.t_s = f_time;
-				map_player.t_e = f_time + ANIM_PLAYER_TIME_FALL;
-				map_player.x_s = map_player.x;
-				map_player.x_e = map_player.x;
-				map_player.y_s = map_player.y;
-				map_player.y_e = map_player.y;
-				map_player.z_s = 0;
-				map_player.z_e = -21.0f;
+
+				map_player.startTime = current_time;
+				map_player.endTime = current_time + ANIM_PLAYER_TIME_FALL;
+
+				map_player.startPos = Vector3D(
+				                          map_player.pos.x,
+				                          map_player.pos.y,
+				                          map_player.pos.z
+				                      );
+				map_player.endPos = Vector3D(
+				                        map_player.pos.x,
+				                        map_player.pos.y,
+				                        -21.0f
+				                    );
 			}
 		}
 		if (!fail)
@@ -251,8 +177,8 @@ static void Logic()
 	if (p_dx || p_dy)
 	{
 
-		int p_nx = map_player.x + p_dx;
-		int p_ny = map_player.y + p_dy;
+		int p_nx = map_player.pos.x + p_dx;
+		int p_ny = map_player.pos.y + p_dy;
 
 		bool moveok = true;
 
@@ -264,19 +190,22 @@ static void Logic()
 		if (moveok)
 		{
 			map_player.active = true;
-			map_player.t_s = f_time;
-			map_player.t_e = f_time + ANIM_PLAYER_TIME;
-			map_player.x_s = (float)map_player.x;
-			map_player.y_s = (float)map_player.y;
-			map_player.x_e = (float)p_nx;
-			map_player.y_e = (float)p_ny;
-			map_player.z_e = map_player.z;
-			map_player.z_s = map_player.z;
 
-			map_player.x = p_nx;
-			map_player.y = p_ny;
+			map_player.startTime = current_time;
+			map_player.endTime = current_time + ANIM_PLAYER_TIME;
 
-			std::vector<gem>::iterator gem = getGemByXY( map_player.x, map_player.y);
+			map_player.startPos = Vector3D(
+			                          map_player.pos.x,
+			                          map_player.pos.y,
+			                          map_player.pos.z
+			                      );
+			map_player.endPos = Vector3D(
+			                        p_nx,
+			                        p_ny,
+			                        map_player.pos.z
+			                    );
+
+			std::vector<rotated>::iterator gem = getGemByXYZ( p_nx, p_ny, 0 );
 			if ( gem != kamienie.end())
 			{
 				kamienie.erase(gem);
@@ -284,14 +213,15 @@ static void Logic()
 				if (kamienie.empty())
 				{
 					win = true;
-					win_countdown = f_time + WIN_WAIT_TIME;
+					win_countdown = current_time + WIN_WAIT_TIME;
 				}
 			}
 		}
 	}
 	if (map_player.active)
 	{
-		map_player.active = Move<player_st>(&map_player);
+		//map_player.active = Move<player_st>(&map_player);
+		map_player.active = map_player.UpdateAnimation();
 	}
 }
 
@@ -308,23 +238,23 @@ static void Scene()
 	gluPerspective( 0.0, (float)screen_width / (float)screen_height, 0.0, 1024.0 );
 	static float rotat;
 	glTranslatef(9.5f, 7.0f, 0.0f);
-	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.3f);
+	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
 	glTranslatef(-9.5f, -7.0f, 0.0f);
 	DrawCubeTexture(
-		9.5f, 7.0f, 0.0f,
-		0.9f,
-		texturki[TEX_KUCYK]
+	    9.5f, 7.0f, 0.0f,
+	    0.9f,
+	    texturki[TEX_KUCYK]
 	);
 	glPopMatrix();
 
 	// animacja tła - czasowo lewo prawo
-	if (f_time - background_start_time > ANIM_BACKG_TIME)
+	if (current_time - background_start_time > ANIM_BACKG_TIME)
 	{
 		if (backdir == 1.0f)
 			backdir = -1.0f;
 		else
 			backdir = 1.0f;
-		background_start_time = f_time;
+		background_start_time = current_time;
 	}
 	glPushMatrix();
 	static float trans;
@@ -338,8 +268,8 @@ static void Scene()
 
 	glPushMatrix();
 	glTranslatef(
-	    -map_player.x + 7.5f,
-	    -map_player.y + 7.5f,
+	    -map_player.pos.x + 7.5f,
+	    -map_player.pos.y + 7.5f,
 	    -0.0f);
 
 	// Draw map
@@ -354,12 +284,13 @@ static void Scene()
 			switch (map[i][j])
 			{
 			case MAP_WALL:
-				for(int k = 0; k<2; k++){
-				DrawCubeTexture(
-				    (float)i - 7.5f, (float)j - 7.5f, 0.5f+(float)k,
-				    1.0f,
-				    texturki[TEX_WALL]
-				);
+				for (int k = 0; k < 2; k++)
+				{
+					DrawCubeTexture(
+					    (float)i - 7.5f, (float)j - 7.5f, 0.5f + (float)k,
+					    1.0f,
+					    texturki[TEX_WALL]
+					);
 				}
 				DrawCubeTexture(
 				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
@@ -401,10 +332,10 @@ static void Scene()
 	size_t s = blinkery.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
-		UpdateBlinker(i);
+		blinkery[i].UpdateAnimation();
 		DrawCubeTexture(
-		    (float)blinkery[i].x - 7.5f, (float)blinkery[i].y - 7.5f, (float)blinkery[i].z - 0.5f,
-		    blinkery[i].curr_d,
+		    (float)blinkery[i].pos.x - 7.5f, (float)blinkery[i].pos.y - 7.5f, (float)blinkery[i].pos.z - 0.5f,
+		    blinkery[i].scale,
 		    texturki[TEX_FLOOR]
 		);
 	}
@@ -439,14 +370,19 @@ static void Scene()
 	s = kamienie.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
+		kamienie[i].UpdateAnimation();
 		glPushMatrix();
-		static float rot;
-		glTranslatef((float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f, 0.5f);
-		glRotatef(rot += 10.0f * ratio, 0.0f, 1.0f, 0.0f);
-		glTranslatef(-(float)kamienie[i].x + 7.5f, -(float)kamienie[i].y + 7.5f, -0.5f);
+		glTranslatef((float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f);
+		glRotatef(
+		    kamienie[i].accumulator,
+		    kamienie[i].rotationVector.x,
+		    kamienie[i].rotationVector.y,
+		    kamienie[i].rotationVector.z
+		);
+		glTranslatef(-(float)kamienie[i].pos.x + 7.5f, -(float)kamienie[i].pos.y + 7.5f, -0.5f);
 		//glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
 		DrawQuadTexture(
-		    (float)kamienie[i].x - 7.5f, (float)kamienie[i].y - 7.5f, 0.5f,
+		    (float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f,
 		    1.0f, 1.0f,
 		    texturki[TEX_GEM]
 		);
@@ -455,7 +391,7 @@ static void Scene()
 
 	// draw player
 	DrawQuadTexture(
-	    map_player.x - 7.5f, map_player.y - 7.5f, map_player.z,
+	    map_player.pos.x - 7.5f, map_player.pos.y - 7.5f, map_player.pos.z,
 	    0.8f, 0.8f,
 	    texturki[TEX_PLAYER]
 	);
@@ -463,7 +399,7 @@ static void Scene()
 	if (win)
 	{
 		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.5f,
+		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.5f,
 		    7.0f, 2.0f,
 		    texturki[TEX_LVLCMP]
 		);
@@ -471,7 +407,7 @@ static void Scene()
 	if (fail)
 	{
 		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.6f,
+		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.6f,
 		    7.0f, 2.0f,
 		    texturki[TEX_FAIL]
 		);
@@ -479,7 +415,7 @@ static void Scene()
 	if (game_complete)
 	{
 		DrawQuadTexture(
-		    (float)map_player.x - 7.5f, (float)map_player.y - 7.5f, 1.7f,
+		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.7f,
 		    7.0f, 2.0f,
 		    texturki[TEX_WIN]
 		);
@@ -490,9 +426,9 @@ static void Scene()
 	std::string scores = "Score: ";
 	std::stringstream ss;
 	ss << scores << score;
-	//std::string scores = "(";
+	//std::string scores = "asdfasd: ";
 	//std::stringstream ss;
-	//ss << scores << map_player.x << "," << map_player.y << "," << map_player.z << ")";
+	//ss << scores << blinkery[0].state ;
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
@@ -511,6 +447,7 @@ static void Scene()
 
 	SDL_GL_SwapBuffers();
 }
+
 
 int main(int argc, char **argv, char **envp)
 {
@@ -560,7 +497,7 @@ int main(int argc, char **argv, char **envp)
 	unsigned int last_time = SDL_GetTicks();
 	ratio = 0.0f;
 
-	f_time = (float)last_time / 1000.0f;
+	current_time = (float)last_time / 1000.0f;
 
 	//ImgToTexture( "background.jpg" );
 	//LoadMap("maps/map1.txt");
@@ -580,14 +517,13 @@ int main(int argc, char **argv, char **envp)
 		unsigned int curr_time = SDL_GetTicks();
 		ratio = (float)(curr_time - last_time) / 1000.0f;
 		last_time = curr_time;
-		f_time = (float)curr_time / 1000.0f;
+		current_time = (float)curr_time / 1000.0f;
 	}
 
 	// Done.
 	SDL_Quit();
 	return 0;
 }
-
 
 
 static bool InitSDL(bool fullscreen, int width, int height)
@@ -975,9 +911,9 @@ bool LoadMap(const char *filename)
 				map[j][i] = MAP_NONE;
 				break;
 			case 'p':
-				map_player.x = j;
-				map_player.y = i;
-				map_player.z = 0.5;
+				map_player.pos.x = j;
+				map_player.pos.y = i;
+				map_player.pos.z = 0.5;
 				map[j][i] = MAP_FLOOR;
 				break;
 			case '#':
@@ -985,7 +921,14 @@ bool LoadMap(const char *filename)
 				break;
 			case 'g':
 				map[j][i] = MAP_FLOOR;
-				kamienie.push_back( gem::mk(j, i) );
+				kamienie.push_back(
+				    rotated(
+				        Vector3D(j, i, 0),
+				        Vector3D(0, 1.0, 0),
+				        (rand() % 10)+50,
+				        (rand() % 360)
+				    )
+				);
 				break;
 			case '.':
 				map[j][i] = MAP_FLOOR;
@@ -995,10 +938,10 @@ bool LoadMap(const char *filename)
 				break;
 			case 'b':
 				map[j][i] = MAP_BLINKER;
-				blinkery.push_back(blinker::mk(j, i, 0,
-				                               (float)((rand() % 2 ) + 1),
-				                               (float)((rand() % 2 ) + 1)
-				                              ));
+				blinkery.push_back(Blinker(Vector3D(j, i, 0),
+				                           (((float)(rand() % 200 )) / 100) + 1,
+				                           (((float)(rand() % 200 )) / 100) + 1
+				                          ));
 				break;
 			case 'd':
 				map[j][i] = MAP_FLOOR;
@@ -1021,85 +964,17 @@ bool LoadMap(const char *filename)
 	return true;
 }
 
-template <class T>
-	static bool Move(T *a)
+std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z)
 {
-	if (f_time >= a->t_e)
+	std::vector<rotated>::iterator s = kamienie.end();
+	for ( std::vector<rotated>::iterator i = kamienie.begin() ; i < s; i++)
 	{
-		a->x = a->x_e;
-		a->y = a->y_e;
-		a->z = a->z_e;
-		return false;
-	}
-
-	float d = (f_time  - a->t_s) / (a->t_e - a->t_s);
-	float dx = a->x_e - a->x_s;
-	float dy = a->y_e - a->y_s;
-	float dz = a->z_e - a->z_s;
-
-	a->x = a->x_s + d * dx;
-	a->y = a->y_s + d * dy;
-	a->z = a->z_s + d * dz;
-
-	return true;
-}
-static bool UpdateBlinker(size_t id)
-{
-	if (f_time > blinkery[id].next_switch)
-	{
-		if (blinkery[id].state == 1)
-		{
-			blinkery[id].state = 2;
-			blinkery[id].next_switch =  f_time + BLINK_FADE_TIME + blinkery[id].time_alive;
-			blinkery[id].anim_end =     f_time + BLINK_FADE_TIME;
-			blinkery[id].anim_start =   f_time;
-		}
-		else if (blinkery[id].state == 3)
-		{
-			blinkery[id].state = 4;
-			blinkery[id].next_switch =  f_time + BLINK_FADE_TIME + blinkery[id].time_alive;
-			blinkery[id].anim_end =     f_time + BLINK_FADE_TIME;
-			blinkery[id].anim_start =   f_time;
-			map[blinkery[id].x][blinkery[id].y] = MAP_BLINKER;
-		}
-	}
-	else if (blinkery[id].state == 2)
-	{
-		if (blinkery[id].anim_end < f_time)
-		{
-			blinkery[id].state = 3;
-			blinkery[id].curr_d = 0;
-			map[blinkery[id].x][blinkery[id].y] = MAP_NONE;
-		}
-		else
-		{
-			float delta = (f_time - blinkery[id].anim_start) / (blinkery[id].anim_end - blinkery[id].anim_start);
-			blinkery[id].curr_d = 1 - delta;
-		}
-	}
-	else if (blinkery[id].state == 4)
-	{
-		if (blinkery[id].anim_end < f_time)
-		{
-			blinkery[id].state = 1;
-			blinkery[id].curr_d = 1;
-		}
-		else
-		{
-			float delta = (f_time - blinkery[id].anim_start) / (blinkery[id].anim_end - blinkery[id].anim_start);
-			blinkery[id].curr_d = delta;
-		}
-	}
-	return true;
-}
-std::vector<gem>::iterator getGemByXY(int x, int y)
-{
-	std::vector<gem>::iterator s = kamienie.end();
-	for ( std::vector<gem>::iterator i = kamienie.begin() ; i < s; i++)
-	{
-		if ( i->x == x &&
-		        i->y == y)
+		if ( i->pos.x == x &&
+		        i->pos.y == y &&
+		        i->pos.z == z)
 			return i;
 	}
 	return s;
 }
+
+

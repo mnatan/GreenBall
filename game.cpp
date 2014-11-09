@@ -32,6 +32,7 @@
 #include "class/game_obj.cpp"
 #include "class/Player.cpp"
 #include "class/blinker.cpp"
+#include "class/Box.cpp"
 
 //using namespace std;
 
@@ -185,6 +186,12 @@ static void Logic()
 		if ( map[p_nx][p_ny] == MAP_WALL)
 		{
 			moveok = false;
+		}
+		std::vector<Box>::iterator box = getBoxByXYZ( p_nx, p_ny, 0 );
+		if ( box != pudelka.end())
+		{
+			moveok = false;
+			map_player.pushObj(*box);
 		}
 
 		if (moveok)
@@ -361,7 +368,7 @@ static void Scene()
 	for (size_t i = 0 ; i < s; i++)
 	{
 		DrawCubeTexture(
-		    (float)pudelka[i].x - 7.5f, (float)pudelka[i].y - 7.5f, (float)pudelka[i].z + 0.5f,
+		    (float)pudelka[i].pos.x - 7.5f, (float)pudelka[i].pos.y - 7.5f, (float)pudelka[i].pos.z + 0.5f,
 		    1.0f,
 		    texturki[TEX_BOX]
 		);
@@ -925,7 +932,7 @@ bool LoadMap(const char *filename)
 				    rotated(
 				        Vector3D(j, i, 0),
 				        Vector3D(0, 1.0, 0),
-				        (rand() % 10)+50,
+				        (rand() % 10) + 50,
 				        (rand() % 360)
 				    )
 				);
@@ -949,7 +956,11 @@ bool LoadMap(const char *filename)
 				break;
 			case 'x':
 				map[j][i] = MAP_FLOOR;
-				pudelka.push_back(box::mk(j, i, 0));
+				pudelka.push_back(
+				    Box(
+				        Vector3D(j, i, 0)
+				    )
+				);
 				break;
 			case 's':
 				map[j][i] = MAP_FLOOR;
@@ -977,4 +988,15 @@ std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z)
 	return s;
 }
 
-
+std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z)
+{
+	std::vector<Box>::iterator s = pudelka.end();
+	for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
+	{
+		if ( i->pos.x == x &&
+		        i->pos.y == y &&
+		        i->pos.z == z)
+			return i;
+	}
+	return s;
+}

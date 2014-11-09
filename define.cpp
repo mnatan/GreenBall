@@ -6,6 +6,7 @@
 #include "class/player.h"
 #include "class/blinker.h"
 #include "class/rotated.cpp"
+#include "class/Box.h"
 
 #define UNUSED(a) ((void)(a))
 
@@ -82,6 +83,6 @@ std::vector<rotated> kamienie;
 std::vector<Blinker> blinkery;
 std::vector<door> drzwi;
 std::vector<switcher> guziki;
-std::vector<box> pudelka;
+std::vector<Box> pudelka;
 
 #endif

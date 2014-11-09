@@ -24,3 +24,4 @@ bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
 std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z);
+std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z);

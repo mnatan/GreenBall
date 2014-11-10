@@ -5,29 +5,32 @@
 
 Door::Door(Vector3D pos_)
 {
+	TEX = TEX_DOOR;
 	pos = pos_;
 	closedPos = pos_;
 	if (MapRead(pos + LEFT) == MAP_WALL)
 	{
-		openPos = pos + LEFT;
+		openPos = pos + LEFT + (RIGHT * 0.1);
 	}
 	else if (MapRead(pos + RIGHT) == MAP_WALL)
 	{
-		openPos = pos + RIGHT;
+		openPos = pos + RIGHT + (LEFT * 0.1);
 	}
 	else if (MapRead(pos + TOP) == MAP_WALL)
 	{
-		openPos = pos + TOP;
+		openPos = pos + TOP + (BOT * 0.1);
 	}
 	else if (MapRead(pos + BOT) == MAP_WALL)
 	{
-		openPos = pos + BOT;
+		openPos = pos + BOT + (TOP * 0.1);
+	}
+	else {
+		openPos = pos + Vector3D(0,0,-0.9);
 	}
 }
 
 bool Door::respondON()
 {
-	std::cout << "wzywaja mnie!" << std::endl;
 	setAnimation(
 	    pos,
 	    openPos,

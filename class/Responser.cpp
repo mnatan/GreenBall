@@ -11,5 +11,6 @@ bool Responser::respondOFF()
 {
 	return true;
 }
+
 #endif
 

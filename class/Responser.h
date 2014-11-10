@@ -6,8 +6,8 @@
 class Responser
 {
 	public:
-	bool respondON();
-	bool respondOFF();
+	virtual bool respondON();
+	virtual bool respondOFF();
 };
 
 #endif

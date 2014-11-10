@@ -294,10 +294,6 @@ static void Scene()
 	{
 		for (int j = 0; j < map_width; j++)
 		{
-			//if (
-			//map[i][j] != MAP_NONE &&
-			//map[i][j] != MAP_BLINKER
-			//)
 			switch (map[i][j])
 			{
 			case MAP_WALL:
@@ -359,10 +355,14 @@ static void Scene()
 	s = drzwi.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
+		if (drzwi[i].active)
+		{
+			drzwi[i].UpdateAnimation();
+		}
 		DrawCubeTexture(
 		    (float)drzwi[i].pos.x - 7.5f, (float)drzwi[i].pos.y - 7.5f, (float)drzwi[i].pos.z + 0.5f,
-		    1.0f,
-		    texturki[TEX_DOOR]
+		    0.95f,
+		    texturki[drzwi[i].TEX]
 		);
 	}
 	s = guziki.size();
@@ -377,7 +377,9 @@ static void Scene()
 				guziki[i].ActivateTarget();
 				std::cout << "aktywuje" << std::endl;
 			}
-		} else {
+		}
+		else
+		{
 			if (guziki[i].active)
 			{
 				guziki[i].active = false;
@@ -388,7 +390,7 @@ static void Scene()
 		DrawQuadTexture(
 		    (float)guziki[i].pos.x - 7.5f, (float)guziki[i].pos.y - 7.5f, (float)guziki[i].pos.z + 0.1f,
 		    1.0f, 1.0f,
-		    texturki[TEX_SWITCH]
+		    texturki[guziki[i].TEX]
 		);
 	}
 	s = pudelka.size();
@@ -1008,6 +1010,49 @@ bool LoadMap(const char *filename)
 			}
 		}
 	}
+	Vector3D trig;
+	Vector3D resp;
+	Vector3D poprawka(-1, -2, 0);
+
+
+	size_t s = drzwi.size();
+	for (size_t i = 0 ; i < s; i++)
+	{
+		drzwi[i] = Door(drzwi[i].pos);
+	}
+
+	while (fgets(line, sizeof(line), f) != NULL)
+	{
+		std::string line_ = line;
+		std::stringstream ss;
+		ss << line_;
+		ss >> trig.y;
+		ss >> trig.x;
+		ss >> resp.y;
+		ss >> resp.x;
+		trig = trig + poprawka;
+		resp = resp + poprawka;
+		std::cout << trig << "->" << resp << std::endl;
+		std::vector<Switch>::iterator sw = getSwitchByXYZ( trig.x, trig.y, 0 );
+		if ( sw != guziki.end() )
+		{
+			std::vector<Door>::iterator doo = getDoorByXYZ( resp.x, resp.y, 0 );
+			if ( doo != drzwi.end() )
+			{
+				sw->target = &*doo;
+			}
+			else
+			{
+				std::cout << "Niepoprawne koordynaty responsera!" << std::endl;
+			}
+
+		}
+		else
+		{
+			std::cout << "Niepoprawne koordynaty triggera!" << std::endl;
+		}
+	}
+
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
 	return true;
 }

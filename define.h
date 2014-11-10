@@ -44,10 +44,10 @@
 #define ANIM_DOOR_CLOSE 	0.5f
 
 //wektory
-#define LEFT Vector3D(-1.0f,0,0)
-#define RIGHT Vector3D(1.0f,0,0)
-#define TOP Vector3D(0,-1.0f,0)
-#define BOT Vector3D(0,1.0f,0)
+#define LEFT Vector3D(-1,0,0)
+#define RIGHT Vector3D(1,0,0)
+#define TOP Vector3D(0,-1,0)
+#define BOT Vector3D(0,1,0)
 
 class Vector3D;
 class scaled;

@@ -19,6 +19,15 @@ Vector3D operator+(const Vector3D &lhs, const Vector3D &rhs)
 	       );
 }
 
+Vector3D operator*(const Vector3D &lhs, const float rhs)
+{
+	return Vector3D(
+	           lhs.x * rhs,
+	           lhs.y * rhs,
+	           lhs.z * rhs
+	       );
+}
+
 std::ostream& operator<<(std::ostream& os, const Vector3D &rhs)
 {
 	os << "(" << rhs.x << ","<< rhs.y << "," << rhs.z << ")";

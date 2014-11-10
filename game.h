@@ -23,5 +23,10 @@ void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id
 bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
+//template <class T>
+//std::vector<T>::iterator getByXYZ(Vector3D vect);
+
 std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z);
 std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z);
+std::vector<Door>::iterator getDoorByXYZ(int x, int y, int z);
+std::vector<Switch>::iterator getSwitchByXYZ(int x, int y, int z);

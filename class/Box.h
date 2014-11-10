@@ -2,7 +2,7 @@
 #define BOX
 
 #include "moved.h"
-#include "../define.cpp"
+#include "../define.h"
 
 class Box: public moved
 {

@@ -1,8 +1,8 @@
 #ifndef MOVED
 #define MOVED
 
-#include "animated.h"
-#include "../define.cpp"
+#include "animated.cpp"
+#include "../define.h"
 
 class moved: public animated
 {
@@ -12,7 +12,9 @@ class moved: public animated
 	float startTime;
 	float endTime;
 
-	void setAnimation(Vector3D start, Vector3D end, float timestart, float timeend);
+	moved(): startPos(pos), endPos(pos), startTime(0), endTime(0){}
+	void setAnimation(Vector3D start, Vector3D end, float duration);
+	bool checkFloor();
 	bool UpdateAnimation();
 };
 

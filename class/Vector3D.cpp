@@ -1,4 +1,3 @@
-
 #ifndef myVector_CPP
 #define myVector_CPP
 
@@ -18,6 +17,12 @@ Vector3D operator+(const Vector3D &lhs, const Vector3D &rhs)
 	           lhs.y + rhs.y,
 	           lhs.z + rhs.z
 	       );
+}
+
+std::ostream& operator<<(std::ostream& os, const Vector3D &rhs)
+{
+	os << "(" << rhs.x << ","<< rhs.y << "," << rhs.z << ")";
+	return os;
 }
 
 #endif

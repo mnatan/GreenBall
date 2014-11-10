@@ -2,9 +2,10 @@
 #define ANIMATED
 
 #include "game_obj.h"
-#include "../define.cpp"
+#include "../define.h"
 
-class animated: public game_obj {
+class animated: public game_obj
+{
 	public:
 	bool active;
 

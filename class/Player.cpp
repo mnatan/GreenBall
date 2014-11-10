@@ -8,7 +8,7 @@ Player::Player()
 {
 	TEX = TEX_PLAYER;
 }
-bool Player::pushObj(moved obj)
+bool Player::pushObj(moved &obj)
 {
 	Vector3D delta(
 	    obj.pos.x - pos.x,
@@ -21,14 +21,12 @@ bool Player::pushObj(moved obj)
 		obj.setAnimation(
 		    obj.pos,
 		    newspace,
-		    current_time,
-		    current_time + ANIM_PLAYER_TIME
+		    ANIM_PLAYER_TIME
 		);
 		this->setAnimation(
 		    this->pos,
 		    obj.pos,
-		    current_time,
-		    current_time + ANIM_PLAYER_TIME
+		    ANIM_PLAYER_TIME
 		);
 	}
 	return true;

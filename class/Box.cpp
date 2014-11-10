@@ -4,6 +4,8 @@
 #include "Box.h"
 
 Box::Box(Vector3D pos_){
+	active = false;
+	endTime = current_time;
 	pos = pos_;
 }
 

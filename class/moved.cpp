@@ -2,20 +2,34 @@
 #define MOVED_CPP
 
 #include "moved.h"
-float current_time;
 
-void moved::setAnimation(Vector3D start, Vector3D end, float timestart, float timeend)
+void moved::setAnimation(Vector3D start, Vector3D end, float duration)
 {
+	active = true;
 	startPos = start;
 	endPos = end;
-	startTime = timestart;
-	endTime = timeend;
+	startTime = current_time;
+	endTime = current_time + duration;
+}
+bool moved::checkFloor()
+{
+	if (map[(int)pos.x][(int)pos.y] == MAP_NONE)
+	{
+		this->setAnimation(
+		    pos,
+		    Vector3D(pos.x, pos.y, -22.0f),
+		    ANIM_TIME_FALL
+		);
+		return true;
+	}
+	return false;
 }
 bool moved::UpdateAnimation()
 {
 	if (current_time >= endTime)
 	{
 		pos = endPos;
+		checkFloor();
 		return false;
 	}
 

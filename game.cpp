@@ -26,13 +26,18 @@
 #  undef main
 #endif
 
-#include "define.cpp"
+#include "define.h"
+
+//#include "class/game_obj.cpp"
+#include "class/blinker.cpp"
+#include "class/Player.cpp"
+#include "class/Box.cpp"
+#include "class/Door.cpp"
+#include "class/Switch.cpp"
+
 #include "game.h"
 
-#include "class/game_obj.cpp"
-#include "class/Player.cpp"
-#include "class/blinker.cpp"
-#include "class/Box.cpp"
+
 
 //using namespace std;
 
@@ -136,7 +141,7 @@ static void Logic()
 				map_player.active = true;
 
 				map_player.startTime = current_time;
-				map_player.endTime = current_time + ANIM_PLAYER_TIME_FALL;
+				map_player.endTime = current_time + ANIM_TIME_FALL;
 
 				map_player.startPos = Vector3D(
 				                          map_player.pos.x,
@@ -192,6 +197,11 @@ static void Logic()
 		{
 			moveok = false;
 			map_player.pushObj(*box);
+		}
+		std::vector<Door>::iterator door = getDoorByXYZ( p_nx, p_ny, 0 );
+		if ( door != drzwi.end())
+		{
+			moveok = false;
 		}
 
 		if (moveok)
@@ -350,7 +360,7 @@ static void Scene()
 	for (size_t i = 0 ; i < s; i++)
 	{
 		DrawCubeTexture(
-		    (float)drzwi[i].x - 7.5f, (float)drzwi[i].y - 7.5f, (float)drzwi[i].z + 0.5f,
+		    (float)drzwi[i].pos.x - 7.5f, (float)drzwi[i].pos.y - 7.5f, (float)drzwi[i].pos.z + 0.5f,
 		    1.0f,
 		    texturki[TEX_DOOR]
 		);
@@ -358,8 +368,25 @@ static void Scene()
 	s = guziki.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
+		std::vector<Box>::iterator box = getBoxByXYZ( guziki[i].pos.x, guziki[i].pos.y, 0 );
+		if ( box != pudelka.end())
+		{
+			if (!guziki[i].active)
+			{
+				guziki[i].active = true;
+				guziki[i].ActivateTarget();
+				std::cout << "aktywuje" << std::endl;
+			}
+		} else {
+			if (guziki[i].active)
+			{
+				guziki[i].active = false;
+				guziki[i].DeactivateTarget();
+				std::cout << "deaktywuje" << std::endl;
+			}
+		}
 		DrawQuadTexture(
-		    (float)guziki[i].x - 7.5f, (float)guziki[i].y - 7.5f, (float)guziki[i].z + 0.1f,
+		    (float)guziki[i].pos.x - 7.5f, (float)guziki[i].pos.y - 7.5f, (float)guziki[i].pos.z + 0.1f,
 		    1.0f, 1.0f,
 		    texturki[TEX_SWITCH]
 		);
@@ -367,6 +394,11 @@ static void Scene()
 	s = pudelka.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
+		if (pudelka[i].active)
+		{
+			pudelka[i].active = pudelka[i].UpdateAnimation();
+		}
+		pudelka[i].checkFloor();
 		DrawCubeTexture(
 		    (float)pudelka[i].pos.x - 7.5f, (float)pudelka[i].pos.y - 7.5f, (float)pudelka[i].pos.z + 0.5f,
 		    1.0f,
@@ -398,7 +430,7 @@ static void Scene()
 
 	// draw player
 	DrawQuadTexture(
-	    map_player.pos.x - 7.5f, map_player.pos.y - 7.5f, map_player.pos.z,
+	    map_player.pos.x - 7.5f, map_player.pos.y - 7.5f, map_player.pos.z + 0.5f,
 	    0.8f, 0.8f,
 	    texturki[TEX_PLAYER]
 	);
@@ -430,12 +462,12 @@ static void Scene()
 
 	glPopMatrix();
 
-	std::string scores = "Score: ";
-	std::stringstream ss;
-	ss << scores << score;
-	//std::string scores = "asdfasd: ";
+	//std::string scores = "Score: ";
 	//std::stringstream ss;
-	//ss << scores << blinkery[0].state ;
+	//ss << scores << score;
+	std::string scores = "(";
+	std::stringstream ss;
+	ss << scores << map_player.pos.x << "," << map_player.pos.y << "," << map_player.pos.z << ")";
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
@@ -920,7 +952,7 @@ bool LoadMap(const char *filename)
 			case 'p':
 				map_player.pos.x = j;
 				map_player.pos.y = i;
-				map_player.pos.z = 0.5;
+				map_player.pos.z = 0.0;
 				map[j][i] = MAP_FLOOR;
 				break;
 			case '#':
@@ -952,7 +984,11 @@ bool LoadMap(const char *filename)
 				break;
 			case 'd':
 				map[j][i] = MAP_FLOOR;
-				drzwi.push_back(door::mk(j, i, 0));
+				drzwi.push_back(
+				    Door(
+				        Vector3D(j, i, 0)
+				    )
+				);
 				break;
 			case 'x':
 				map[j][i] = MAP_FLOOR;
@@ -964,7 +1000,8 @@ bool LoadMap(const char *filename)
 				break;
 			case 's':
 				map[j][i] = MAP_FLOOR;
-				guziki.push_back(switcher::mk(j, i, 0));
+				//FIXME TODO
+				guziki.push_back(Switch( Vector3D(j, i, 0), Responser() ));
 				break;
 			default:
 				fprintf(stderr, "error: unexpected char \"%c\" in %d %d: \"%s\"\n", line[j], i, j, filename);
@@ -974,6 +1011,22 @@ bool LoadMap(const char *filename)
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
 	return true;
 }
+
+/*
+ *template <typename T>
+ *typename std::vector<T>::iterator getByVector(Vector3D vect)
+ *{
+ *    std::vector<Box>::iterator s = pudelka.end();
+ *    for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
+ *    {
+ *        if ( i->pos.x == x &&
+ *                i->pos.y == y &&
+ *                i->pos.z == z)
+ *            return i;
+ *    }
+ *    return s;
+ *}
+ */
 
 std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z)
 {
@@ -987,7 +1040,6 @@ std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z)
 	}
 	return s;
 }
-
 std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z)
 {
 	std::vector<Box>::iterator s = pudelka.end();
@@ -1000,3 +1052,33 @@ std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z)
 	}
 	return s;
 }
+std::vector<Door>::iterator getDoorByXYZ(int x, int y, int z)
+{
+	std::vector<Door>::iterator s = drzwi.end();
+	for ( std::vector<Door>::iterator i = drzwi.begin() ; i < s; i++)
+	{
+		if ( i->pos.x == x &&
+		        i->pos.y == y &&
+		        i->pos.z == z)
+			return i;
+	}
+	return s;
+}
+std::vector<Switch>::iterator getSwitchByXYZ(int x, int y, int z)
+{
+	std::vector<Switch>::iterator s = guziki.end();
+	for ( std::vector<Switch>::iterator i = guziki.begin() ; i < s; i++)
+	{
+		if ( i->pos.x == x &&
+		        i->pos.y == y &&
+		        i->pos.z == z)
+			return i;
+	}
+	return s;
+}
+
+int MapRead(Vector3D point)
+{
+	return map[(int)point.x][(int)point.y];
+}
+

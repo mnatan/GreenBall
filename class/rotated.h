@@ -2,7 +2,7 @@
 #define ROTATED
 
 #include "animated.h"
-#include "../define.cpp"
+#include "../define.h"
 
 class rotated: public animated
 {

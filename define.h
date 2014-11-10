@@ -3,10 +3,6 @@
 
 #include <SDL/SDL_image.h>
 #include <vector>
-#include "class/player.h"
-#include "class/blinker.h"
-#include "class/rotated.cpp"
-#include "class/Box.h"
 
 #define UNUSED(a) ((void)(a))
 
@@ -40,11 +36,28 @@
 #define MAP_BOX     7
 
 #define ANIM_PLAYER_TIME    0.1f
-#define ANIM_PLAYER_TIME_FALL 1.0f
+#define ANIM_TIME_FALL 		1.0f
 #define BLINK_FADE_TIME     0.5f
 #define WIN_WAIT_TIME       2.0f
 #define ANIM_BACKG_TIME     5.0f
 #define ANIM_BACKG_SPEED    0.1f
+#define ANIM_DOOR_CLOSE 	0.5f
+
+//wektory
+#define LEFT Vector3D(-1.0f,0,0)
+#define RIGHT Vector3D(1.0f,0,0)
+#define TOP Vector3D(0,-1.0f,0)
+#define BOT Vector3D(0,1.0f,0)
+
+class Vector3D;
+class scaled;
+class rotated;
+class moved;
+class Player;
+class Box;
+class Blinker;
+class Switch;
+class Door;
 
 struct player_st;
 struct gem;
@@ -66,23 +79,26 @@ int score = 0;
 float win_countdown;
 unsigned int level = 0;
 
+int **map;
+
 static int screen_width;
 static int screen_height;
 bool keys[SDLK_LAST];
 
-extern float ratio;
-extern float current_time;
+float ratio;
+float current_time;
 float backdir = 1.0f;
 float background_start_time;
 
 unsigned int texturki[20];
 int map_width;
 int map_height;
-int **map;
 std::vector<rotated> kamienie;
 std::vector<Blinker> blinkery;
-std::vector<door> drzwi;
-std::vector<switcher> guziki;
+std::vector<Door> drzwi;
+std::vector<Switch> guziki;
 std::vector<Box> pudelka;
+
+int MapRead(Vector3D point);
 
 #endif

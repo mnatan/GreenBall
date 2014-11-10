@@ -1,8 +1,8 @@
-#include "animated.h"
-#include "../define.cpp"
-
 #ifndef SCALED
 #define SCALED
+
+#include "animated.h"
+#include "../define.h"
 
 class scaled: public animated
 {

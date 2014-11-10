@@ -2,7 +2,7 @@
 #define BLNKER
 
 #include "scaled.h"
-#include "../define.cpp"
+#include "../define.h"
 
 class Blinker: public scaled
 {

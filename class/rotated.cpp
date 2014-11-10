@@ -3,8 +3,6 @@
 
 #include "rotated.h"
 
-float ratio;
-
 rotated::rotated(Vector3D pos_, Vector3D vector, float angle_, float acc)
 {
 	rotationVector = vector;

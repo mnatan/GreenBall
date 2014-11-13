@@ -24,9 +24,9 @@ bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
 //template <class T>
-//std::vector<T>::iterator getByXYZ(Vector3D vect);
+//std::vector<T>::iterator getByVector(Vector3D vect);
 
-std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z);
-std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z);
-std::vector<Door>::iterator getDoorByXYZ(int x, int y, int z);
-std::vector<Switch>::iterator getSwitchByXYZ(int x, int y, int z);
+std::vector<rotated>::iterator getGemByVector(Vector3D v);
+std::vector<Box>::iterator getBoxByVector(Vector3D v);
+std::vector<Door>::iterator getDoorByVector(Vector3D v);
+std::vector<Switch>::iterator getSwitchByVector(Vector3D v);

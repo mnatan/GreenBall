@@ -30,8 +30,22 @@ Vector3D operator*(const Vector3D &lhs, const float rhs)
 
 std::ostream& operator<<(std::ostream& os, const Vector3D &rhs)
 {
-	os << "(" << rhs.x << ","<< rhs.y << "," << rhs.z << ")";
+	os << "(" << rhs.x << "," << rhs.y << "," << rhs.z << ")";
 	return os;
+}
+
+bool operator==(const Vector3D &lhs, const Vector3D &rhs)
+{
+	if ( lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z )
+	{
+		return true;
+	}
+	else return false;
+}
+
+bool operator!=(const Vector3D &lhs, const Vector3D &rhs)
+{
+	return not (lhs == rhs);
 }
 
 #endif

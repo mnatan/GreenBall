@@ -37,8 +37,6 @@
 
 #include "game.h"
 
-
-
 //using namespace std;
 
 // Globals.
@@ -127,78 +125,65 @@ static bool Events()
 
 static void Logic()
 {
-	int p_dx = 0;
-	int p_dy = 0;
+	Vector3D zmiana = NONE;
 
 	if (!map_player.active)
 	{
-		if (map[(int)map_player.pos.x][(int)map_player.pos.y] == MAP_NONE)
+		if (MapRead(map_player.pos) == MAP_NONE)
 		{
-			if (!fail)
-			{
-				fail = true;
-
-				map_player.active = true;
-
-				map_player.startTime = current_time;
-				map_player.endTime = current_time + ANIM_TIME_FALL;
-
-				map_player.startPos = Vector3D(
-				                          map_player.pos.x,
-				                          map_player.pos.y,
-				                          map_player.pos.z
-				                      );
-				map_player.endPos = Vector3D(
-				                        map_player.pos.x,
-				                        map_player.pos.y,
-				                        -21.0f
-				                    );
-			}
+			fail = true;
+			map_player.setAnimation(
+			    map_player.pos,
+			    Vector3D(
+			        map_player.pos.x,
+			        map_player.pos.y,
+			        -21.0f
+			    ),
+			    ANIM_TIME_FALL
+			);
 		}
 		if (!fail)
 		{
 			if (keys[SDLK_UP])
 			{
-				p_dy = -1;
+				zmiana = UP;
 				keys[SDLK_UP] = false;
 			}
 			else if (keys[SDLK_DOWN])
 			{
-				p_dy = 1;
+				zmiana = DOWN;
 				keys[SDLK_DOWN] = false;
 			}
 			else if (keys[SDLK_LEFT])
 			{
-				p_dx = -1;
+				zmiana = LEFT;
 				keys[SDLK_LEFT] = false;
 			}
 			else if (keys[SDLK_RIGHT])
 			{
-				p_dx = 1;
+				zmiana = RIGHT;
 				keys[SDLK_RIGHT] = false;
 			}
 		}
 	}
 
-	if (p_dx || p_dy)
+	if (zmiana != NONE)
 	{
 
-		int p_nx = map_player.pos.x + p_dx;
-		int p_ny = map_player.pos.y + p_dy;
-
+		Vector3D nowaPozycja = map_player.pos + zmiana;
 		bool moveok = true;
 
-		if ( map[p_nx][p_ny] == MAP_WALL)
+		if ( MapRead(nowaPozycja) == MAP_WALL)
 		{
 			moveok = false;
 		}
-		std::vector<Box>::iterator box = getBoxByXYZ( p_nx, p_ny, 0 );
+		std::vector<Box>::iterator box = getBoxByVector(nowaPozycja);
 		if ( box != pudelka.end())
 		{
 			moveok = false;
 			map_player.pushObj(*box);
 		}
-		std::vector<Door>::iterator door = getDoorByXYZ( p_nx, p_ny, 0 );
+		std::vector<Door>::iterator door = getDoorByVector(nowaPozycja);
 		if ( door != drzwi.end())
 		{
 			moveok = false;
@@ -206,23 +191,12 @@ static void Logic()
 
 		if (moveok)
 		{
-			map_player.active = true;
+			map_player.setAnimation(map_player.pos,
+			                        nowaPozycja,
+			                        ANIM_PLAYER_TIME
+			                       );
 
-			map_player.startTime = current_time;
-			map_player.endTime = current_time + ANIM_PLAYER_TIME;
-
-			map_player.startPos = Vector3D(
-			                          map_player.pos.x,
-			                          map_player.pos.y,
-			                          map_player.pos.z
-			                      );
-			map_player.endPos = Vector3D(
-			                        p_nx,
-			                        p_ny,
-			                        map_player.pos.z
-			                    );
-
-			std::vector<rotated>::iterator gem = getGemByXYZ( p_nx, p_ny, 0 );
+			std::vector<rotated>::iterator gem = getGemByVector(nowaPozycja);
 			if ( gem != kamienie.end())
 			{
 				kamienie.erase(gem);
@@ -368,7 +342,7 @@ static void Scene()
 	s = guziki.size();
 	for (size_t i = 0 ; i < s; i++)
 	{
-		std::vector<Box>::iterator box = getBoxByXYZ( guziki[i].pos.x, guziki[i].pos.y, 0 );
+		std::vector<Box>::iterator box = getBoxByVector(guziki[i].pos);
 		if ( box != pudelka.end())
 		{
 			if (!guziki[i].active)
@@ -1033,10 +1007,10 @@ bool LoadMap(const char *filename)
 		trig = trig + poprawka;
 		resp = resp + poprawka;
 		std::cout << trig << "->" << resp << std::endl;
-		std::vector<Switch>::iterator sw = getSwitchByXYZ( trig.x, trig.y, 0 );
+		std::vector<Switch>::iterator sw = getSwitchByVector(trig);
 		if ( sw != guziki.end() )
 		{
-			std::vector<Door>::iterator doo = getDoorByXYZ( resp.x, resp.y, 0 );
+			std::vector<Door>::iterator doo = getDoorByVector(resp);
 			if ( doo != drzwi.end() )
 			{
 				sw->target = &*doo;
@@ -1073,50 +1047,42 @@ bool LoadMap(const char *filename)
  *}
  */
 
-std::vector<rotated>::iterator getGemByXYZ(int x, int y, int z)
+std::vector<rotated>::iterator getGemByVector(Vector3D v)
 {
 	std::vector<rotated>::iterator s = kamienie.end();
 	for ( std::vector<rotated>::iterator i = kamienie.begin() ; i < s; i++)
 	{
-		if ( i->pos.x == x &&
-		        i->pos.y == y &&
-		        i->pos.z == z)
+		if ( i->pos == v )
 			return i;
 	}
 	return s;
 }
-std::vector<Box>::iterator getBoxByXYZ(int x, int y, int z)
+std::vector<Box>::iterator getBoxByVector(Vector3D v)
 {
 	std::vector<Box>::iterator s = pudelka.end();
 	for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
 	{
-		if ( i->pos.x == x &&
-		        i->pos.y == y &&
-		        i->pos.z == z)
+		if ( i->pos == v)
 			return i;
 	}
 	return s;
 }
-std::vector<Door>::iterator getDoorByXYZ(int x, int y, int z)
+std::vector<Door>::iterator getDoorByVector(Vector3D v)
 {
 	std::vector<Door>::iterator s = drzwi.end();
 	for ( std::vector<Door>::iterator i = drzwi.begin() ; i < s; i++)
 	{
-		if ( i->pos.x == x &&
-		        i->pos.y == y &&
-		        i->pos.z == z)
+		if ( i->pos == v)
 			return i;
 	}
 	return s;
 }
-std::vector<Switch>::iterator getSwitchByXYZ(int x, int y, int z)
+std::vector<Switch>::iterator getSwitchByVector(Vector3D v)
 {
 	std::vector<Switch>::iterator s = guziki.end();
 	for ( std::vector<Switch>::iterator i = guziki.begin() ; i < s; i++)
 	{
-		if ( i->pos.x == x &&
-		        i->pos.y == y &&
-		        i->pos.z == z)
+		if ( i->pos == v)
 			return i;
 	}
 	return s;
@@ -1126,4 +1092,3 @@ int MapRead(Vector3D point)
 {
 	return map[(int)point.x][(int)point.y];
 }
-

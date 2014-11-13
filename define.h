@@ -48,6 +48,9 @@
 #define RIGHT Vector3D(1,0,0)
 #define TOP Vector3D(0,-1,0)
 #define BOT Vector3D(0,1,0)
+#define DOWN Vector3D(0,0,-1)
+#define UP Vector3D(0,0,1)
+#define NONE Vector3D(0,0,0)
 
 class Vector3D;
 class scaled;

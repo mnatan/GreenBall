@@ -5,24 +5,11 @@
 
 void moved::setAnimation(Vector3D start, Vector3D end, float duration)
 {
-	active = true;
+	animating = true;
 	startPos = start;
 	endPos = end;
 	startTime = current_time;
 	endTime = current_time + duration;
-}
-bool moved::checkFloor()
-{
-	if (map[(int)pos.x][(int)pos.y] == MAP_NONE)
-	{
-		this->setAnimation(
-		    pos,
-		    Vector3D(pos.x, pos.y, -22.0f),
-		    ANIM_TIME_FALL
-		);
-		return true;
-	}
-	return false;
 }
 bool moved::UpdateAnimation()
 {
@@ -42,6 +29,19 @@ bool moved::UpdateAnimation()
 	      );
 
 	return true;
+}
+bool moved::checkFloor()
+{
+	if (MapRead(pos).statyczny->canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób?
+	{
+		this->setAnimation(
+		    pos,
+		    Vector3D(pos.x, pos.y, -22.0f),
+		    ANIM_TIME_FALL
+		);
+		return true;
+	}
+	return false;
 }
 
 #endif

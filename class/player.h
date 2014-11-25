@@ -7,7 +7,7 @@
 class Player: public moved
 {
 	public:
-	Player();
+	Player() : moved(zero, TEX_PLAYER){};
 	bool pushObj(moved &obj);
 };
 

@@ -4,10 +4,6 @@
 #include "player.h"
 #include "Vector3D.h"
 
-Player::Player()
-{
-	TEX = TEX_PLAYER;
-}
 bool Player::pushObj(moved &obj)
 {
 	Vector3D delta(
@@ -16,7 +12,7 @@ bool Player::pushObj(moved &obj)
 	    obj.pos.z - pos.z
 	);
 	Vector3D newspace = obj.pos + delta;
-	if (map[(int)newspace.x][(int)newspace.y] != MAP_WALL)
+	if (MapRead(newspace).statyczny->canEnter())
 	{
 		obj.setAnimation(
 		    obj.pos,

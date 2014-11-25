@@ -2,12 +2,14 @@
 #define SWITCH
 
 #include "trigger.cpp"
-#include "game_obj.cpp"
+#include "animated.cpp"
 
-class Switch: public game_obj, public Trigger
+class Switch: public animated, public Trigger
 {
 	public:
 	Switch(Vector3D pos_, Responser target_);
+
+	bool drawIt();
 };
 
 #endif

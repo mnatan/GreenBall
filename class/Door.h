@@ -13,6 +13,10 @@ class Door: public moved, public Responser
 	Door(Vector3D pos_);
 	bool respondON();
 	bool respondOFF();
+
+	bool drawIt();
+
+	bool canEnter();
 };
 
 #endif

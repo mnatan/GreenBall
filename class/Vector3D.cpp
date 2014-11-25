@@ -19,6 +19,15 @@ Vector3D operator+(const Vector3D &lhs, const Vector3D &rhs)
 	       );
 }
 
+Vector3D operator-(const Vector3D &lhs, const Vector3D &rhs)
+{
+	return Vector3D(
+	           lhs.x - rhs.x,
+	           lhs.y - rhs.y,
+	           lhs.z - rhs.z
+	       );
+}
+
 Vector3D operator*(const Vector3D &lhs, const float rhs)
 {
 	return Vector3D(

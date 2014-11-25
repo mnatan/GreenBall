@@ -7,9 +7,12 @@
 class animated: public game_obj
 {
 	public:
-	bool active;
+	bool animating;
 
-	bool UpdateAnimation();
+	animated(Vector3D pos, int TEX): game_obj(pos, TEX) {}
+
+	virtual bool UpdateAnimation();
+	bool isAnimated();
 };
 
 #endif

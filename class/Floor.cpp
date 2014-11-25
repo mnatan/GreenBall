@@ -3,7 +3,19 @@
 
 #include "Floor.h"
 
-bool canEnter(){
+Floor::Floor(Vector3D pos_) : game_obj(pos_, TEX_FLOOR), stable(true) { }
+
+bool Floor::canEnter()
+{
+	return stable;
+}
+bool Floor::drawIt()
+{
+	DrawCubeTexture(
+	    pos + Vector3D(0,0,-0.5f),
+	    1.0f,
+	    TEX
+	);
 	return true;
 }
 

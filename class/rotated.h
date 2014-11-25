@@ -2,6 +2,7 @@
 #define ROTATED
 
 #include "animated.h"
+#include "game_obj.cpp"
 #include "../define.h"
 
 class rotated: public animated

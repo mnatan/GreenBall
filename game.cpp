@@ -13,7 +13,6 @@
 #include <time.h>
 
 #include <GL/glut.h>
-
 #include <SDL/SDL_image.h>
 #include "SDL/SDL_ttf.h"
 
@@ -29,11 +28,18 @@
 #include "define.h"
 
 //#include "class/game_obj.cpp"
+#include "class/game_obj.cpp"
+#include "class/MapChunk.cpp"
 #include "class/blinker.cpp"
 #include "class/Player.cpp"
 #include "class/Box.cpp"
 #include "class/Door.cpp"
 #include "class/Switch.cpp"
+#include "class/Gem.cpp"
+
+#include "class/EmptySpace.cpp"
+#include "class/Floor.cpp"
+#include "class/Wall.cpp"
 
 #include "game.h"
 
@@ -125,11 +131,11 @@ static bool Events()
 
 static void Logic()
 {
-	Vector3D zmiana = NONE;
+	Vector3D zmiana = none;
 
-	if (!map_player.active)
+	if (!map_player.animating)
 	{
-		if (MapRead(map_player.pos) == MAP_NONE)
+		if (MapRead(map_player.pos).statyczny->canFall())
 		{
 			fail = true;
 			map_player.setAnimation(
@@ -146,48 +152,50 @@ static void Logic()
 		{
 			if (keys[SDLK_UP])
 			{
-				zmiana = UP;
+				zmiana = top;
 				keys[SDLK_UP] = false;
 			}
 			else if (keys[SDLK_DOWN])
 			{
-				zmiana = DOWN;
+				zmiana = bot;
 				keys[SDLK_DOWN] = false;
 			}
 			else if (keys[SDLK_LEFT])
 			{
-				zmiana = LEFT;
+				zmiana = left;
 				keys[SDLK_LEFT] = false;
 			}
 			else if (keys[SDLK_RIGHT])
 			{
-				zmiana = RIGHT;
+				zmiana = right;
 				keys[SDLK_RIGHT] = false;
 			}
 		}
 	}
 
-	if (zmiana != NONE)
+	if (zmiana != zero)
 	{
 
 		Vector3D nowaPozycja = map_player.pos + zmiana;
 		bool moveok = true;
 
-		if ( MapRead(nowaPozycja) == MAP_WALL)
+		if ( not MapRead(nowaPozycja).statyczny->canEnter() )
 		{
 			moveok = false;
 		}
-		std::vector<Box>::iterator box = getBoxByVector(nowaPozycja);
-		if ( box != pudelka.end())
-		{
-			moveok = false;
-			map_player.pushObj(*box);
-		}
-		std::vector<Door>::iterator door = getDoorByVector(nowaPozycja);
-		if ( door != drzwi.end())
-		{
-			moveok = false;
-		}
+		/*
+		 *std::vector<Box>::iterator box = getBoxByVector(nowaPozycja);
+		 *if ( box != pudelka.end())
+		 *{
+		 *    moveok = false;
+		 *    map_player.pushObj(*box);
+		 *}
+		 *std::vector<Door>::iterator door = getDoorByVector(nowaPozycja);
+		 *if ( door != drzwi.end())
+		 *{
+		 *    moveok = false;
+		 *}
+		 */
 
 		if (moveok)
 		{
@@ -196,23 +204,25 @@ static void Logic()
 			                        ANIM_PLAYER_TIME
 			                       );
 
-			std::vector<rotated>::iterator gem = getGemByVector(nowaPozycja);
-			if ( gem != kamienie.end())
-			{
-				kamienie.erase(gem);
-				score += 1;
-				if (kamienie.empty())
-				{
-					win = true;
-					win_countdown = current_time + WIN_WAIT_TIME;
-				}
-			}
+			/*
+			 *std::vector<rotated>::iterator gem = getGemByVector(nowaPozycja);
+			 *if ( gem != kamienie.end())
+			 *{
+			 *    kamienie.erase(gem);
+			 *    score += 1;
+			 *    if (kamienie.empty())
+			 *    {
+			 *        win = true;
+			 *        win_countdown = current_time + WIN_WAIT_TIME;
+			 *    }
+			 *}
+			 */
 		}
 	}
-	if (map_player.active)
+	if (map_player.animating)
 	{
 		//map_player.active = Move<player_st>(&map_player);
-		map_player.active = map_player.UpdateAnimation();
+		map_player.animating = map_player.UpdateAnimation();
 	}
 }
 
@@ -232,9 +242,9 @@ static void Scene()
 	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
 	glTranslatef(-9.5f, -7.0f, 0.0f);
 	DrawCubeTexture(
-	    9.5f, 7.0f, 0.0f,
+	    Vector3D(9.5f, 7.0f, 0.0f),
 	    0.9f,
-	    texturki[TEX_KUCYK]
+	    TEX_KUCYK
 	);
 	glPopMatrix();
 
@@ -252,15 +262,17 @@ static void Scene()
 	glTranslatef(trans += ANIM_BACKG_SPEED * ratio * backdir, 0.0f, 0.0f);
 	float skalar = 16.5f;
 	DrawQuadTexture(
-	    0.0f, 0.0f, -20.1f,
+	    Vector3D(0.0f, 0.0f, -20.1f),
 	    4.0f * skalar, 3.0f * skalar,
-	    texturki[TEX_BACKG] );
+	    TEX_BACKG
+	);
 	glPopMatrix();
+
 
 	glPushMatrix();
 	glTranslatef(
-	    -map_player.pos.x + 7.5f,
-	    -map_player.pos.y + 7.5f,
+	    -map_player.pos.x,
+	    -map_player.pos.y,
 	    -0.0f);
 
 	// Draw map
@@ -268,172 +280,208 @@ static void Scene()
 	{
 		for (int j = 0; j < map_width; j++)
 		{
-			switch (map[i][j])
+			MapRead(Vector3D(i, j, 0)).statyczny->drawIt();
+			std::vector<animated*>::iterator end = map[i][j].zawartosc.end();
+			for (
+			    std::vector<animated*>::iterator iter = map[i][j].zawartosc.begin();
+			    iter != end;
+			    ++iter)
 			{
-			case MAP_WALL:
-				for (int k = 0; k < 2; k++)
-				{
-					DrawCubeTexture(
-					    (float)i - 7.5f, (float)j - 7.5f, 0.5f + (float)k,
-					    1.0f,
-					    texturki[TEX_WALL]
-					);
-				}
-				DrawCubeTexture(
-				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-				    1.0f,
-				    texturki[TEX_FLOOR]
-				);
-				break;
-			case MAP_FLOOR:
-				DrawCubeTexture(
-				    (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-				    1.0f,
-				    texturki[TEX_FLOOR]
-				);
-				break;
-			case MAP_DOOR:
-				break;
-			case MAP_SWITCH:
-				break;
-			case MAP_BOX:
-				break;
-			case MAP_BLINKER:
-				break;
-			case MAP_NONE:
-				break;
-			default:
-				DrawQuadTexture(
-				    (float)i - 7.5f, (float)j - 7.5f, 0.0f,
-				    1.0f, 1.0f,
-				    texturki[map[i][j]]
-				);
-				break;
+				(*iter)->drawIt();
+				/*
+				 *if (iter->isAnimated())
+				 *{
+				 *    iter->UpdateAnimation();
+				 *}
+				 */
+				/*
+				 *DrawCubeTexture(
+				 *    iter->pos,
+				 *    1.0f,
+				 *    iter->TEX
+				 *);
+				 */
 			}
+			/* Stary switch
+			 *switch (map[i][j])
+			 *{
+			 *case MAP_WALL:
+			 *    for (int k = 0; k < 2; k++)
+			 *    {
+			 *        DrawCubeTexture(
+			 *            (float)i - 7.5f, (float)j - 7.5f, 0.5f + (float)k,
+			 *            1.0f,
+			 *            texturki[TEX_WALL]
+			 *        );
+			 *    }
+			 *    DrawCubeTexture(
+			 *        (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+			 *        1.0f,
+			 *        texturki[TEX_FLOOR]
+			 *    );
+			 *    break;
+			 *case MAP_FLOOR:
+			 *    DrawCubeTexture(
+			 *        (float)i - 7.5f, (float)j - 7.5f, -0.5f,
+			 *        1.0f,
+			 *        texturki[TEX_FLOOR]
+			 *    );
+			 *    break;
+			 *case MAP_DOOR:
+			 *    break;
+			 *case MAP_SWITCH:
+			 *    break;
+			 *case MAP_BOX:
+			 *    break;
+			 *case MAP_BLINKER:
+			 *    break;
+			 *case MAP_NONE:
+			 *    break;
+			 *default:
+			 *    DrawQuadTexture(
+			 *        (float)i - 7.5f, (float)j - 7.5f, 0.0f,
+			 *        1.0f, 1.0f,
+			 *        texturki[map[i][j]]
+			 *    );
+			 *    break;
+			 *}
+			 */
 		}
 	}
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	size_t s = blinkery.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		blinkery[i].UpdateAnimation();
-		DrawCubeTexture(
-		    (float)blinkery[i].pos.x - 7.5f, (float)blinkery[i].pos.y - 7.5f, (float)blinkery[i].pos.z - 0.5f,
-		    blinkery[i].scale,
-		    texturki[TEX_FLOOR]
-		);
-	}
-	s = drzwi.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		if (drzwi[i].active)
-		{
-			drzwi[i].UpdateAnimation();
-		}
-		DrawCubeTexture(
-		    (float)drzwi[i].pos.x - 7.5f, (float)drzwi[i].pos.y - 7.5f, (float)drzwi[i].pos.z + 0.5f,
-		    0.95f,
-		    texturki[drzwi[i].TEX]
-		);
-	}
-	s = guziki.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		std::vector<Box>::iterator box = getBoxByVector(guziki[i].pos);
-		if ( box != pudelka.end())
-		{
-			if (!guziki[i].active)
-			{
-				guziki[i].active = true;
-				guziki[i].ActivateTarget();
-				std::cout << "aktywuje" << std::endl;
-			}
-		}
-		else
-		{
-			if (guziki[i].active)
-			{
-				guziki[i].active = false;
-				guziki[i].DeactivateTarget();
-				std::cout << "deaktywuje" << std::endl;
-			}
-		}
-		DrawQuadTexture(
-		    (float)guziki[i].pos.x - 7.5f, (float)guziki[i].pos.y - 7.5f, (float)guziki[i].pos.z + 0.1f,
-		    1.0f, 1.0f,
-		    texturki[guziki[i].TEX]
-		);
-	}
-	s = pudelka.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		if (pudelka[i].active)
-		{
-			pudelka[i].active = pudelka[i].UpdateAnimation();
-		}
-		pudelka[i].checkFloor();
-		DrawCubeTexture(
-		    (float)pudelka[i].pos.x - 7.5f, (float)pudelka[i].pos.y - 7.5f, (float)pudelka[i].pos.z + 0.5f,
-		    1.0f,
-		    texturki[TEX_BOX]
-		);
-	}
+	//size_t s = blinkery.size();
+	//for (size_t i = 0 ; i < s; i++)
+	//{
+	//blinkery[i].UpdateAnimation();
+	//DrawCubeTexture(
+	//blinkery[i].pos - Vector3D(7.5f, 7.5f, 0.5f),
+	//blinkery[i].scale,
+	//texturki[TEX_FLOOR]
+	//);
+	//}
+	//s = drzwi.size();
+	//for (size_t i = 0 ; i < s; i++)
+	//{
+	//if (drzwi[i].animating)
+	//{
+	//drzwi[i].UpdateAnimation();
+	//}
+	/*
+	 *DrawCubeTexture(
+	 *    (float)drzwi[i].pos.x - 7.5f, (float)drzwi[i].pos.y - 7.5f, (float)drzwi[i].pos.z + 0.5f,
+	 *    0.95f,
+	 *    texturki[drzwi[i].TEX]
+	 *);
+	 */
+	//}
+	//s = guziki.size();
+	//for (size_t i = 0 ; i < s; i++)
+	//{
+	/*
+	 *std::vector<Box>::iterator box = getBoxByVector(guziki[i].pos);
+	 *if ( box != pudelka.end())
+	 *{
+	 *    if (!guziki[i].animating)
+	 *    {
+	 *        //guziki[i].active = true;
+	 *        guziki[i].ActivateTarget();
+	 *        std::cout << "aktywuje" << std::endl;
+	 *    }
+	 *}
+	 *else
+	 *{
+	 *    if (guziki[i].animating)
+	 *    {
+	 *        //guziki[i].active = false;
+	 *        guziki[i].DeactivateTarget();
+	 *        std::cout << "deaktywuje" << std::endl;
+	 *    }
+	 *}
+	 */
+	//DrawQuadTexture(
+	//(float)guziki[i].pos.x - 7.5f, (float)guziki[i].pos.y - 7.5f, (float)guziki[i].pos.z + 0.1f,
+	//1.0f, 1.0f,
+	//texturki[guziki[i].TEX]
+	//);
+	//}
+	//s = pudelka.size();
+	//for (size_t i = 0 ; i < s; i++)
+	//{
+	//if (pudelka[i].animating)
+	//{
+	//pudelka[i].animating = pudelka[i].UpdateAnimation();
+	//}
+	//pudelka[i].checkFloor();
+	/*
+	 *DrawCubeTexture(
+	 *    (float)pudelka[i].pos.x - 7.5f, (float)pudelka[i].pos.y - 7.5f, (float)pudelka[i].pos.z + 0.5f,
+	 *    1.0f,
+	 *    texturki[TEX_BOX]
+	 *);
+	 */
+	//}
 
-	s = kamienie.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		kamienie[i].UpdateAnimation();
-		glPushMatrix();
-		glTranslatef((float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f);
-		glRotatef(
-		    kamienie[i].accumulator,
-		    kamienie[i].rotationVector.x,
-		    kamienie[i].rotationVector.y,
-		    kamienie[i].rotationVector.z
-		);
-		glTranslatef(-(float)kamienie[i].pos.x + 7.5f, -(float)kamienie[i].pos.y + 7.5f, -0.5f);
-		//glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
-		DrawQuadTexture(
-		    (float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f,
-		    1.0f, 1.0f,
-		    texturki[TEX_GEM]
-		);
-		glPopMatrix();
-	}
+	//s = kamienie.size();
+	//for (size_t i = 0 ; i < s; i++)
+	//{
+	//kamienie[i].UpdateAnimation();
+	//glPushMatrix();
+	//glTranslatef((float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f);
+	//glRotatef(
+	//kamienie[i].accumulator,
+	//kamienie[i].rotationVector.x,
+	//kamienie[i].rotationVector.y,
+	//kamienie[i].rotationVector.z
+	//);
+	//glTranslatef(-(float)kamienie[i].pos.x + 7.5f, -(float)kamienie[i].pos.y + 7.5f, -0.5f);
+	////glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
+	//DrawQuadTexture(
+	//(float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f,
+	//1.0f, 1.0f,
+	//texturki[TEX_GEM]
+	//);
+	//glPopMatrix();
+	//}
 
 	// draw player
 	DrawQuadTexture(
-	    map_player.pos.x - 7.5f, map_player.pos.y - 7.5f, map_player.pos.z + 0.5f,
+	    map_player.pos + Vector3D(0,0,0.5f),
 	    0.8f, 0.8f,
-	    texturki[TEX_PLAYER]
+	    TEX_PLAYER
 	);
 
 	if (win)
 	{
-		DrawQuadTexture(
-		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.5f,
-		    7.0f, 2.0f,
-		    texturki[TEX_LVLCMP]
-		);
+		/*
+		 *DrawQuadTexture(
+		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.5f,
+		 *    7.0f, 2.0f,
+		 *    texturki[TEX_LVLCMP]
+		 *);
+		 */
 	}
 	if (fail)
 	{
-		DrawQuadTexture(
-		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.6f,
-		    7.0f, 2.0f,
-		    texturki[TEX_FAIL]
-		);
+		/*
+		 *DrawQuadTexture(
+		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.6f,
+		 *    7.0f, 2.0f,
+		 *    texturki[TEX_FAIL]
+		 *);
+		 */
 	}
 	if (game_complete)
 	{
-		DrawQuadTexture(
-		    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.7f,
-		    7.0f, 2.0f,
-		    texturki[TEX_WIN]
-		);
+		/*
+		 *DrawQuadTexture(
+		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.7f,
+		 *    7.0f, 2.0f,
+		 *    texturki[TEX_WIN]
+		 *);
+		 */
 	}
 
 	glPopMatrix();
@@ -447,16 +495,18 @@ static void Scene()
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid( fontKomoda, result.c_str(), blueFont );
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
-	DrawQuadRGBA(
-	    7.0f, -6.0f, 2.1f,
-	    3.5f, 1.5f,
-	    78, 158, 116, 0.6
-	);
-	DrawQuadTexture(
-	    7.0f, -6.0f, 2.2f,
-	    3.0f, 1.0f,
-	    texturki[TEX_SCORE]
-	);
+	/*
+	 *DrawQuadRGBA(
+	 *    7.0f, -6.0f, 2.1f,
+	 *    3.5f, 1.5f,
+	 *    78, 158, 116, 0.6
+	 *);
+	 *DrawQuadTexture(
+	 *    7.0f, -6.0f, 2.2f,
+	 *    3.0f, 1.0f,
+	 *    texturki[TEX_SCORE]
+	 *);
+	 */
 
 	glDisable(GL_BLEND);
 
@@ -518,9 +568,9 @@ int main(int argc, char **argv, char **envp)
 	//LoadMap("maps/map1.txt");
 	LoadNextLevel();
 
+
 	for (;;)
 	{
-
 		// Main stuff.
 		if (!Events())
 			break;
@@ -813,7 +863,7 @@ void DrawCube(float x, float y, float z, float a)
 	glVertex3f(x + -a, y + a, z + a);
 	glEnd();
 }
-void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id)
+void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -821,8 +871,8 @@ void DrawCubeTexture(float x, float y, float z, float a, unsigned int texture_id
 		glEnable(GL_TEXTURE_2D);
 
 	// Bind texture and draw.
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	DrawCube(x, y, z, a);
+	glBindTexture(GL_TEXTURE_2D, texturki[texture_id]);
+	DrawCube(pos.x, pos.y, pos.z, a);
 
 	// Disable if was disabled.
 	if (!texturing_enabled)
@@ -858,7 +908,7 @@ void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g,
 	// Set old color.
 	glColor4fv(current_color);
 }
-void DrawQuadTexture(float x, float y, float z, float w, float h, unsigned int texture_id)
+void DrawQuadTexture(Vector3D vect, float w, float h, unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -866,8 +916,8 @@ void DrawQuadTexture(float x, float y, float z, float w, float h, unsigned int t
 		glEnable(GL_TEXTURE_2D);
 
 	// Bind texture and draw.
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	DrawQuad(x, y, z, w, h);
+	glBindTexture(GL_TEXTURE_2D, texturki[texture_id]);
+	DrawQuad(vect.x, vect.y, vect.z, w, h);
 
 	// Disable if was disabled.
 	if (!texturing_enabled)
@@ -879,10 +929,6 @@ bool LoadNextLevel()
 	level++;
 	char filename[256] = {0};
 	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
-	blinkery.clear();
-	drzwi.clear();
-	guziki.clear();
-	pudelka.clear();
 	return LoadMap(filename);
 }
 bool LoadMap(const char *filename)
@@ -898,17 +944,19 @@ bool LoadMap(const char *filename)
 	char line[64];
 	fgets(line, sizeof(line), f);
 
-	map = new int* [map_height];
+	map = new MapChunk *[map_height];
 	for (int i = 0; i < map_height ; i++)
-		map[i] = new int[map_width];
+		map[i] = new MapChunk[map_width];
 
-	for (int i = 0; i < map_width; i++)
-	{
-		for (int j = 0; j < map_height; j++)
-		{
-			map[i][j] = -1;
-		}
-	}
+	/*
+	 *for (int i = 0; i < map_width; i++)
+	 *{
+	 *    for (int j = 0; j < map_height; j++)
+	 *    {
+	 *        map[i][j] = MapChunk();
+	 *    }
+	 *}
+	 */
 	for (int i = 0; i < map_width; i++)
 	{
 		fgets(line, sizeof(line), f);
@@ -923,21 +971,19 @@ bool LoadMap(const char *filename)
 			switch ( line[j] )
 			{
 			case ' ':
-				map[j][i] = MAP_NONE;
+				map[j][i].statyczny = new EmptySpace();
 				break;
 			case 'p':
-				map_player.pos.x = j;
-				map_player.pos.y = i;
-				map_player.pos.z = 0.0;
-				map[j][i] = MAP_FLOOR;
+				map_player.pos = Vector3D(j, i, 0);
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
 				break;
 			case '#':
-				map[j][i] = MAP_WALL;
+				map[j][i].statyczny = new Wall(Vector3D(j, i, 0));
 				break;
 			case 'g':
-				map[j][i] = MAP_FLOOR;
-				kamienie.push_back(
-				    rotated(
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i].zawartosc.push_back(
+				    new Gem( // TODO jebnąć to w Gem();
 				        Vector3D(j, i, 0),
 				        Vector3D(0, 1.0, 0),
 				        (rand() % 10) + 50,
@@ -946,38 +992,37 @@ bool LoadMap(const char *filename)
 				);
 				break;
 			case '.':
-				map[j][i] = MAP_FLOOR;
-				break;
-			case 'o':
-				map[j][i] = MAP_STONE;
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
 				break;
 			case 'b':
-				map[j][i] = MAP_BLINKER;
-				blinkery.push_back(Blinker(Vector3D(j, i, 0),
-				                           (((float)(rand() % 200 )) / 100) + 1,
-				                           (((float)(rand() % 200 )) / 100) + 1
-				                          ));
+				map[j][i].statyczny = new Blinker(Vector3D(j, i, 0),
+				                                  (((float)(rand() % 200 )) / 100) + 1,
+				                                  (((float)(rand() % 200 )) / 100) + 1
+				                                 );
 				break;
 			case 'd':
-				map[j][i] = MAP_FLOOR;
-				drzwi.push_back(
-				    Door(
-				        Vector3D(j, i, 0)
-				    )
-				);
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i].zawartosc.push_back( new Door(
+				                                   Vector3D(j, i, 0)
+				                               )
+				                             );
 				break;
 			case 'x':
-				map[j][i] = MAP_FLOOR;
-				pudelka.push_back(
-				    Box(
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i].zawartosc.push_back(
+				    new Box(
 				        Vector3D(j, i, 0)
 				    )
 				);
 				break;
 			case 's':
-				map[j][i] = MAP_FLOOR;
-				//FIXME TODO
-				guziki.push_back(Switch( Vector3D(j, i, 0), Responser() ));
+				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i].zawartosc.push_back(
+				    new Switch(
+				        Vector3D(j, i, 0),
+				        Responser()
+				    )
+				);
 				break;
 			default:
 				fprintf(stderr, "error: unexpected char \"%c\" in %d %d: \"%s\"\n", line[j], i, j, filename);
@@ -989,106 +1034,96 @@ bool LoadMap(const char *filename)
 	Vector3D poprawka(-1, -2, 0);
 
 
-	size_t s = drzwi.size();
-	for (size_t i = 0 ; i < s; i++)
-	{
-		drzwi[i] = Door(drzwi[i].pos);
-	}
+	/*poprawkaTODO FIXME Powrót to buga z drzwiami dol prawo
+	 *size_t s = drzwi.size();
+	 *for (size_t i = 0 ; i < s; i++)
+	 *{
+	 *    drzwi[i] = Door(drzwi[i].pos);
+	 *}
+	 */
 
-	while (fgets(line, sizeof(line), f) != NULL)
-	{
-		std::string line_ = line;
-		std::stringstream ss;
-		ss << line_;
-		ss >> trig.y;
-		ss >> trig.x;
-		ss >> resp.y;
-		ss >> resp.x;
-		trig = trig + poprawka;
-		resp = resp + poprawka;
-		std::cout << trig << "->" << resp << std::endl;
-		std::vector<Switch>::iterator sw = getSwitchByVector(trig);
-		if ( sw != guziki.end() )
-		{
-			std::vector<Door>::iterator doo = getDoorByVector(resp);
-			if ( doo != drzwi.end() )
-			{
-				sw->target = &*doo;
-			}
-			else
-			{
-				std::cout << "Niepoprawne koordynaty responsera!" << std::endl;
-			}
-
-		}
-		else
-		{
-			std::cout << "Niepoprawne koordynaty triggera!" << std::endl;
-		}
-	}
+	/*      TODO FIXME Przypisywanie guzikom drzwi.
+	 *    while (fgets(line, sizeof(line), f) != NULL)
+	 *    {
+	 *        std::string line_ = line;
+	 *        std::stringstream ss;
+	 *        ss << line_;
+	 *        ss >> trig.y;
+	 *        ss >> trig.x;
+	 *        ss >> resp.y;
+	 *        ss >> resp.x;
+	 *        trig = trig + poprawka;
+	 *        resp = resp + poprawka;
+	 *        std::cout << trig << "->" << resp << std::endl;
+	 *        std::vector<Switch>::iterator sw = getSwitchByVector(trig);
+	 *        if ( sw != guziki.end() )
+	 *        {
+	 *            std::vector<Door>::iterator doo = getDoorByVector(resp);
+	 *            if ( doo != drzwi.end() )
+	 *            {
+	 *                sw->target = &*doo;
+	 *            }
+	 *            else
+	 *            {
+	 *                std::cout << "Niepoprawne koordynaty responsera!" << std::endl;
+	 *            }
+	 *
+	 *        }
+	 *        else
+	 *        {
+	 *            std::cout << "Niepoprawne koordynaty triggera!" << std::endl;
+	 *        }
+	 *    }
+	 */
 
 	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
 	return true;
 }
 
-/*
- *template <typename T>
- *typename std::vector<T>::iterator getByVector(Vector3D vect)
+/* Pozostałości po starych strukturach danych
+ *std::vector<rotated>::iterator getGemByVector(Vector3D v)
+ *{
+ *    std::vector<rotated>::iterator s = kamienie.end();
+ *    for ( std::vector<rotated>::iterator i = kamienie.begin() ; i < s; i++)
+ *    {
+ *        if ( i->pos == v )
+ *            return i;
+ *    }
+ *    return s;
+ *}
+ *std::vector<Box>::iterator getBoxByVector(Vector3D v)
  *{
  *    std::vector<Box>::iterator s = pudelka.end();
  *    for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
  *    {
- *        if ( i->pos.x == x &&
- *                i->pos.y == y &&
- *                i->pos.z == z)
+ *        if ( i->pos == v)
+ *            return i;
+ *    }
+ *    return s;
+ *}
+ *std::vector<Door>::iterator getDoorByVector(Vector3D v)
+ *{
+ *    std::vector<Door>::iterator s = drzwi.end();
+ *    for ( std::vector<Door>::iterator i = drzwi.begin() ; i < s; i++)
+ *    {
+ *        if ( i->pos == v)
+ *            return i;
+ *    }
+ *    return s;
+ *}
+ *std::vector<Switch>::iterator getSwitchByVector(Vector3D v)
+ *{
+ *    std::vector<Switch>::iterator s = guziki.end();
+ *    for ( std::vector<Switch>::iterator i = guziki.begin() ; i < s; i++)
+ *    {
+ *        if ( i->pos == v)
  *            return i;
  *    }
  *    return s;
  *}
  */
 
-std::vector<rotated>::iterator getGemByVector(Vector3D v)
-{
-	std::vector<rotated>::iterator s = kamienie.end();
-	for ( std::vector<rotated>::iterator i = kamienie.begin() ; i < s; i++)
-	{
-		if ( i->pos == v )
-			return i;
-	}
-	return s;
-}
-std::vector<Box>::iterator getBoxByVector(Vector3D v)
-{
-	std::vector<Box>::iterator s = pudelka.end();
-	for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
-	{
-		if ( i->pos == v)
-			return i;
-	}
-	return s;
-}
-std::vector<Door>::iterator getDoorByVector(Vector3D v)
-{
-	std::vector<Door>::iterator s = drzwi.end();
-	for ( std::vector<Door>::iterator i = drzwi.begin() ; i < s; i++)
-	{
-		if ( i->pos == v)
-			return i;
-	}
-	return s;
-}
-std::vector<Switch>::iterator getSwitchByVector(Vector3D v)
-{
-	std::vector<Switch>::iterator s = guziki.end();
-	for ( std::vector<Switch>::iterator i = guziki.begin() ; i < s; i++)
-	{
-		if ( i->pos == v)
-			return i;
-	}
-	return s;
-}
-
-int MapRead(Vector3D point)
+MapChunk &MapRead(Vector3D point)
 {
 	return map[(int)point.x][(int)point.y];
 }

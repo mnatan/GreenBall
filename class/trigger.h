@@ -8,7 +8,7 @@ class Trigger
 {
 	public:
 	Responser *target;
-	bool active;
+	bool triggered;
 
 	bool ActivateTarget();
 	bool DeactivateTarget();

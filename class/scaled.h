@@ -15,6 +15,8 @@ class scaled: public animated
 	float startTime; //start time
 	float endTime; //start time
 
+	scaled() : animated(zero,-1){};
+
 	void setAnimation(float start, float end, float timestart, float timeend);
 	bool UpdateAnimation();
 };

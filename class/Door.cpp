@@ -3,29 +3,28 @@
 
 #include "Door.h"
 
-Door::Door(Vector3D pos_)
+Door::Door(Vector3D pos_) : moved(pos_, TEX_DOOR)
 {
-	TEX = TEX_DOOR;
-	pos = pos_;
 	closedPos = pos_;
-	if (MapRead(pos + LEFT) == MAP_WALL)
+	if (MapRead(pos + left).statyczny->isSolid())
 	{
-		openPos = pos + LEFT + (RIGHT * 0.1);
+		openPos = pos + left + (right * 0.1);
 	}
-	else if (MapRead(pos + RIGHT) == MAP_WALL)
+	else if (MapRead(pos + right).statyczny->isSolid())
 	{
-		openPos = pos + RIGHT + (LEFT * 0.1);
+		openPos = pos + right + (left * 0.1);
 	}
-	else if (MapRead(pos + TOP) == MAP_WALL)
+	else if (MapRead(pos + top).statyczny->isSolid())
 	{
-		openPos = pos + TOP + (BOT * 0.1);
+		openPos = pos + top + (bot * 0.1);
 	}
-	else if (MapRead(pos + BOT) == MAP_WALL)
+	else if (MapRead(pos + bot).statyczny->isSolid())
 	{
-		openPos = pos + BOT + (TOP * 0.1);
+		openPos = pos + bot + (top * 0.1);
 	}
-	else {
-		openPos = pos + Vector3D(0,0,-0.9);
+	else
+	{
+		openPos = pos + Vector3D(0, 0, -0.9);
 	}
 }
 
@@ -46,6 +45,22 @@ bool Door::respondOFF()
 	    ANIM_DOOR_CLOSE
 	);
 	return true;
+}
+bool Door::drawIt()
+{
+	UpdateAnimation();
+	DrawCubeTexture(
+	    pos + Vector3D(0, 0, 0.7f),
+	    0.95f,
+	    TEX
+	);
+	return true;
+}
+
+bool Door::canEnter()
+{
+	if (pos == closedPos) return true;
+	else return false;
 }
 
 #endif

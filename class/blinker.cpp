@@ -14,6 +14,16 @@ Blinker::Blinker(Vector3D pozycja, float time_dead_, float time_alive_)
 	state = visible;
 	next_switch = current_time + time_alive;
 }
+bool Blinker::drawIt()
+{
+	UpdateAnimation();
+	DrawCubeTexture(
+	    pos + Vector3D(0, 0, -0.5f),
+	    scale,
+	    TEX_FLOOR
+	);
+	return true;
+}
 bool Blinker::UpdateAnimation()
 {
 	if (current_time > next_switch)
@@ -37,7 +47,8 @@ bool Blinker::UpdateAnimation()
 			    current_time,
 			    current_time + BLINK_FADE_TIME
 			);
-			map[(int)pos.x][(int)pos.y] = MAP_BLINKER;
+			// TODO Włącz spadanie na tym chunku
+			return true;
 		}
 	}
 	else if (state == shrinking)
@@ -46,7 +57,8 @@ bool Blinker::UpdateAnimation()
 		{
 			state = hidden;
 			scale = 0;
-			map[(int)pos.x][(int)pos.y] = MAP_NONE;
+			// TODO Wyłącz spadanie na tym chunku
+			return false;
 		}
 		else
 		{
@@ -66,5 +78,13 @@ bool Blinker::UpdateAnimation()
 		}
 	}
 	return true;
+}
+bool Blinker::canEnter()
+{
+	return true;
+}
+bool Blinker::canFall()
+{
+	if (state == hidden) return true; else return false;
 }
 #endif

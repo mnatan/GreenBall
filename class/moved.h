@@ -12,7 +12,7 @@ class moved: public animated
 	float startTime;
 	float endTime;
 
-	moved(): startPos(pos), endPos(pos), startTime(0), endTime(0){}
+	moved(Vector3D pos, int TEX): animated(pos, TEX), startPos(pos), endPos(pos), startTime(0), endTime(0){};
 	void setAnimation(Vector3D start, Vector3D end, float duration);
 	bool checkFloor();
 	bool UpdateAnimation();

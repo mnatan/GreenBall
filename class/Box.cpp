@@ -3,10 +3,9 @@
 
 #include "Box.h"
 
-Box::Box(Vector3D pos_){
-	active = false;
+Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX){
+	animating = false;
 	endTime = current_time;
-	pos = pos_;
 }
 
 #endif

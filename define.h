@@ -1,3 +1,4 @@
+
 #ifndef DEFINITIONS
 #define DEFINITIONS
 
@@ -44,23 +45,27 @@
 #define ANIM_DOOR_CLOSE 	0.5f
 
 //wektory
-#define LEFT Vector3D(-1,0,0)
-#define RIGHT Vector3D(1,0,0)
-#define TOP Vector3D(0,-1,0)
-#define BOT Vector3D(0,1,0)
-#define DOWN Vector3D(0,0,-1)
-#define UP Vector3D(0,0,1)
-#define NONE Vector3D(0,0,0)
+
+class MapChunk;
+
+class Player;
 
 class Vector3D;
+
+class game_obj;
+class animated;
 class scaled;
 class rotated;
 class moved;
-class Player;
+
+class Gem;
 class Box;
 class Blinker;
 class Switch;
 class Door;
+class Wall;
+class Floor;
+class EmptySpace;
 
 struct player_st;
 struct gem;
@@ -82,7 +87,8 @@ int score = 0;
 float win_countdown;
 unsigned int level = 0;
 
-int **map;
+//int **map;
+MapChunk **map;
 
 static int screen_width;
 static int screen_height;
@@ -102,6 +108,13 @@ std::vector<Door> drzwi;
 std::vector<Switch> guziki;
 std::vector<Box> pudelka;
 
-int MapRead(Vector3D point);
+MapChunk &MapRead(Vector3D point);
+
+void DrawQuad(float x, float y, float z, float w, float h);
+void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g, float b, float a);
+void DrawQuadTexture(Vector3D vect, float w, float h, unsigned int texture_id);
+
+void DrawCube(float x, float y, float z, float a);
+void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id);
 
 #endif

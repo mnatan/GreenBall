@@ -3,7 +3,7 @@
 # Comments, suggestions and bugs email: gaten DOT net AT gmail DOT com
 
 # Compiler
-CC=colorgcc
+CC=g++
 
 # Objects
 OBJECTS=game.o

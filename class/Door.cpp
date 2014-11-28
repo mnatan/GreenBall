@@ -59,7 +59,7 @@ bool Door::drawIt()
 
 bool Door::canEnter()
 {
-	if (pos == closedPos) return true;
+	if (pos == openPos) return true;
 	else return false;
 }
 

@@ -32,7 +32,7 @@ bool Gem::drawIt()
 	return true;
 }
 
-	void Gem::playerEnters(Vector3D zmiana){
+	void Gem::playerEnters(Vector3D &zmiana){
 		
 	}
 

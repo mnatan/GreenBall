@@ -41,7 +41,7 @@ bool MapChunk::drawIt()			// Rysuje cały pion warstw mapy
 	return true;
 }
 
-bool MapChunk::playerEnters(Vector3D zmiana){	// Informujemy wszystkie obiekty na polu że wchodzi tam gracz
+bool MapChunk::playerEnters(Vector3D &zmiana){	// Informujemy wszystkie obiekty na polu że wchodzi tam gracz
 	std::vector<game_obj*>::iterator end = zawartosc.end();
 	for(std::vector<game_obj*>::iterator iter = zawartosc.begin(); iter != end; ++iter)
 	{

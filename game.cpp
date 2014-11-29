@@ -188,7 +188,6 @@ static void Logic()
 	}
 	if (map_player.animating)
 	{
-		//map_player.active = Move<player_st>(&map_player);
 		map_player.animating = map_player.UpdateAnimation();
 	}
 }

@@ -10,7 +10,7 @@ class Box: public moved
 	Box(Vector3D pos_);
 	bool drawIt();
 	bool canEnter(Vector3D &zmiana);
-	void playerEnters(Vector3D zmiana);
+	void playerEnters(Vector3D &zmiana);
 };
 
 #endif

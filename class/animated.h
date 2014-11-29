@@ -13,6 +13,7 @@ class animated: public game_obj
 
 	virtual bool UpdateAnimation();
 	bool isAnimated();
+	virtual std::string typKlasy() { return "animated"; };
 };
 
 #endif

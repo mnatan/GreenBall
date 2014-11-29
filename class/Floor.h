@@ -12,6 +12,7 @@ class Floor: public game_obj
 
 	bool canEnter();
 	bool drawIt();
+	virtual std::string typKlasy(){ return "Floor";};
 };
 
 #endif

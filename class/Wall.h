@@ -12,6 +12,7 @@ class Wall: public game_obj
 	bool canEnter();
 	bool isSolid();
 	bool drawIt();
+	virtual std::string typKlasy(){ return "Wall";};
 };
 
 #endif

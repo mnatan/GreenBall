@@ -16,6 +16,7 @@ class moved: public animated
 	void setAnimation(Vector3D start, Vector3D end, float duration);
 	bool checkFloor();
 	bool UpdateAnimation();
+	virtual std::string typKlasy() { return "moved"; };
 };
 
 #endif

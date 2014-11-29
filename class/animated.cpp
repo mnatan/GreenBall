@@ -7,6 +7,7 @@ bool animated::isAnimated()
 {
 	return true;
 }
+
 bool animated::UpdateAnimation()
 {
 	return false;

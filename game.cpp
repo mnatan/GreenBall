@@ -506,7 +506,6 @@ int main(int argc, char **argv, char **envp)
 	//LoadMap("maps/map1.txt");
 	LoadNextLevel();
 
-
 	for (;;)
 	{
 		// Main stuff.
@@ -879,15 +878,15 @@ bool LoadMap(const char * filename)
 	}
 	fscanf(f, "%d", &map_height);
 	fscanf(f, "%d", &map_width);
-	char line[64]
+	char line[64];
 	fgets(line, sizeof(line), f);
 
 	map = new MapChunk **[map_height];              // Inicjalizacja trójwymiarowej tablicy
 	for (int i = 0; i < map_height ; i++)
 		map[i] = new MapChunk*[map_width];
 	for (int i = 0; i < map_height ; i++)
-		for (int j = 0; j < map_layers ; j++)
-			map[i][j] = new MapChunk[map_width];    // end
+		for (int j = 0; j < map_width ; j++)
+			map[i][j] = new MapChunk[map_layers];    // end
 
 	for (int i = 0; i < map_width; i++)
 	{

@@ -4,7 +4,7 @@
 #include "Responser.cpp"
 #include "game_obj.cpp"
 
-class Door: public moved, public Responser
+class Door: public moved //, public Responser
 {
 	public:
 	Vector3D openPos;
@@ -17,6 +17,7 @@ class Door: public moved, public Responser
 	bool drawIt();
 
 	bool canEnter();
+	virtual std::string typKlasy() { return "Door"; };
 };
 
 #endif

@@ -17,6 +17,7 @@ class game_obj
 	virtual bool isSolid();
 	virtual bool isAnimated();
 	virtual bool drawIt();
+	virtual std::string typKlasy(){return "game_obj";};
 };
 
 #endif

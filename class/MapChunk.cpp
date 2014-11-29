@@ -29,11 +29,13 @@ bool MapChunk::canFall()		// Sprawdza czy to miejsce może utrzymać obiekt
 	}
 	return can;
 }
+
 bool MapChunk::drawIt()			// Rysuje cały pion warstw mapy
 {
 	std::vector<game_obj*>::iterator end = zawartosc.end();
 	for(std::vector<game_obj*>::iterator iter = zawartosc.begin(); iter != end; ++iter)
 	{
+		//std::cout << (*iter)->typKlasy() << std::endl;
 		(*iter)->drawIt();
 	}
 	return true;

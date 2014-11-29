@@ -4,7 +4,7 @@
 #include "EmptySpace.h"
 
 EmptySpace::EmptySpace() : game_obj(zero, -1) {}
-bool EmptySpace::canEnter()
+bool EmptySpace::canEnter(Vector3D &zmiana)
 {
 	return true;
 }

@@ -13,11 +13,12 @@ class game_obj
 	unsigned int TEX;
 
 	virtual bool canFall();
-	virtual bool canEnter();
+	virtual bool canEnter(Vector3D &zmiana);
 	virtual bool isSolid();
 	virtual bool isAnimated();
 	virtual bool drawIt();
 	virtual std::string typKlasy(){return "game_obj";};
+	virtual void playerEnters(Vector3D &zmiana);
 };
 
 #endif

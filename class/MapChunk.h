@@ -12,9 +12,10 @@ class MapChunk
 	std::vector<game_obj*> zawartosc;
 
 	MapChunk();
-	bool canEnter();
+	bool canEnter(Vector3D &zmiana);
 	bool canFall();
 	bool drawIt();
+	bool playerEnters(Vector3D zmiana);
 };
 
 #endif

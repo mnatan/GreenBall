@@ -5,7 +5,7 @@
 
 Floor::Floor(Vector3D pos_) : game_obj(pos_, TEX_FLOOR), stable(true) { }
 
-bool Floor::canEnter()
+bool Floor::canEnter(Vector3D &zmiana)
 {
 	return stable;
 }

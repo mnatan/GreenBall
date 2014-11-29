@@ -26,7 +26,7 @@ class Blinker: public scaled
 	bool UpdateAnimation();
 	bool drawIt();
 
-	bool canEnter();
+	bool canEnter(Vector3D &zmiana);
 	bool canFall();
 };
 #endif

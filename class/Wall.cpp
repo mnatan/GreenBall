@@ -6,7 +6,7 @@
 Wall::Wall(Vector3D pos) : game_obj(pos, TEX_WALL)
 {
 }
-bool Wall::canEnter()
+bool Wall::canEnter(Vector3D &zmiana)
 {
 	return false;
 }

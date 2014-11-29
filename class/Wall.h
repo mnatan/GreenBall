@@ -9,7 +9,7 @@ class Wall: public game_obj
 	public:
 	Wall(Vector3D pos);
 
-	bool canEnter();
+	bool canEnter(Vector3D &zmiana);
 	bool isSolid();
 	bool drawIt();
 	virtual std::string typKlasy(){ return "Wall";};

@@ -16,7 +16,7 @@ class Door: public moved //, public Responser
 
 	bool drawIt();
 
-	bool canEnter();
+	bool canEnter(Vector3D &zmiana);
 	virtual std::string typKlasy() { return "Door"; };
 };
 

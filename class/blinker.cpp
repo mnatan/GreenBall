@@ -79,7 +79,7 @@ bool Blinker::UpdateAnimation()
 	}
 	return true;
 }
-bool Blinker::canEnter()
+bool Blinker::canEnter(Vector3D &zmiana)
 {
 	return true;
 }

@@ -135,7 +135,7 @@ static void Logic()
 
 	if (!map_player.animating)
 	{
-		if (MapRead(map_player.pos - down).canFall())
+		if (MapRead(map_player.pos + down).canFall())
 		{
 			fail = true;
 			map_player.setAnimation(
@@ -175,48 +175,15 @@ static void Logic()
 
 	if (zmiana != zero)
 	{
-
 		Vector3D nowaPozycja = map_player.pos + zmiana;
-		bool moveok = true;
 
-		if ( not MapRead(nowaPozycja).canEnter() )
+		if (MapRead(nowaPozycja).canEnter(zmiana))
 		{
-			moveok = false;
-		}
-		/*
-		 *std::vector<Box>::iterator box = getBoxByVector(nowaPozycja);
-		 *if ( box != pudelka.end())
-		 *{
-		 *    moveok = false;
-		 *    map_player.pushObj(*box);
-		 *}
-		 *std::vector<Door>::iterator door = getDoorByVector(nowaPozycja);
-		 *if ( door != drzwi.end())
-		 *{
-		 *    moveok = false;
-		 *}
-		 */
-
-		if (moveok)
-		{
+			MapRead(nowaPozycja).playerEnters(zmiana);
 			map_player.setAnimation(map_player.pos,
 			                        nowaPozycja,
 			                        ANIM_PLAYER_TIME
 			                       );
-
-			/*
-			 *std::vector<rotated>::iterator gem = getGemByVector(nowaPozycja);
-			 *if ( gem != kamienie.end())
-			 *{
-			 *    kamienie.erase(gem);
-			 *    score += 1;
-			 *    if (kamienie.empty())
-			 *    {
-			 *        win = true;
-			 *        win_countdown = current_time + WIN_WAIT_TIME;
-			 *    }
-			 *}
-			 */
 		}
 	}
 	if (map_player.animating)
@@ -905,7 +872,7 @@ bool LoadMap(const char * filename)
 				map[j][i][0].zawartosc.push_back( new EmptySpace() );
 				break;
 			case 'p':
-				map_player.pos = Vector3D(j, i, 0);
+				map_player.pos = Vector3D(j, i, 1);
 				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
 				break;
 			case '#':

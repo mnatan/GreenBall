@@ -8,24 +8,32 @@
 
 bool Gem::drawIt()
 {
-	//UpdateAnimation();
-	//glPushMatrix();
-	//glTranslatef(pos.x, pos.y, 0.5f);
-	//glRotatef(
-		//accumulator,
-		//rotationVector.x,
-		//rotationVector.y,
-		//rotationVector.z
-	//);
-	//glTranslatef(pos.x, pos.y, -0.5f);
-	////glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
-	//DrawQuadTexture(
-		//pos + Vector3D(0,0,0.5),
-		//1.0f, 1.0f,
-		//texturki[TEX_GEM]
-	//);
-	//glPopMatrix();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		// Bugi z przezroczystosicia - Element przezroczysty trzeba rysować na końcu. Może wrzucać to na stosik?
+	glEnable(GL_BLEND);
+
+	UpdateAnimation();
+	glPushMatrix();
+	glTranslatef(pos.x, pos.y, pos.z + 0.5f);
+	glRotatef(
+		accumulator,
+		rotationVector.x,
+		rotationVector.y,
+		rotationVector.z
+	);
+	glTranslatef(-pos.x, -pos.y, -pos.z - 0.5f);
+	DrawQuadTexture(
+		pos + Vector3D(0,0,0.5),
+		1.0f, 1.0f,
+		TEX
+	);
+	glPopMatrix();
+
+	glDisable(GL_BLEND);
 	return true;
 }
+
+	void Gem::playerEnters(Vector3D zmiana){
+		
+	}
 
 #endif

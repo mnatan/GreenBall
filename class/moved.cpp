@@ -32,7 +32,7 @@ bool moved::UpdateAnimation()
 }
 bool moved::checkFloor()
 {
-	if (MapRead(pos).statyczny->canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób?
+	if (MapRead(pos + down).canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób?
 	{
 		this->setAnimation(
 		    pos,

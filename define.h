@@ -88,7 +88,7 @@ float win_countdown;
 unsigned int level = 0;
 
 //int **map;
-MapChunk **map;
+MapChunk ***map;
 
 static int screen_width;
 static int screen_height;
@@ -102,6 +102,7 @@ float background_start_time;
 unsigned int texturki[20];
 int map_width;
 int map_height;
+int map_layers = 2;
 std::vector<rotated> kamienie;
 std::vector<Blinker> blinkery;
 std::vector<Door> drzwi;

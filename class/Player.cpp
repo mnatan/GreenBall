@@ -12,7 +12,7 @@ bool Player::pushObj(moved &obj)
 	    obj.pos.z - pos.z
 	);
 	Vector3D newspace = obj.pos + delta;
-	if (MapRead(newspace).statyczny->canEnter())
+	if (MapRead(newspace).canEnter())
 	{
 		obj.setAnimation(
 		    obj.pos,

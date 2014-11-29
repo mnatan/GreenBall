@@ -6,19 +6,19 @@
 Door::Door(Vector3D pos_) : moved(pos_, TEX_DOOR)
 {
 	closedPos = pos_;
-	if (MapRead(pos + left).statyczny->isSolid())
+	if (!MapRead(pos + left).canFall())				//Sprawdzamy czy obok drzwi są jakieś solidne miejsca, gdzie mogą się schować
 	{
 		openPos = pos + left + (right * 0.1);
 	}
-	else if (MapRead(pos + right).statyczny->isSolid())
+	else if (!MapRead(pos + right).canFall())
 	{
 		openPos = pos + right + (left * 0.1);
 	}
-	else if (MapRead(pos + top).statyczny->isSolid())
+	else if (!MapRead(pos + top).canFall())
 	{
 		openPos = pos + top + (bot * 0.1);
 	}
-	else if (MapRead(pos + bot).statyczny->isSolid())
+	else if (!MapRead(pos + bot).canFall())
 	{
 		openPos = pos + bot + (top * 0.1);
 	}

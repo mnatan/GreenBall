@@ -9,10 +9,12 @@
 class MapChunk
 {
 	public:
-	std::vector<animated*> zawartosc;
-	game_obj* statyczny;
+	std::vector<game_obj*> zawartosc;
 
 	MapChunk();
+	bool canEnter();
+	bool canFall();
+	bool drawIt();
 };
 
 #endif

@@ -135,7 +135,7 @@ static void Logic()
 
 	if (!map_player.animating)
 	{
-		if (MapRead(map_player.pos).statyczny->canFall())
+		if (MapRead(map_player.pos - down).canFall())
 		{
 			fail = true;
 			map_player.setAnimation(
@@ -179,7 +179,7 @@ static void Logic()
 		Vector3D nowaPozycja = map_player.pos + zmiana;
 		bool moveok = true;
 
-		if ( not MapRead(nowaPozycja).statyczny->canEnter() )
+		if ( not MapRead(nowaPozycja).canEnter() )
 		{
 			moveok = false;
 		}
@@ -280,72 +280,10 @@ static void Scene()
 	{
 		for (int j = 0; j < map_width; j++)
 		{
-			MapRead(Vector3D(i, j, 0)).statyczny->drawIt();
-			std::vector<animated*>::iterator end = map[i][j].zawartosc.end();
-			for (
-			    std::vector<animated*>::iterator iter = map[i][j].zawartosc.begin();
-			    iter != end;
-			    ++iter)
+			for (int k = 0; k < map_layers; k++)
 			{
-				(*iter)->drawIt();
-				/*
-				 *if (iter->isAnimated())
-				 *{
-				 *    iter->UpdateAnimation();
-				 *}
-				 */
-				/*
-				 *DrawCubeTexture(
-				 *    iter->pos,
-				 *    1.0f,
-				 *    iter->TEX
-				 *);
-				 */
+				MapRead(Vector3D(i, j, k)).drawIt(); // lol so short
 			}
-			/* Stary switch
-			 *switch (map[i][j])
-			 *{
-			 *case MAP_WALL:
-			 *    for (int k = 0; k < 2; k++)
-			 *    {
-			 *        DrawCubeTexture(
-			 *            (float)i - 7.5f, (float)j - 7.5f, 0.5f + (float)k,
-			 *            1.0f,
-			 *            texturki[TEX_WALL]
-			 *        );
-			 *    }
-			 *    DrawCubeTexture(
-			 *        (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-			 *        1.0f,
-			 *        texturki[TEX_FLOOR]
-			 *    );
-			 *    break;
-			 *case MAP_FLOOR:
-			 *    DrawCubeTexture(
-			 *        (float)i - 7.5f, (float)j - 7.5f, -0.5f,
-			 *        1.0f,
-			 *        texturki[TEX_FLOOR]
-			 *    );
-			 *    break;
-			 *case MAP_DOOR:
-			 *    break;
-			 *case MAP_SWITCH:
-			 *    break;
-			 *case MAP_BOX:
-			 *    break;
-			 *case MAP_BLINKER:
-			 *    break;
-			 *case MAP_NONE:
-			 *    break;
-			 *default:
-			 *    DrawQuadTexture(
-			 *        (float)i - 7.5f, (float)j - 7.5f, 0.0f,
-			 *        1.0f, 1.0f,
-			 *        texturki[map[i][j]]
-			 *    );
-			 *    break;
-			 *}
-			 */
 		}
 	}
 
@@ -448,7 +386,7 @@ static void Scene()
 
 	// draw player
 	DrawQuadTexture(
-	    map_player.pos + Vector3D(0,0,0.5f),
+	    map_player.pos + Vector3D(0, 0, 0.5f),
 	    0.8f, 0.8f,
 	    TEX_PLAYER
 	);
@@ -659,7 +597,7 @@ static bool InitOpenGL()
 	return true;
 }
 
-unsigned int ImgToTexture(const char *filename)
+unsigned int ImgToTexture(const char * filename)
 {
 	// Load image.
 	SDL_Surface *img = IMG_Load(filename);
@@ -733,7 +671,7 @@ unsigned int ImgToTexture(const char *filename)
 	// Done
 	return texture_id;
 }
-unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id)
+unsigned int SurfaceToTexture(SDL_Surface * img, unsigned int texture_id)
 {
 	// Image type? Only 24 and 32 supported, rest must be converted.
 	unsigned int img_type = 0;
@@ -931,7 +869,7 @@ bool LoadNextLevel()
 	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
 	return LoadMap(filename);
 }
-bool LoadMap(const char *filename)
+bool LoadMap(const char * filename)
 {
 	FILE *f = fopen(filename, "r");
 	if (!f)
@@ -1125,5 +1063,5 @@ bool LoadMap(const char *filename)
 
 MapChunk &MapRead(Vector3D point)
 {
-	return map[(int)point.x][(int)point.y];
+	return map[(int)point.x][(int)point.y][(int)point.z];
 }

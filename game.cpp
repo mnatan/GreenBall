@@ -879,22 +879,16 @@ bool LoadMap(const char * filename)
 	}
 	fscanf(f, "%d", &map_height);
 	fscanf(f, "%d", &map_width);
-	char line[64];
+	char line[64]
 	fgets(line, sizeof(line), f);
 
-	map = new MapChunk *[map_height];
+	map = new MapChunk **[map_height];              // Inicjalizacja trójwymiarowej tablicy
 	for (int i = 0; i < map_height ; i++)
-		map[i] = new MapChunk[map_width];
+		map[i] = new MapChunk*[map_width];
+	for (int i = 0; i < map_height ; i++)
+		for (int j = 0; j < map_layers ; j++)
+			map[i][j] = new MapChunk[map_width];    // end
 
-	/*
-	 *for (int i = 0; i < map_width; i++)
-	 *{
-	 *    for (int j = 0; j < map_height; j++)
-	 *    {
-	 *        map[i][j] = MapChunk();
-	 *    }
-	 *}
-	 */
 	for (int i = 0; i < map_width; i++)
 	{
 		fgets(line, sizeof(line), f);
@@ -909,18 +903,19 @@ bool LoadMap(const char * filename)
 			switch ( line[j] )
 			{
 			case ' ':
-				map[j][i].statyczny = new EmptySpace();
+				map[j][i][0].zawartosc.push_back( new EmptySpace() );
 				break;
 			case 'p':
 				map_player.pos = Vector3D(j, i, 0);
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
 				break;
 			case '#':
-				map[j][i].statyczny = new Wall(Vector3D(j, i, 0));
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				map[j][i][1].zawartosc.push_back( new Wall(Vector3D(j, i, 0)) );
 				break;
 			case 'g':
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
-				map[j][i].zawartosc.push_back(
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				map[j][i][1].zawartosc.push_back(
 				    new Gem( // TODO jebnąć to w Gem();
 				        Vector3D(j, i, 0),
 				        Vector3D(0, 1.0, 0),
@@ -930,32 +925,33 @@ bool LoadMap(const char * filename)
 				);
 				break;
 			case '.':
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
 				break;
 			case 'b':
-				map[j][i].statyczny = new Blinker(Vector3D(j, i, 0),
+				map[j][i][0].zawartosc.push_back( new Blinker(Vector3D(j, i, 0),
 				                                  (((float)(rand() % 200 )) / 100) + 1,
 				                                  (((float)(rand() % 200 )) / 100) + 1
-				                                 );
+				                                             )
+				                                );
 				break;
 			case 'd':
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
-				map[j][i].zawartosc.push_back( new Door(
-				                                   Vector3D(j, i, 0)
-				                               )
-				                             );
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				map[j][i][1].zawartosc.push_back( new Door(
+				                                      Vector3D(j, i, 0)
+				                                  )
+				                                );
 				break;
 			case 'x':
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
-				map[j][i].zawartosc.push_back(
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				map[j][i][1].zawartosc.push_back(
 				    new Box(
 				        Vector3D(j, i, 0)
 				    )
 				);
 				break;
 			case 's':
-				map[j][i].statyczny = new Floor(Vector3D(j, i, 0));
-				map[j][i].zawartosc.push_back(
+				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				map[j][i][1].zawartosc.push_back(
 				    new Switch(
 				        Vector3D(j, i, 0),
 				        Responser()

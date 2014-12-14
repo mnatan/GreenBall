@@ -10,10 +10,10 @@ Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)
 	endTime = current_time;
 }
 
-bool Box::move_on_map() 
-
 void Box::playerEnters(Vector3D &zmiana)
 {
+	MapRead(pos + zmiana).playerEnters(zmiana);
+
 	MapRead(pos + zmiana).zawartosc.push_back(this);
 	auto iter = std::find(
 	                MapRead(pos).zawartosc.begin(),

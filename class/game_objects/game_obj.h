@@ -2,6 +2,8 @@
 #define GAME_OBJ
 
 #include "Vector3D.cpp"
+#include "../../build/define.h"
+#include "../engine/MapChunk.cpp"
 
 class game_obj
 {

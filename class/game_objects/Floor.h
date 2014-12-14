@@ -1,7 +1,6 @@
 #ifndef FLOOR
 #define FLOOR
 
-#include "../define.h"
 #include "game_obj.cpp"
 
 class Floor: public game_obj

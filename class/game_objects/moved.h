@@ -2,7 +2,6 @@
 #define MOVED
 
 #include "animated.cpp"
-#include "../define.h"
 
 class moved: public animated
 {

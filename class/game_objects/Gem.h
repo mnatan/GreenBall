@@ -2,7 +2,6 @@
 #define GEM
 
 #include "rotated.cpp"
-#include "../define.h"
 
 class Gem : public rotated
 {

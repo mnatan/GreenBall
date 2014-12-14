@@ -2,7 +2,6 @@
 #define EMPTYSPACE
 
 #include "game_obj.cpp"
-#include "../define.h"
 
 class EmptySpace: public game_obj
 {

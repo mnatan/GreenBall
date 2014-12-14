@@ -2,7 +2,6 @@
 #define TRIGGER
 
 #include "Responser.cpp"
-#include "../define.h"
 
 class Trigger
 {

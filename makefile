@@ -14,8 +14,8 @@ CPPFLAGS=-std=c++11 -Wall -g `sdl-config --cflags`
 # Linker flags
 LDFLAGS=`sdl-config --libs` -lSDL -lSDL_image -lglut -lGL -lGLU -lSDL_ttf
 
-all: game.cpp
-	$(CC) $(CPPFLAGS) -c game.cpp
+all: build/game.cpp
+	$(CC) $(CPPFLAGS) -c build/game.cpp
 	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o test
 
 # cleanup

@@ -2,7 +2,6 @@
 #define WALL
 
 #include "game_obj.cpp"
-#include "../define.h"
 
 class Wall: public game_obj
 {

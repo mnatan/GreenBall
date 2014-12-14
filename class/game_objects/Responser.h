@@ -1,8 +1,6 @@
 #ifndef RESPONSER
 #define RESPONSER
 
-#include "../define.h"
-
 class Responser
 {
 	public:

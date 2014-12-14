@@ -2,7 +2,6 @@
 #define BOX
 
 #include "moved.h"
-#include "../define.h"
 
 class Box: public moved
 {

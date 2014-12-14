@@ -1,8 +1,7 @@
 #ifndef ANIMATED
 #define ANIMATED
 
-#include "game_obj.h"
-#include "../define.h"
+#include "game_obj.cpp"
 
 class animated: public game_obj
 {

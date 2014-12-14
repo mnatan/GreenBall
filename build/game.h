@@ -1,7 +1,6 @@
 // Functions.
 
 #include <vector>
-#include "class/rotated.cpp"
 
 static bool Events();
 static void Logic();

@@ -2,6 +2,16 @@
 #define MAPCHUNK_CPP
 
 #include "MapChunk.h"
+#include "../game_objects/game_obj.cpp"
+/*
+ *#include "../game_objects/animated.cpp"
+ *#include "../game_objects/EmptySpace.cpp"
+ *
+ *#include "animated.cpp"
+ *#include "game_obj.cpp"
+ *#include "EmptySpace.cpp"
+ */
+
 
 MapChunk::MapChunk()
 {

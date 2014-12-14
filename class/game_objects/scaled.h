@@ -2,7 +2,6 @@
 #define SCALED
 
 #include "animated.h"
-#include "../define.h"
 
 class scaled: public animated
 {

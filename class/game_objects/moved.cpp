@@ -11,6 +11,7 @@ void moved::setAnimation(Vector3D start, Vector3D end, float duration)
 	startTime = current_time;
 	endTime = current_time + duration;
 }
+
 bool moved::UpdateAnimation()
 {
 	if (current_time >= endTime)
@@ -30,6 +31,7 @@ bool moved::UpdateAnimation()
 
 	return true;
 }
+
 bool moved::checkFloor()
 {
 	if (MapRead(pos + down).canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED

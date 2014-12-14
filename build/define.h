@@ -4,6 +4,7 @@
 
 #include <SDL/SDL_image.h>
 #include <vector>
+#include "../class/engine/MapChunk.cpp"
 
 #define UNUSED(a) ((void)(a))
 
@@ -46,13 +47,13 @@
 
 //wektory
 
-class MapChunk;
+//class MapChunk;
 
 class Player;
 
 class Vector3D;
 
-class game_obj;
+//class game_obj;
 class animated;
 class scaled;
 class rotated;

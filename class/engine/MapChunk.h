@@ -2,9 +2,14 @@
 #define MAPCHUNK
 
 #include <vector>
-#include "animated.cpp"
-#include "game_obj.cpp"
-#include "EmptySpace.cpp"
+/*
+ *#include "animated.cpp"
+ *#include "game_obj.cpp"
+ *#include "EmptySpace.cpp"
+ */
+#include "../game_objects/game_obj.cpp"
+#include "../game_objects/animated.cpp"
+#include "../game_objects/EmptySpace.cpp"
 
 class MapChunk
 {
@@ -20,3 +25,4 @@ class MapChunk
 };
 
 #endif
+

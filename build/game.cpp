@@ -26,24 +26,27 @@
 #endif
 
 #include "define.h"
-
-//#include "class/game_obj.cpp"
-#include "class/game_obj.cpp"
-#include "class/MapChunk.cpp"
-#include "class/blinker.cpp"
-#include "class/Player.cpp"
-#include "class/Box.cpp"
-#include "class/Door.cpp"
-#include "class/Switch.cpp"
-#include "class/Gem.cpp"
-
-#include "class/EmptySpace.cpp"
-#include "class/Floor.cpp"
-#include "class/Wall.cpp"
-
 #include "game.h"
 
-//using namespace std;
+#include "../class/engine/MapChunk.h"
+
+#include "../class/game_objects/animated.cpp"
+#include "../class/game_objects/blinker.cpp"
+#include "../class/game_objects/Box.cpp"
+#include "../class/game_objects/Door.cpp"
+#include "../class/game_objects/EmptySpace.cpp"
+#include "../class/game_objects/Floor.cpp"
+#include "../class/game_objects/game_obj.cpp"
+#include "../class/game_objects/Gem.cpp"
+#include "../class/game_objects/moved.cpp"
+#include "../class/game_objects/player.cpp"
+#include "../class/game_objects/Responser.cpp"
+#include "../class/game_objects/rotated.cpp"
+#include "../class/game_objects/scaled.cpp"
+#include "../class/game_objects/Switch.cpp"
+#include "../class/game_objects/trigger.cpp"
+#include "../class/game_objects/Vector3D.cpp"
+#include "../class/game_objects/Wall.cpp"
 
 // Globals.
 

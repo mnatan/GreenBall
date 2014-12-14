@@ -2,7 +2,6 @@
 #define PLAYER
 
 #include "moved.cpp"
-#include "../define.h"
 
 class Player: public moved
 {

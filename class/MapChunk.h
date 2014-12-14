@@ -16,6 +16,7 @@ class MapChunk
 	bool drawIt();
 	bool canEnter(Vector3D &zmiana);
 	bool playerEnters(Vector3D &zmiana);
+	void print_zawartosc();
 };
 
 #endif

@@ -10,13 +10,19 @@ Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)
 	endTime = current_time;
 }
 
+bool Box::move_on_map() 
+
 void Box::playerEnters(Vector3D &zmiana)
 {
-	std::cout << "przesuwam" << std::endl;
-
-	//MapRead(pos + zmiana).zawartosc.push_back(this);
-	//std::vector<game_obj*> *ToRemove = & MapRead(pos + zmiana).zawartosc;
-	//ToRemove->erase(std::remove(ToRemove->begin(),ToRemove->end(),this));
+	MapRead(pos + zmiana).zawartosc.push_back(this);
+	auto iter = std::find(
+	                MapRead(pos).zawartosc.begin(),
+	                MapRead(pos).zawartosc.end(),
+	                (Box*)this);
+	if (iter != MapRead(pos).zawartosc.end())
+	{
+		MapRead(pos).zawartosc.erase(iter);
+	}
 
 	setAnimation(pos,
 	             pos + zmiana,
@@ -35,7 +41,7 @@ bool Box::drawIt()
 {
 	UpdateAnimation();
 	DrawCubeTexture(                // Czo sie dzieje :<
-	    pos + Vector3D(0, 0, 0.5),
+	    pos + Vector3D(0, 0, -0.5),
 	    1.0f,
 	    TEX
 	);

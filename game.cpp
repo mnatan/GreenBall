@@ -201,18 +201,6 @@ static void Scene()
 	glTranslatef( 0.0, 0.0, -14.0f);
 	glScalef(1.0f, -1.0f, 1.0f);
 
-	glPushMatrix();
-	gluPerspective( 0.0, (float)screen_width / (float)screen_height, 0.0, 1024.0 );
-	static float rotat;
-	glTranslatef(9.5f, 7.0f, 0.0f);
-	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
-	glTranslatef(-9.5f, -7.0f, 0.0f);
-	DrawCubeTexture(
-	    Vector3D(9.5f, 7.0f, 0.0f),
-	    0.9f,
-	    TEX_KUCYK
-	);
-	glPopMatrix();
 
 	// animacja tła - czasowo lewo prawo
 	if (current_time - background_start_time > ANIM_BACKG_TIME)
@@ -412,6 +400,19 @@ static void Scene()
 	 *);
 	 */
 
+	glPushMatrix();
+	gluPerspective( 0.0, (float)screen_width / (float)screen_height, 0.0, 1024.0 );
+	static float rotat;
+	glTranslatef(7.0f, 5.0f, 3.0f);
+	glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
+	glTranslatef(-7.0f, -5.0f, -3.0f);
+	DrawCubeTexture(
+	    Vector3D(7.0f, 5.0f, 3.0f),
+	    0.8f,
+	    TEX_KUCYK
+	);
+	glPopMatrix();
+
 	glDisable(GL_BLEND);
 
 	SDL_GL_SwapBuffers();
@@ -477,6 +478,8 @@ int main(int argc, char **argv, char **envp)
 		// Main stuff.
 		if (!Events())
 			break;
+
+		//MapRead(Vector3D(5,17,0)).print_zawartosc();
 
 		Logic();
 		Scene();
@@ -910,7 +913,7 @@ bool LoadMap(const char * filename)
 				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
 				map[j][i][1].zawartosc.push_back(
 				    new Box(
-				        Vector3D(j, i, 0)
+				        Vector3D(j, i, 1)
 				    )
 				);
 				break;
@@ -1022,7 +1025,8 @@ bool LoadMap(const char * filename)
  *}
  */
 
-MapChunk &MapRead(Vector3D point)
+MapChunk & MapRead(Vector3D point)
 {
 	return map[(int)point.x][(int)point.y][(int)point.z];
 }
+

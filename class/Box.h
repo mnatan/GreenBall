@@ -11,6 +11,7 @@ class Box: public moved
 	bool drawIt();
 	bool canEnter(Vector3D &zmiana);
 	void playerEnters(Vector3D &zmiana);
+	virtual std::string typKlasy() { return "Box"; };
 };
 
 #endif

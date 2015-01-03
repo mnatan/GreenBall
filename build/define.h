@@ -4,7 +4,6 @@
 
 #include <SDL/SDL_image.h>
 #include <vector>
-#include "../class/engine/MapChunk.cpp"
 
 #define UNUSED(a) ((void)(a))
 
@@ -88,9 +87,6 @@ int score = 0;
 float win_countdown;
 unsigned int level = 0;
 
-//int **map;
-MapChunk ***map;
-
 static int screen_width;
 static int screen_height;
 bool keys[SDLK_LAST];
@@ -101,22 +97,10 @@ float backdir = 1.0f;
 float background_start_time;
 
 unsigned int texturki[20];
-int map_width;
-int map_height;
-int map_layers = 2;
 std::vector<rotated> kamienie;
 std::vector<Blinker> blinkery;
 std::vector<Door> drzwi;
 std::vector<Switch> guziki;
 std::vector<Box> pudelka;
-
-MapChunk &MapRead(Vector3D point);
-
-void DrawQuad(float x, float y, float z, float w, float h);
-void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g, float b, float a);
-void DrawQuadTexture(Vector3D vect, float w, float h, unsigned int texture_id);
-
-void DrawCube(float x, float y, float z, float a);
-void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id);
 
 #endif

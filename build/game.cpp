@@ -28,7 +28,7 @@
 #include "define.h"
 #include "game.h"
 
-#include "../class/engine/MapChunk.h"
+#include "../class/engine/Vector3D.cpp"
 
 #include "../class/game_objects/animated.cpp"
 #include "../class/game_objects/blinker.cpp"
@@ -45,8 +45,9 @@
 #include "../class/game_objects/scaled.cpp"
 #include "../class/game_objects/Switch.cpp"
 #include "../class/game_objects/trigger.cpp"
-#include "../class/game_objects/Vector3D.cpp"
 #include "../class/game_objects/Wall.cpp"
+
+#include "../class/engine/MapChunk.h"
 
 // Globals.
 
@@ -233,16 +234,8 @@ static void Scene()
 	    -0.0f);
 
 	// Draw map
-	for (int i = 0; i < map_height; i++)
-	{
-		for (int j = 0; j < map_width; j++)
-		{
-			for (int k = 0; k < map_layers; k++)
-			{
-				MapRead(Vector3D(i, j, k)).drawIt(); // lol so short
-			}
-		}
-	}
+	// TODO FIXME opuszczamy globale
+	//map.draw_map();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -832,204 +825,3 @@ void DrawQuadTexture(Vector3D vect, float w, float h, unsigned int texture_id)
 	if (!texturing_enabled)
 		glDisable(GL_TEXTURE_2D);
 }
-
-bool LoadNextLevel()
-{
-	level++;
-	char filename[256] = {0};
-	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
-	return LoadMap(filename);
-}
-bool LoadMap(const char * filename)
-{
-	FILE *f = fopen(filename, "r");
-	if (!f)
-	{
-		fprintf(stderr, "error: could not open file: \"%s\"\n", filename);
-		return false;
-	}
-	fscanf(f, "%d", &map_height);
-	fscanf(f, "%d", &map_width);
-	char line[64];
-	fgets(line, sizeof(line), f);
-
-	map = new MapChunk **[map_height];              // Inicjalizacja trójwymiarowej tablicy
-	for (int i = 0; i < map_height ; i++)
-		map[i] = new MapChunk*[map_width];
-	for (int i = 0; i < map_height ; i++)
-		for (int j = 0; j < map_width ; j++)
-			map[i][j] = new MapChunk[map_layers];    // end
-
-	for (int i = 0; i < map_width; i++)
-	{
-		fgets(line, sizeof(line), f);
-		if (feof(f))
-		{
-			fprintf(stderr, "error: unexpected eof in: \"%s\"\n", filename);
-			fclose(f);
-			return false;
-		}
-		for (int j = 0; j < map_height; j++)
-		{
-			switch ( line[j] )
-			{
-			case ' ':
-				map[j][i][0].zawartosc.push_back( new EmptySpace() );
-				break;
-			case 'p':
-				map_player.pos = Vector3D(j, i, 1);
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				break;
-			case '#':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				map[j][i][1].zawartosc.push_back( new Wall(Vector3D(j, i, 0)) );
-				break;
-			case 'g':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				map[j][i][1].zawartosc.push_back(
-				    new Gem( // TODO jebnąć to w Gem();
-				        Vector3D(j, i, 0),
-				        Vector3D(0, 1.0, 0),
-				        (rand() % 10) + 50,
-				        (rand() % 360)
-				    )
-				);
-				break;
-			case '.':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				break;
-			case 'b':
-				map[j][i][0].zawartosc.push_back( new Blinker(Vector3D(j, i, 0),
-				                                  (((float)(rand() % 200 )) / 100) + 1,
-				                                  (((float)(rand() % 200 )) / 100) + 1
-				                                             )
-				                                );
-				break;
-			case 'd':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				map[j][i][1].zawartosc.push_back( new Door(
-				                                      Vector3D(j, i, 0)
-				                                  )
-				                                );
-				break;
-			case 'x':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				map[j][i][1].zawartosc.push_back(
-				    new Box(
-				        Vector3D(j, i, 1)
-				    )
-				);
-				break;
-			case 's':
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
-				map[j][i][1].zawartosc.push_back(
-				    new Switch(
-				        Vector3D(j, i, 0),
-				        Responser()
-				    )
-				);
-				break;
-			default:
-				fprintf(stderr, "error: unexpected char \"%c\" in %d %d: \"%s\"\n", line[j], i, j, filename);
-			}
-		}
-	}
-	Vector3D trig;
-	Vector3D resp;
-	Vector3D poprawka(-1, -2, 0);
-
-
-	/*poprawkaTODO FIXME Powrót to buga z drzwiami dol prawo
-	 *size_t s = drzwi.size();
-	 *for (size_t i = 0 ; i < s; i++)
-	 *{
-	 *    drzwi[i] = Door(drzwi[i].pos);
-	 *}
-	 */
-
-	/*      TODO FIXME Przypisywanie guzikom drzwi.
-	 *    while (fgets(line, sizeof(line), f) != NULL)
-	 *    {
-	 *        std::string line_ = line;
-	 *        std::stringstream ss;
-	 *        ss << line_;
-	 *        ss >> trig.y;
-	 *        ss >> trig.x;
-	 *        ss >> resp.y;
-	 *        ss >> resp.x;
-	 *        trig = trig + poprawka;
-	 *        resp = resp + poprawka;
-	 *        std::cout << trig << "->" << resp << std::endl;
-	 *        std::vector<Switch>::iterator sw = getSwitchByVector(trig);
-	 *        if ( sw != guziki.end() )
-	 *        {
-	 *            std::vector<Door>::iterator doo = getDoorByVector(resp);
-	 *            if ( doo != drzwi.end() )
-	 *            {
-	 *                sw->target = &*doo;
-	 *            }
-	 *            else
-	 *            {
-	 *                std::cout << "Niepoprawne koordynaty responsera!" << std::endl;
-	 *            }
-	 *
-	 *        }
-	 *        else
-	 *        {
-	 *            std::cout << "Niepoprawne koordynaty triggera!" << std::endl;
-	 *        }
-	 *    }
-	 */
-
-	fprintf(stdout, "info: loaded map \"%s\"\n", filename);
-	return true;
-}
-
-/* Pozostałości po starych strukturach danych
- *std::vector<rotated>::iterator getGemByVector(Vector3D v)
- *{
- *    std::vector<rotated>::iterator s = kamienie.end();
- *    for ( std::vector<rotated>::iterator i = kamienie.begin() ; i < s; i++)
- *    {
- *        if ( i->pos == v )
- *            return i;
- *    }
- *    return s;
- *}
- *std::vector<Box>::iterator getBoxByVector(Vector3D v)
- *{
- *    std::vector<Box>::iterator s = pudelka.end();
- *    for ( std::vector<Box>::iterator i = pudelka.begin() ; i < s; i++)
- *    {
- *        if ( i->pos == v)
- *            return i;
- *    }
- *    return s;
- *}
- *std::vector<Door>::iterator getDoorByVector(Vector3D v)
- *{
- *    std::vector<Door>::iterator s = drzwi.end();
- *    for ( std::vector<Door>::iterator i = drzwi.begin() ; i < s; i++)
- *    {
- *        if ( i->pos == v)
- *            return i;
- *    }
- *    return s;
- *}
- *std::vector<Switch>::iterator getSwitchByVector(Vector3D v)
- *{
- *    std::vector<Switch>::iterator s = guziki.end();
- *    for ( std::vector<Switch>::iterator i = guziki.begin() ; i < s; i++)
- *    {
- *        if ( i->pos == v)
- *            return i;
- *    }
- *    return s;
- *}
- */
-
-MapChunk & MapRead(Vector3D point)
-{
-	return map[(int)point.x][(int)point.y][(int)point.z];
-}
-

@@ -3,10 +3,10 @@
 % The following is needed in order to make the code compatible
 % with both latex/dvips and pdflatex.
 \ifx\pdftexversion\undefined
-	\usepackage[dvips]{graphicx}
+\usepackage[dvips]{graphicx}
 \else
-	\usepackage[pdftex]{graphicx}
-	\DeclareGraphicsRule{*}{mps}{*}{}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsRule{*}{mps}{*}{}
 \fi
 
 %polskie standardy
@@ -42,6 +42,20 @@ The project is free software released under GPLv2 license.
 
 \section{Contributing}
 If you ever happen to use my code please don't be afraid to show your work. I will appreciate all patches, features and improvements.
+
+\chapter{Development state}
+Currently you can move around and push boxes.
+\section{Goals}
+\begin{enumerate}
+	\item general code cleanup
+	\item rethink the map format and way to mark which Switch opens which Door
+	\item create Trigger - Responser system for opening doors
+	\item implement collecting Gems and display score propperly
+\end{enumerate}
+\section{Known bugs}
+%\begin{enumerate}
+	%\item The first item
+%\end{enumerate}
 
 \chapter{Class diagrams}
 \section{Basic structure of game objects}

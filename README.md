@@ -1,10 +1,25 @@
-GreenBall
-=========
+Introduction
+============
+The Green Ball Game Engine is written in C++ with use of OpenGL rendering API. I started it to pursue my dream about using my spatial imagination for programming and developing video games. It turned out to be very absorbing and I started separating game engine from the game itself, to make adding new features easier. With this project I learned a lot about abstract programming, development and design patterns.
 
-The game I created during my studies at the Jagiellonian University to develop my C++ skills. It turned out to be a graphical 3D game. For the time being I'm using pure OpenGL and SDL to create my own game engine.
+License
+=======
+The project is free software released under GPLv2 license.
 
-I did not think about pushing the repo to GitHub at the beginning, so a major part of the project is commented in my native language - Polish.
+Contributing
+============
+If you ever happen to use my code please don't be afraid to show your work. I will appreciate all patches, features and improvements.
 
-Installation
-=========
-The project is under a very big logic redesign in order to separate the game engine from the game itself. If you want to compile and run it, you are going to have to look for some working commits in the branch history.
+Development state
+=================
+Currently you can move around and push boxes.
+### Goals
+
+	* general code cleanup
+	* rethink the map format and way to mark which Switch opens which Door
+	* create Trigger - Responser system for opening doors
+	* implement collecting Gems and display score propperly
+
+### Known bugs
+
+none

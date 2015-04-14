@@ -10,6 +10,10 @@ Contributing
 ============
 If you ever happen to use my code please don't be afraid to show your work. I will appreciate all patches, features and improvements.
 
+Documentation
+=============
+For documentation see file doc/doc.pdf. You can commit your changes to .tex files and edit MetaPost (.mp) files.
+
 Development state
 =================
 Currently you can move around and push boxes.

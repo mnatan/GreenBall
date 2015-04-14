@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper,oneside]{report}
+
+% The following is needed in order to make the code compatible
+% with both latex/dvips and pdflatex.
+\ifx\pdftexversion\undefined
+	\usepackage[dvips]{graphicx}
+\else
+	\usepackage[pdftex]{graphicx}
+	\DeclareGraphicsRule{*}{mps}{*}{}
+\fi
+
+%polskie standardy
+\usepackage[utf8]{luainputenc}
+%\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{indentfirst}
+\usepackage{listings}
+%\usepackage{polski}
+\frenchspacing
+%end polskie standardy
+
+\usepackage{pslatex,palatino,avant,color}
+\usepackage[margin=2cm]{geometry}
+
+\linespread{1.3}
+
+\title{<<Green Ball>> Game Engine documentation}
+\author{Marcin Natanek}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+\tableofcontents
+\pagebreak
+
+\chapter{Introduction}
+The <<Green Ball>> Game Engine is written in C++ with use of OpenGL rendering API. I started it to pursue my dream about using my spatial imagination for programming and developing video games. It turned out to be very absorbing and I started separating game engine from the game itself, to make adding new features easier. With this project I learned a lot about abstract programming, development and design patterns.
+
+\section{License}
+The project is free software released under GPLv2 license.
+
+\section{Contributing}
+If you ever happen to use my code please don't be afraid to show your work. I will appreciate all patches, features and improvements.
+
+\chapter{Class diagrams}
+\section{Basic structure of game objects}
+Legend:
+\definecolor{gr}{rgb}{0.5,1,0.5}
+\definecolor{ye}{rgb}{1,1,0.5}
+\definecolor{re}{rgb}{0.9,0.7,0.7}
+\\\colorbox{gr}{Green} classes are considered ready, 
+\\\colorbox{ye}{yellow} partially done and 
+\\\colorbox{re}{red} ones lack their main features.
+
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{diag.1}
+
+\end{document}

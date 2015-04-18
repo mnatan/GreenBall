@@ -2,7 +2,7 @@
 #define BOX_CPP
 
 #include "Box.h"
-#include "../engine/MapChunk.cpp"
+#include "class/engine/Map.cpp"
 #include <algorithm>
 
 Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)
@@ -11,18 +11,18 @@ Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)
 	endTime = current_time;
 }
 
-void Box::playerEnters(Vector3D &zmiana)
+void Box::playerEnters(Map & map,Vector3D &zmiana)
 {
-	map_access(pos + zmiana).playerEnters(zmiana);
+	map.access(pos + zmiana).playerEnters(zmiana);
 
-	map_access(pos + zmiana).zawartosc.push_back(this);
+	map.access(pos + zmiana).zawartosc.push_back(this);
 	auto iter = std::find(
-	                map_access(pos).zawartosc.begin(),
-	                map_access(pos).zawartosc.end(),
+	                map.access(pos).zawartosc.begin(),
+	                map.access(pos).zawartosc.end(),
 	                (Box*)this);
-	if (iter != map_access(pos).zawartosc.end())
+	if (iter != map.access(pos).zawartosc.end())
 	{
-		map_access(pos).zawartosc.erase(iter);
+		map_map.access(pos).zawartosc.erase(iter);
 	}
 
 	setAnimation(pos,
@@ -33,7 +33,7 @@ void Box::playerEnters(Vector3D &zmiana)
 
 bool Box::canEnter(Vector3D &zmiana)
 {
-	if (map_access(pos + zmiana).canEnter(zmiana)) return true;
+	if (map_map.access(pos + zmiana).canEnter(zmiana)) return true;
 	else return false;
 
 }

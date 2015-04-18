@@ -1,9 +1,18 @@
 /*
- * First testing game by Marcin Natanek
- * created using Mini Game Template Gynvael Coldwind
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * win32: g++ game.cpp -Wall -pedantic -lSDL -lopengl32 -lglu32 -lSDL_image
- * linux: g++ game.cpp -Wall -pedantic -lSDL -lGL -lGLU -lSDL_image
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) Marcin Natanek, 2015
  */
 
 #include <vector>
@@ -16,40 +25,32 @@
 #include <SDL/SDL_image.h>
 #include "SDL/SDL_ttf.h"
 
-#ifdef _WIN32
-#  include <windows.h>
-#endif
-
-// Remove SDL main hook on Windows
-#ifdef _WIN32
-#  undef main
-#endif
-
 #include "define.h"
 #include "game.h"
 
-#include "../class/engine/Vector3D.cpp"
+#include "class/engine/Vector3D.cpp"
 
-#include "../class/game_objects/animated.cpp"
-#include "../class/game_objects/blinker.cpp"
-#include "../class/game_objects/Box.cpp"
-#include "../class/game_objects/Door.cpp"
-#include "../class/game_objects/EmptySpace.cpp"
-#include "../class/game_objects/Floor.cpp"
-#include "../class/game_objects/game_obj.cpp"
-#include "../class/game_objects/Gem.cpp"
-#include "../class/game_objects/moved.cpp"
-#include "../class/game_objects/player.cpp"
-#include "../class/game_objects/Responser.cpp"
-#include "../class/game_objects/rotated.cpp"
-#include "../class/game_objects/scaled.cpp"
-#include "../class/game_objects/Switch.cpp"
-#include "../class/game_objects/trigger.cpp"
-#include "../class/game_objects/Wall.cpp"
+#include "class/game_objects/animated.cpp"
+#include "class/game_objects/blinker.cpp"
+#include "class/game_objects/Box.cpp"
+#include "class/game_objects/Door.cpp"
+#include "class/game_objects/EmptySpace.cpp"
+#include "class/game_objects/Floor.cpp"
+#include "class/game_objects/game_obj.cpp"
+#include "class/game_objects/Gem.cpp"
+#include "class/game_objects/moved.cpp"
+#include "class/game_objects/player.cpp"
+#include "class/game_objects/Responser.cpp"
+#include "class/game_objects/rotated.cpp"
+#include "class/game_objects/scaled.cpp"
+#include "class/game_objects/Switch.cpp"
+#include "class/game_objects/trigger.cpp"
+#include "class/game_objects/Wall.cpp"
 
-#include "../class/engine/MapChunk.h"
+#include "class/engine/MapChunk.cpp"
 
 // Globals.
+
 
 SDL_Color redFont = {255, 0, 0, 0};
 SDL_Color greenFont = {0, 255, 0, 0};
@@ -133,13 +134,13 @@ static bool Events()
 	return true;
 }
 
-static void Logic()
+static void Logic(Map &main_map)
 {
 	Vector3D zmiana = none;
 
 	if (!map_player.animating)
 	{
-		if (MapRead(map_player.pos + down).canFall())
+		if (main_map.access(map_player.pos + down).canFall())
 		{
 			fail = true;
 			map_player.setAnimation(
@@ -436,7 +437,7 @@ int main(int argc, char **argv, char **envp)
 		return 1;
 
 	// Title
-	SDL_WM_SetCaption("Pierwsza gra w OpenGL", "My game");
+	SDL_WM_SetCaption("<<GreenBall>>", "TEST");
 
 	// Loading Textures
 	texturki[TEX_WALL] = ImgToTexture("gfx/wall.png");
@@ -467,7 +468,8 @@ int main(int argc, char **argv, char **envp)
 
 	//ImgToTexture( "background.jpg" );
 	//LoadMap("maps/map1.txt");
-	LoadNextLevel();
+	
+	Map main_map; // default constructor handles loading first map
 
 	for (;;)
 	{
@@ -477,7 +479,7 @@ int main(int argc, char **argv, char **envp)
 
 		//MapRead(Vector3D(5,17,0)).print_zawartosc();
 
-		Logic();
+		Logic(&main_map);
 		Scene();
 
 		// Calc time.

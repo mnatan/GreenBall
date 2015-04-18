@@ -3,7 +3,7 @@
 
 #include "Switch.h"
 
-Switch::Switch(Vector3D pos_, Responser target_) : animated(pos_, TEX_SWITCH)
+Switch::Switch(Vector3D pos_, Responder target_) : animated(pos_, TEX_SWITCH)
 {
 	target = &target_;
 	animating = false;

@@ -2,6 +2,7 @@
 #define MOVED
 
 #include "animated.cpp"
+#include "class/engine/Map.h"
 
 class moved: public animated
 {

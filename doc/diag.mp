@@ -152,13 +152,13 @@ topToBottom(20)(rotateds, Gem);
 drawObjects(Gem);
 % end children of rotated
 
-Class.Responser("Responser") ()
+Class.Responder("Responder") ()
 	("+respondON(): bool",
 	"+respondOFF(): bool");
-Responser.info.foreColor := (.9,.7,.7);
-topToBottom(30)(Responser,Switch);
+Responder.info.foreColor := (.9,.7,.7);
+topToBottom(30)(Responder,Switch);
 
-drawObjects(Responser);
+drawObjects(Responder);
 
 
 % begin links
@@ -184,7 +184,7 @@ clink(inheritance)(scaleds, Blinker);
 clink(associationUni)(stan, Blinker);
 
 clink(inheritance)(Trigger, Box);
-clink(inheritance)(Responser, Switch);
+clink(inheritance)(Responder, Switch);
 
 endfig;
-									end;
+end;

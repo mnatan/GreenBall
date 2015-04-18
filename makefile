@@ -9,7 +9,7 @@ CC=clang++
 OBJECTS=game.o
 
 # Compiler flags
-CPPFLAGS=-std=c++11 -Wall -g `sdl-config --cflags`
+CPPFLAGS=-I "$(shell pwd)" -std=c++11 -Wall -g `sdl-config --cflags`
 
 # Linker flags
 LDFLAGS=`sdl-config --libs` -lSDL -lSDL_image -lglut -lGL -lGLU -lSDL_ttf

@@ -1,20 +1,23 @@
 #ifndef MAP
 #define MAP
 
-#include "MapChunk.cpp"
 #include "Vector3D.cpp"
-#include "../game_objects/game_obj.cpp"
+#include "class/game_objects/game_obj.cpp"
+#include "class/engine/MapChunk.cpp"
+class MapChunk;
+class game_obj;
 
 class Map
 {
 	public:
-	Map(int height, int width, int depth);
+	Map();
 
-	MapChunk & map_access(Vector3D pos);
+	MapChunk & access(Vector3D pos);
 	bool map_remove(Vector3D where, game_obj what);
 	bool map_insert(Vector3D where, game_obj what);
 	bool load_next_level();
 	bool load_map(const char * filename);
+	bool draw_map();
 
 	private:
 	MapChunk ***map;

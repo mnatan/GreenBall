@@ -1,10 +1,10 @@
 #ifndef DOOR
 #define DOOR
 
-#include "Responser.cpp"
+#include "Responder.cpp"
 #include "game_obj.cpp"
 
-class Door: public moved //, public Responser
+class Door: public moved //, public Responder
 {
 	public:
 	Vector3D openPos;

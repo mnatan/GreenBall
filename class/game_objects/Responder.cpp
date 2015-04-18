@@ -1,13 +1,13 @@
 #ifndef RESPONSER_CPP
 #define RESPONSER_CPP
 
-#include "Responser.h"
+#include "Responder.h"
 
-bool Responser::respondON()
+bool Responder::respondON()
 {
 	return true;
 }
-bool Responser::respondOFF()
+bool Responder::respondOFF()
 {
 	return true;
 }

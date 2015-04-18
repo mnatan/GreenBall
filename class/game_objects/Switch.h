@@ -7,7 +7,7 @@
 class Switch: public animated, public Trigger
 {
 	public:
-	Switch(Vector3D pos_, Responser target_);
+	Switch(Vector3D pos_, Responder target_);
 
 	bool drawIt();
 };

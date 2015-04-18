@@ -1,7 +1,7 @@
 // Functions.
 
 #include <vector>
-#include "../class/engine/MapChunk.cpp"
+#include "class/engine/Vector3D.cpp"
 
 static bool Events();
 static void Logic();
@@ -16,7 +16,7 @@ unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
 bool LoadNextLevel();
 bool LoadMap(const char *filename);
 
-MapChunk &MapRead(Vector3D point);
+//MapChunk &MapRead(Vector3D point);
 
 void DrawQuad(float x, float y, float z, float w, float h);
 void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g, float b, float a);

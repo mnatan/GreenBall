@@ -2,14 +2,19 @@
 #define MAP_CPP
 
 #include "Map.h"
+#include "class/game_objects/Floor.cpp"
+#include "class/game_objects/Wall.cpp"
+#include "class/game_objects/Gem.cpp"
+#include "class/game_objects/Door.cpp"
+#include "class/game_objects/Switch.cpp"
 
-Map::Map(int height, int width, int depth) :
-map_width(width), map_height(height), map_layers(depth), level(1)
+Map::Map() :
+map_width(0), map_height(0), map_layers(0), level(1)
 {
 	this->load_map("maps/map1.txt");
 }
 
-MapChunk & Map::map_access(Vector3D pos)
+MapChunk & Map::access(Vector3D pos)
 {
 	return map[(int)pos.x][(int)pos.y][(int)pos.z];
 }
@@ -27,7 +32,7 @@ bool Map::load_map(const char * filename)
 	FILE *f = fopen(filename, "r");
 	if (!f)
 	{
-		fprintf(stderr, "error: could not open file: \"%s\"\n", filename);
+		fprintf(stderr, "error: could not open map file: \"%s\"\n", filename);
 		return false;
 	}
 	fscanf(f, "%d", &map_height);
@@ -61,7 +66,7 @@ bool Map::load_map(const char * filename)
 			case 'p':
 				//TODO FIXME player nieglobalny
 				//map_player.pos = Vector3D(j, i, 1);
-				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
+				//map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
 				break;
 			case '#':
 				map[j][i][0].zawartosc.push_back( new Floor(Vector3D(j, i, 0)) );
@@ -108,7 +113,7 @@ bool Map::load_map(const char * filename)
 				map[j][i][1].zawartosc.push_back(
 				    new Switch(
 				        Vector3D(j, i, 0),
-				        Responser()
+				        Responder()
 				    )
 				);
 				break;
@@ -137,6 +142,7 @@ bool Map::draw_map()
 			}
 		}
 	}
+	return true;
 }
 
 #endif

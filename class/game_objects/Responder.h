@@ -1,7 +1,7 @@
 #ifndef RESPONSER
 #define RESPONSER
 
-class Responser
+class Responder
 {
 	public:
 	virtual bool respondON();

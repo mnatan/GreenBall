@@ -62,10 +62,12 @@ bool MapChunk::playerEnters(Vector3D &zmiana)   // Informujemy wszystkie obiekty
 	return true;
 }
 
-void MapChunk::print_zawartosc(){
+void MapChunk::print_zawartosc()
+{
 	auto end = zawartosc.end();
 	std::cout << "MapChunk :" << std::endl;
-	for(auto iter = zawartosc.begin(); iter != end; ++iter){
+	for (auto iter = zawartosc.begin(); iter != end; ++iter)
+	{
 		std::cout << "- " << (*iter)->typKlasy() << std::endl;
 	}
 }

@@ -1,12 +1,12 @@
 #ifndef TRIGGER
 #define TRIGGER
 
-#include "Responser.cpp"
+#include "Responder.cpp"
 
 class Trigger
 {
 	public:
-	Responser *target;
+	Responder *target;
 	bool triggered;
 
 	bool ActivateTarget();

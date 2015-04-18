@@ -1,4 +1,3 @@
-
 #ifndef DEFINITIONS
 #define DEFINITIONS
 
@@ -44,38 +43,34 @@
 #define ANIM_BACKG_SPEED    0.1f
 #define ANIM_DOOR_CLOSE 	0.5f
 
-//wektory
-
 //class MapChunk;
-
-class Player;
-
-class Vector3D;
+//class Player;
+//class Vector3D;
 
 //class game_obj;
-class animated;
-class scaled;
-class rotated;
-class moved;
+//class animated;
+//class scaled;
+//class rotated;
+//class moved;
 
-class Gem;
-class Box;
-class Blinker;
-class Switch;
-class Door;
-class Wall;
-class Floor;
-class EmptySpace;
+//class Gem;
+//class Box;
+//class Blinker;
+//class Switch;
+//class Door;
+//class Wall;
+//class Floor;
+//class EmptySpace;
 
-struct player_st;
-struct gem;
-struct blinker;
-struct door;
-struct switcher;
-struct box;
+//struct player_st;
+//struct gem;
+//struct blinker;
+//struct door;
+//struct switcher;
+//struct box;
 
-struct anim_move_pl;
-struct anim_fall_pl;
+//struct anim_move_pl;
+//struct anim_fall_pl;
 
 // Globals
 
@@ -97,10 +92,10 @@ float backdir = 1.0f;
 float background_start_time;
 
 unsigned int texturki[20];
-std::vector<rotated> kamienie;
-std::vector<Blinker> blinkery;
-std::vector<Door> drzwi;
-std::vector<Switch> guziki;
-std::vector<Box> pudelka;
+//std::vector<rotated> kamienie;
+//std::vector<Blinker> blinkery;
+//std::vector<Door> drzwi;
+//std::vector<Switch> guziki;
+//std::vector<Box> pudelka;
 
 #endif

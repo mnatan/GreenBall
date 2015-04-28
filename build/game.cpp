@@ -58,7 +58,6 @@ SDL_Color blueFont = {0, 0, 255, 0};
 SDL_Surface *scoresurf;
 TTF_Font *fontKomoda;
 
-Player map_player;
 struct door
 {
 	int x, y, z;
@@ -138,6 +137,7 @@ static void Logic(Map &map)
 {
 	Vector3D zmiana = none;
 
+	// TODO this needs to be moved into player.cpp
 	printf("player\n");
 	if (!map_player.animating)
 	{

@@ -1,10 +1,15 @@
-SRC=$(wildcard *.mp)
-all: $(SRC:.mp=.out)
-	latexmk -pdf doc.tex
+CC=pdflatex
+CFLAGS=
+DIAGRAMS=diagrams
+SRC=$(shell find $(DIAGRAMS) -type f -name '*.mp')
+all: diagrams
+	$(CC) $(CFLAGS) doc.tex
+	rm *.log *.aux
+
+diagrams: $(SRC:.mp=.out)
 
 %.out: %.mp
-	mpost $^
-	rm *.log
+	mpost --tex=mex $^
 
 run:
-	evince -f doc.pdf&
+	evince -f doc.pdf

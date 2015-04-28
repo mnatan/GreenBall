@@ -15,12 +15,27 @@
 \usepackage[T1]{fontenc}
 \usepackage{indentfirst}
 \usepackage{listings}
+\lstset{
+	basicstyle=\ttfamily\footnotesize,
+	language=C,
+	showspaces=false,
+	showtabs=false,
+	breaklines=true,
+	showstringspaces=false,
+	breakatwhitespace=true,
+	escapeinside={(*@}{@*)},
+	basicstyle=\ttfamily,
+	frame=l,
+	framerule=10pt,
+	framesep=8pt
+}
 %\usepackage{polski}
 \frenchspacing
 %end polskie standardy
 
 \usepackage{pslatex,palatino,avant,color}
 \usepackage[margin=2cm]{geometry}
+\usepackage{soul}
 
 \linespread{1.3}
 
@@ -47,14 +62,22 @@ If you ever happen to use my code please don't be afraid to show your work. I wi
 Currently you can move around and push boxes.
 \section{Goals}
 \begin{enumerate}
-	\item general code cleanup
+	\item \st{general code cleanup DONE, the poject compiles}
+	\item debug loading maps in Map class, currently causing segfaults. valgrind output:
+		\begin{lstlisting}
+==10121==    at 0x409184: void std::vector<game_obj*, std::allocator<game_obj*> >::emplace_back<game_obj*>(game_obj*&&) (vector.tcc:94)
+==10121==    by 0x40882F: std::vector<game_obj*, std::allocator<game_obj*> >::push_back(game_obj*&&) (in /mnt/Horyzont Zdarzen/PROGRAMOWANIE/SDL i OpenGL/GreenBall/test)
+==10121==    by 0x404E4E: Map::load_map(char const*) (Map.cpp:72)
+==10121==    by 0x40476A: Map::Map() (Map.cpp:14)
+==10121==    by 0x406625: main (game.cpp:472)
+		\end{lstlisting}
 	\item rethink the map format and way to mark which Switch opens which Door
 	\item create Trigger - Responder system for opening doors
 	\item implement collecting Gems and display score propperly
 \end{enumerate}
 \section{Known bugs}
 %\begin{enumerate}
-	%\item The first item
+%\item The first item
 %\end{enumerate}
 
 \chapter{Class diagrams}
@@ -69,4 +92,4 @@ Legend:
 
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{diag.1}
 
-\end{document}
+	\end{document}

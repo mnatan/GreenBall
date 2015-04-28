@@ -9,13 +9,13 @@
 class MapChunk
 {
 	public:
-	std::vector<game_obj*> zawartosc;
+	std::vector<game_obj> zawartosc;
 
 	MapChunk();
 	bool canFall();
 	bool drawIt();
-	bool canEnter(Vector3D &zmiana);
-	bool playerEnters(Vector3D &zmiana);
+	bool canEnter(Map & map, Vector3D &zmiana);
+	bool playerEnters(Map & map, Vector3D &zmiana);
 	void print_zawartosc();
 };
 

@@ -9,7 +9,7 @@ bool game_obj::canFall()
 {
 	return false;
 }
-bool game_obj::canEnter(Vector3D &zmiana)
+bool game_obj::canEnter(Map & map, Vector3D &zmiana)
 {
 	return true;
 }
@@ -25,6 +25,6 @@ bool game_obj::drawIt()
 {
 	return false;
 }
-void game_obj::playerEnters(Vector3D &zmiana){ return; }
+void game_obj::playerEnters(Map & map, Vector3D &zmiana){ return; }
 
 #endif

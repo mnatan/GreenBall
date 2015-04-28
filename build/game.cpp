@@ -40,7 +40,7 @@
 #include "class/game_objects/Gem.cpp"
 #include "class/game_objects/moved.cpp"
 #include "class/game_objects/player.cpp"
-#include "class/game_objects/Responser.cpp"
+#include "class/game_objects/Responder.cpp"
 #include "class/game_objects/rotated.cpp"
 #include "class/game_objects/scaled.cpp"
 #include "class/game_objects/Switch.cpp"
@@ -98,7 +98,7 @@ struct box
 };
 
 // Functions
-static bool Events()
+static bool Events(Map & map)
 {
 	SDL_Event ev;
 	memset(&ev, 0, sizeof(ev));
@@ -125,7 +125,7 @@ static bool Events()
 	if (win && win_countdown < current_time)
 	{
 		win = false;
-		if ( !LoadNextLevel() )
+		if ( !map.load_next_level() )
 		{
 			game_complete = true;
 		}
@@ -134,13 +134,13 @@ static bool Events()
 	return true;
 }
 
-static void Logic(Map &main_map)
+static void Logic(Map &map)
 {
 	Vector3D zmiana = none;
 
 	if (!map_player.animating)
 	{
-		if (main_map.access(map_player.pos + down).canFall())
+		if (map.access(map_player.pos + down).canFall())
 		{
 			fail = true;
 			map_player.setAnimation(
@@ -182,9 +182,9 @@ static void Logic(Map &main_map)
 	{
 		Vector3D nowaPozycja = map_player.pos + zmiana;
 
-		if (MapRead(nowaPozycja).canEnter(zmiana))
+		if (map.access(nowaPozycja).canEnter(map, zmiana))
 		{
-			MapRead(nowaPozycja).playerEnters(zmiana);
+			map.access(nowaPozycja).playerEnters(map, zmiana);
 			map_player.setAnimation(map_player.pos,
 			                        nowaPozycja,
 			                        ANIM_PLAYER_TIME
@@ -474,12 +474,12 @@ int main(int argc, char **argv, char **envp)
 	for (;;)
 	{
 		// Main stuff.
-		if (!Events())
+		if (!Events(main_map))
 			break;
 
 		//MapRead(Vector3D(5,17,0)).print_zawartosc();
 
-		Logic(&main_map);
+		Logic(main_map);
 		Scene();
 
 		// Calc time.

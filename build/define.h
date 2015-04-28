@@ -43,7 +43,8 @@
 #define ANIM_BACKG_SPEED    0.1f
 #define ANIM_DOOR_CLOSE 	0.5f
 
-//class MapChunk;
+class MapChunk;
+class Map;
 //class Player;
 //class Vector3D;
 

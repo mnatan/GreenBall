@@ -50,8 +50,8 @@ Class.Switch("Switch")
 		("+drawIt(): bool");
 Switch.info.foreColor := (.9,.7,.7);
 
-leftToRight.top(50)(animated,Wall);
-leftToRight.top(20)(Wall,Floor,EmptySpace,Switch);
+leftToRight.top(50)(Wall,animated);
+leftToRight.top(20)(animated,Floor,EmptySpace,Switch);
 
 Group.game_objChildren(animated,Wall,Floor,EmptySpace,Switch);
 topToBottom(30)(game_obj,game_objChildren);
@@ -86,7 +86,7 @@ Class.scaleds("scaled")
 leftToRight.(100)(moved,rotateds,scaleds);
 
 Group.animatedChildren(moved,rotateds,scaleds);
-topToBottom.left(30)(animated,animatedChildren);
+topToBottom(30)(animated,animatedChildren);
 
 drawObjects(animatedChildren);
 % end children of animated

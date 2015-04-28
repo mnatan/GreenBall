@@ -32,9 +32,9 @@ bool moved::UpdateAnimation()
 	return true;
 }
 
-bool moved::checkFloor()
+bool moved::checkFloor(Map & map)
 {
-	if (MapRead(pos + down).canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED
+	if (map.access(pos + down).canFall()) // Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED
 	{
 		this->setAnimation(
 		    pos,

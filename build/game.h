@@ -3,8 +3,8 @@
 #include <vector>
 #include "class/engine/Vector3D.cpp"
 
-static bool Events();
-static void Logic();
+static bool Events(Map & map);
+static void Logic(Map & map);
 static void Scene();
 
 static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
@@ -13,8 +13,8 @@ static bool InitOpenGL();
 unsigned int ImgToTexture(const char *filename);
 unsigned int SurfaceToTexture(SDL_Surface *img, unsigned int texture_id);
 
-bool LoadNextLevel();
-bool LoadMap(const char *filename);
+//bool LoadNextLevel();
+//bool LoadMap(const char *filename);
 
 //MapChunk &MapRead(Vector3D point);
 

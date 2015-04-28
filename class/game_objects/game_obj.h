@@ -3,8 +3,8 @@
 
 #include "build/define.h"
 #include "class/engine/Vector3D.cpp"
-#include "class/engine/MapChunk.cpp"
-#include "class/engine/Map.cpp"
+//#include "class/engine/MapChunk.cpp"
+//#include "class/engine/Map.cpp"
 
 class game_obj
 {

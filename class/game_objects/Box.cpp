@@ -13,16 +13,16 @@ Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)
 
 void Box::playerEnters(Map & map,Vector3D &zmiana)
 {
-	map.access(pos + zmiana).playerEnters(zmiana);
+	map.access(pos + zmiana).playerEnters(map,zmiana);
 
-	map.access(pos + zmiana).zawartosc.push_back(this);
+	map.access(pos + zmiana).zawartosc.push_back(*this);
 	auto iter = std::find(
 	                map.access(pos).zawartosc.begin(),
 	                map.access(pos).zawartosc.end(),
 	                (Box*)this);
 	if (iter != map.access(pos).zawartosc.end())
 	{
-		map_map.access(pos).zawartosc.erase(iter);
+		map.access(pos).zawartosc.erase(iter);
 	}
 
 	setAnimation(pos,
@@ -31,9 +31,9 @@ void Box::playerEnters(Map & map,Vector3D &zmiana)
 	            );
 }
 
-bool Box::canEnter(Vector3D &zmiana)
+bool Box::canEnter(Map & map, Vector3D &zmiana)
 {
-	if (map_map.access(pos + zmiana).canEnter(zmiana)) return true;
+	if (map.access(pos + zmiana).canEnter(map, zmiana)) return true;
 	else return false;
 
 }

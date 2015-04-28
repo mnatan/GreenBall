@@ -71,9 +71,10 @@ Currently you can move around and push boxes.
 ==10121==    by 0x40476A: Map::Map() (Map.cpp:14)
 ==10121==    by 0x406625: main (game.cpp:472)
 		\end{lstlisting}
+		New hint: It is probably caused by player not initialized properly due to not being global anymore.
 	\item rethink the map format and way to mark which Switch opens which Door
 	\item create Trigger - Responder system for opening doors
-	\item implement collecting Gems and display score propperly
+	\item implement collecting Gems and display score properly
 \end{enumerate}
 \section{Known bugs}
 %\begin{enumerate}

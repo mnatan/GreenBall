@@ -138,8 +138,10 @@ static void Logic(Map &map)
 {
 	Vector3D zmiana = none;
 
+	printf("player\n");
 	if (!map_player.animating)
 	{
+		printf("access\n");
 		if (map.access(map_player.pos + down).canFall())
 		{
 			fail = true;
@@ -178,6 +180,7 @@ static void Logic(Map &map)
 		}
 	}
 
+	printf("other\n");
 	if (zmiana != zero)
 	{
 		Vector3D nowaPozycja = map_player.pos + zmiana;
@@ -471,15 +474,22 @@ int main(int argc, char **argv, char **envp)
 	
 	Map main_map; // default constructor handles loading first map
 
+	printf("for(;;)\n");
 	for (;;)
 	{
 		// Main stuff.
+		printf("for(;;) - now events\n");
+
 		if (!Events(main_map))
 			break;
+
+		printf("for(;;) - now logic\n");
 
 		//MapRead(Vector3D(5,17,0)).print_zawartosc();
 
 		Logic(main_map);
+
+		printf("for(;;) - now Scene\n");
 		Scene();
 
 		// Calc time.

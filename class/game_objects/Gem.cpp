@@ -35,14 +35,16 @@ bool Gem::drawIt()
 
 void Gem::playerEnters(Map & map, Vector3D &zmiana)
 {
-	auto iter = std::find(
-	                map.access(pos).zawartosc.begin(),
-	                map.access(pos).zawartosc.end(),
-	                (Box*)this);
-	if (iter != map.access(pos).zawartosc.end())
-	{
-		map.access(pos).zawartosc.erase(iter);
-	}
+	/*
+	 *auto iter = std::find(
+	 *                map.access(pos).zawartosc.begin(),
+	 *                map.access(pos).zawartosc.end(),
+	 *                (Box*)this);
+	 *if (iter != map.access(pos).zawartosc.end())
+	 *{
+	 *    map.access(pos).zawartosc.erase(iter);
+	 *}
+	 */
 
 	// TODO GAME ENGINE - increment score
 }

@@ -16,14 +16,16 @@ void Box::playerEnters(Map & map,Vector3D &zmiana)
 	map.access(pos + zmiana).playerEnters(map,zmiana);
 
 	map.access(pos + zmiana).zawartosc.push_back(*this);
-	auto iter = std::find(
-	                map.access(pos).zawartosc.begin(),
-	                map.access(pos).zawartosc.end(),
-	                (Box*)this);
-	if (iter != map.access(pos).zawartosc.end())
-	{
-		map.access(pos).zawartosc.erase(iter);
-	}
+	/*
+	 *auto iter = std::find(
+	 *                map.access(pos).zawartosc.begin(),
+	 *                map.access(pos).zawartosc.end(),
+	 *                (Box*)this);
+	 *if (iter != map.access(pos).zawartosc.end())
+	 *{
+	 *    map.access(pos).zawartosc.erase(iter);
+	 *}
+	 */
 
 	setAnimation(pos,
 	             pos + zmiana,

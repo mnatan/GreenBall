@@ -39,8 +39,12 @@
 
 \linespread{1.3}
 
-\title{<<Green Ball>> Game Engine documentation}
+\title{<<Green Ball>>\\ Game Engine documentation}
 \author{Marcin Natanek}
+
+\definecolor{gr}{rgb}{0.5,1,0.5}
+\definecolor{ye}{rgb}{1,1,0.5}
+\definecolor{re}{rgb}{0.9,0.7,0.7}
 
 \begin{document}
 %\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{./GameEngine.1}
@@ -78,19 +82,33 @@ Currently you can move around and push boxes.
 	\item implement collecting Gems and display score properly
 \end{enumerate}
 \section{Known bugs}
+None yey
 %\begin{enumerate}
 %\item The first item
 %\end{enumerate}
+\section{Naming conventions}
+\textcolor{red}{Yet to be implemented, borrowed from Ogre3D rendering engine.}
+\begin{enumerate}
+	\item Classes, types and structures must be title case (MyNewClass).
+	\item Methods and local variables must be camel case (myNewMethod). 
+	\item Member variables should be prefixed with 'm' (mInstanceVar), static member variables should be prefixed 'ms' (msStaticMemberVar). Do not use any other prefixing such as Hungarian notation.
+	\item Preprocessor macros must be all upper case.
+	\item Enums should be named in title case, enum values should be all upper case.
+\end{enumerate}
+\section{Ultra distant future}
+\begin{enumerate}
+	\item Use Doxygen for generating documentation.
+	\item Use Ogre3D rendering engine.
+	\item Use Bullet physics engine.
+\end{enumerate}
 
 \chapter{UML diagrams}
-\section{Game objects inheritance diagram}
 Legend:
-\definecolor{gr}{rgb}{0.5,1,0.5}
-\definecolor{ye}{rgb}{1,1,0.5}
-\definecolor{re}{rgb}{0.9,0.7,0.7}
 \\\colorbox{gr}{Green} classes are considered ready, 
 \\\colorbox{ye}{yellow} partially done and 
 \\\colorbox{re}{red} ones lack their main features.
+
+\section{Game objects inheritance diagram}
 
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{./GameObj_inheritance.1}
 

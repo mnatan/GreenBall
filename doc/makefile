@@ -4,7 +4,6 @@ DIAGRAMS=diagrams
 SRC=$(shell find $(DIAGRAMS) -type f -name '*.mp')
 all: diagrams
 	$(CC) $(CFLAGS) doc.tex
-	rm *.log *.aux
 
 diagrams: $(SRC:.mp=.out)
 
@@ -13,3 +12,6 @@ diagrams: $(SRC:.mp=.out)
 
 run:
 	evince -f doc.pdf
+
+clean:
+	rm *.log *.aux

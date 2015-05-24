@@ -1,0 +1,43 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+MAP	Map.h	2;"	d
+MAPCHUNK	MapChunk.h	2;"	d
+MAPCHUNK_CPP	MapChunk.cpp	2;"	d	file:
+MAP_CPP	Map.cpp	2;"	d	file:
+Map	Map.cpp	/^ Map::Map():map_width(0), map_height(0), map_layers(0), level(1)$/;"	f	class:Map
+Map	Map.h	/^class Map {$/;"	c
+MapChunk	MapChunk.cpp	/^MapChunk::MapChunk()$/;"	f	class:MapChunk
+MapChunk	MapChunk.h	/^class MapChunk$/;"	c
+Vector3D	Vector3D.cpp	/^Vector3D::Vector3D(float x_ , float y_, float z_)$/;"	f	class:Vector3D
+Vector3D	Vector3D.h	/^	Vector3D(): x(0), y(0), z(0) {}$/;"	f	class:Vector3D
+Vector3D	Vector3D.h	/^class Vector3D$/;"	c
+access	Map.cpp	/^MapChunk & Map::access(Vector3D pos)$/;"	f	class:Map
+canEnter	MapChunk.cpp	/^bool MapChunk::canEnter(Map & map, Vector3D &zmiana)       \/\/ Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście$/;"	f	class:MapChunk
+canFall	MapChunk.cpp	/^bool MapChunk::canFall()        \/\/ Sprawdza czy to miejsce może utrzymać obiekt$/;"	f	class:MapChunk
+drawIt	MapChunk.cpp	/^bool MapChunk::drawIt()         \/\/ Rysuje cały pion warstw mapy$/;"	f	class:MapChunk
+draw_map	Map.cpp	/^Map::draw_map()$/;"	f	class:Map
+level	Map.h	/^	int level;$/;"	m	class:Map
+load_map	Map.cpp	/^Map::load_map(const char *filename)$/;"	f	class:Map
+load_next_level	Map.cpp	/^Map::load_next_level()$/;"	f	class:Map
+map	Map.h	/^	 MapChunk *** map;$/;"	m	class:Map
+map_height	Map.h	/^	int map_height;$/;"	m	class:Map
+map_layers	Map.h	/^	int map_layers = 2;$/;"	m	class:Map
+map_width	Map.h	/^	int map_width;$/;"	m	class:Map
+myVector	Vector3D.h	2;"	d
+myVector_CPP	Vector3D.cpp	2;"	d	file:
+operator !=	Vector3D.cpp	/^bool operator!=(const Vector3D &lhs, const Vector3D &rhs)$/;"	f
+operator *	Vector3D.cpp	/^Vector3D operator*(const Vector3D &lhs, const float rhs)$/;"	f
+operator +	Vector3D.cpp	/^Vector3D operator+(const Vector3D &lhs, const Vector3D &rhs)$/;"	f
+operator -	Vector3D.cpp	/^Vector3D operator-(const Vector3D &lhs, const Vector3D &rhs)$/;"	f
+operator <<	Vector3D.cpp	/^std::ostream& operator<<(std::ostream& os, const Vector3D &rhs)$/;"	f
+operator ==	Vector3D.cpp	/^bool operator==(const Vector3D &lhs, const Vector3D &rhs)$/;"	f
+playerEnters	MapChunk.cpp	/^bool MapChunk::playerEnters(Map & map, Vector3D &delta)   \/\/ Informujemy wszystkie obiekty na polu że wchodzi tam gracz$/;"	f	class:MapChunk
+print_zawartosc	MapChunk.cpp	/^void MapChunk::print_zawartosc()$/;"	f	class:MapChunk
+x	Vector3D.h	/^	float x;$/;"	m	class:Vector3D
+y	Vector3D.h	/^	float y;$/;"	m	class:Vector3D
+z	Vector3D.h	/^	float z;$/;"	m	class:Vector3D
+zawartosc	MapChunk.h	/^	std::vector<game_obj> zawartosc;$/;"	m	class:MapChunk

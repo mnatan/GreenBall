@@ -2,7 +2,7 @@
 #define BOX_CPP
 
 #include "Box.h"
-#include "class/engine/Map.cpp"
+#include "src/engine/Map.cpp"
 #include <algorithm>
 
 Box::Box(Vector3D pos_) : moved(pos_, TEX_BOX)

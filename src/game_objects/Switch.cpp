@@ -11,7 +11,7 @@ Switch::Switch(Vector3D pos_, Responder target_) : animated(pos_, TEX_SWITCH)
 bool Switch::drawIt()
 {
 	//TODO FIXME WHAT HAPPENS
-	DrawQuadTexture(
+    GreenEngine::DrawQuadTexture(
 		pos + Vector3D(0, 0, 0.1f),
 		1.0f, 1.0f,
 		TEX

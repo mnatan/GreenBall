@@ -1,3 +1,4 @@
+
 /*
  * GreenEngine.h
  * Copyright (C) 2015 Marcin Natanek <natanek.marcin@gmail.com>
@@ -7,49 +8,128 @@
 
 #ifndef GREENENGINE_H
 # define GREENENGINE_H
-# include "src/engine/Map.cpp"
-# include "src/game_objects/player.cpp"
+class Map;
+class Player;
 
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
+# include <vector>
+# include <sstream>
+# include <iostream>
+# include <stdlib.h>
+# include <time.h>
 
-#include <GL/glut.h>
-#include <SDL/SDL_image.h>
-#include "SDL/SDL_ttf.h"
+# include <GL/glut.h>
+# include <SDL/SDL_image.h>
+# include "SDL/SDL_ttf.h"
+
+# include "src/engine/Vector3D.cpp"
+
+// old defines
+# define UNUSED(a) ((void)(a))
+
+# define FULSCREEN   false
+# define WIDTH       860
+# define HEIGHT      640
+
+# define TEX_WALL    0
+# define TEX_FLOOR   1
+# define TEX_STONE   2
+# define TEX_PLAYER  3
+# define TEX_BACKG   4
+# define TEX_GEM     5
+# define TEX_SCORE   6
+# define TEX_WIN     7
+# define TEX_FAIL    8
+# define TEX_LVLCMP  9
+# define TEX_DOOR    10
+# define TEX_KUCYK   11
+# define TEX_SWITCH  12
+# define TEX_BOX     13
+
+# define MAP_NONE    -1
+# define MAP_WALL    0
+# define MAP_FLOOR   1
+# define MAP_STONE   2
+# define MAP_PLAYER  3
+# define MAP_BLINKER 4
+# define MAP_DOOR    5
+# define MAP_SWITCH  6
+# define MAP_BOX     7
+
+# define ANIM_PLAYER_TIME    0.1f
+# define ANIM_TIME_FALL 		1.0f
+# define BLINK_FADE_TIME     0.5f
+# define WIN_WAIT_TIME       2.0f
+# define ANIM_BACKG_TIME     5.0f
+# define ANIM_BACKG_SPEED    0.1f
+# define ANIM_DOOR_CLOSE 	0.5f
+
+class MapChunk;
+class Map;
+
+bool win = false;
+bool fail = false;
+bool game_complete = false;
+int score = 0;
+
+double win_countdown;
+unsigned int level = 0;
+
+static int screen_width;
+static int screen_height;
+bool keys[SDLK_LAST];
+
+//double ratio;
+double current_time;
+double backdir = 1.0f;
+double background_start_time;
+
+unsigned int texturki[20];
+
+// end old defines
 
 class GreenEngine {
  public:
 	GreenEngine();		// default constuctor
 
-	Map main_map;
-	Player main_player;
+	Map *main_map;
+	Player *main_player;
+	static int level;
+	static int score;
 
-	static bool Events(Map & map);
-	static void Logic(Map & map);
+	static bool OK;
+	double ratio = 0.0f;
+
+	bool Events(GreenEngine & engine);
+	static void Logic(GreenEngine &engine);
 	static void Scene();
+
+	void Run();
 
 	static bool InitSDL(bool fullscreen = false, int width =
 			    860, int height = 640);
 	static bool InitOpenGL();
 
+	static bool LoadGraphics();
 	unsigned int ImgToTexture(const char *filename);
 	unsigned int SurfaceToTexture(SDL_Surface * img,
 				      unsigned int texture_id);
 
-	void DrawQuad(float x, float y, float z, float w, float h);
-	void DrawQuadRGBA(float x, float y, float z, float w, float h, float r,
+	static void DrawQuad(float x, float y, float z, float w, float h);
+	static void DrawQuadRGBA(float x, float y, float z, float w, float h, float r,
 			  float g, float b, float a);
-	void DrawQuadTexture(Vector3D vect, float w, float h,
+	static void DrawQuadTexture(Vector3D vect, float w, float h,
 			     unsigned int texture_id);
 
-	void DrawCube(float x, float y, float z, float a);
-	void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id);
+	static void DrawCube(float x, float y, float z, float a);
+	static void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id);
 
+	// Globals TODO
+	//static const SDL_Color redFont(255, 0, 0, 0);
+	//static const SDL_Color greenFont(0, 255, 0, 0);
+	//static const SDL_Color blueFont(0, 0, 255, 0);
+	static const SDL_Surface *scoresurf;
+	static const TTF_Font *fontKomoda;
  private:
-
 };
 
 #endif				/* !GREENENGINE_H */

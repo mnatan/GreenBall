@@ -51,7 +51,7 @@ bool Door::respondOFF()
 bool Door::drawIt()
 {
 	UpdateAnimation();
-	DrawCubeTexture(
+    GreenEngine::DrawCubeTexture(
 	    pos + Vector3D(0, 0, 0.7f),
 	    0.95f,
 	    TEX

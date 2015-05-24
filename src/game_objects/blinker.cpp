@@ -17,7 +17,7 @@ Blinker::Blinker(Vector3D pozycja, float time_dead_, float time_alive_)
 bool Blinker::drawIt()
 {
 	UpdateAnimation();
-	DrawCubeTexture(
+    GreenEngine::DrawCubeTexture(
 	    pos + Vector3D(0, 0, -0.5f),
 	    scale,
 	    TEX_FLOOR

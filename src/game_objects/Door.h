@@ -2,7 +2,7 @@
 #define DOOR
 
 #include "Responder.cpp"
-#include "game_obj.cpp"
+#include "moved.cpp"
 
 class Door: public moved //, public Responder
 {

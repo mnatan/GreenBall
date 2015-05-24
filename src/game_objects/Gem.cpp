@@ -22,7 +22,7 @@ bool Gem::drawIt()
 	    rotationVector.z
 	);
 	glTranslatef(-pos.x, -pos.y, -pos.z - 0.5f);
-	DrawQuadTexture(
+    GreenEngine::DrawQuadTexture(
 	    pos + Vector3D(0, 0, 0.5),
 	    1.0f, 1.0f,
 	    TEX

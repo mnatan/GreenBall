@@ -8,6 +8,8 @@
 #   include "src/game_objects/Door.cpp"
 #   include "src/game_objects/Switch.cpp"
 #   include "src/game_objects/player.cpp"
+#   include "src/game_objects/blinker.cpp"
+#   include "src/game_objects/Box.cpp"
 
  Map::Map():map_width(0), map_height(0), map_layers(0), level(1)
 {

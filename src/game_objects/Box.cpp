@@ -43,7 +43,7 @@ bool Box::canEnter(Map & map, Vector3D &zmiana)
 bool Box::drawIt()
 {
 	UpdateAnimation();
-	DrawCubeTexture(                // Czo sie dzieje :<
+    GreenEngine::DrawCubeTexture(                // Czo sie dzieje :<
 	    pos + Vector3D(0, 0, -0.5),
 	    1.0f,
 	    TEX

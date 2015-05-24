@@ -16,7 +16,7 @@ bool Wall::isSolid()
 }
 bool Wall::drawIt()
 {
-	DrawCubeTexture(
+    GreenEngine::DrawCubeTexture(
 	    pos + Vector3D(0, 0, 0.5f),
 	    1.0f,
 	    TEX

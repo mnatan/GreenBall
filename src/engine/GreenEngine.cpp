@@ -7,82 +7,67 @@
  */
 
 #include "GreenEngine.h"
-
-// Functions
+#include "src/engine/Map.cpp"
 
 GreenEngine::GreenEngine()
 {
+    OK = true;
 	srand(time(NULL));
 
 	// Init SDL.
-	if (!InitSDL(FULSCREEN, WIDTH, HEIGHT))
-		return 1;
+	if (!InitSDL())
+		OK = false;
 
 	// Init OpenGL.
 	if (!InitOpenGL())
-		return 2;
+		OK = false;
 
 	if (TTF_Init() == -1)
-		return 1;
+		OK = false;
 
 	// Title
 	SDL_WM_SetCaption("<<GreenBall>>", "TEST");
 
-	// Loading Textures
-	texturki[TEX_WALL] = ImgToTexture("gfx/wall.png");
-	texturki[TEX_FLOOR] = ImgToTexture("gfx/floor.png");
-	texturki[TEX_STONE] = ImgToTexture("gfx/ball.png");
-	texturki[TEX_PLAYER] = ImgToTexture("gfx/player.png");
-	texturki[TEX_BACKG] = ImgToTexture("gfx/background.jpg");
-	texturki[TEX_GEM] = ImgToTexture("gfx/gem.png");
-	//kombinowanie
-	texturki[TEX_SCORE] = ImgToTexture("gfx/gem.png");
+    GreenEngine::LoadGraphics();
 
-	// z jakiegoś powodu musi być po score !! FIXME
-	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
-	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
-	texturki[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
-	texturki[TEX_DOOR] = ImgToTexture("gfx/door.png");
-	texturki[TEX_KUCYK] = ImgToTexture("gfx/kucyk.png");
-	texturki[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
-	texturki[TEX_BOX] = ImgToTexture("gfx/box.png");
-
-	fontKomoda = TTF_OpenFont("font/Komoda.ttf", 35);
 }
 
-static bool GreenEngine::Run(){
+void GreenEngine::Run()
+{
 	// Main loop:
 	unsigned int last_time = SDL_GetTicks();
-	ratio = 0.0f;
 
-	current_time = (float)last_time / 1000.0f;
+    GreenEngine::ratio = 0.0f;
 
-	for (;;)
-	{
+	double current_time = (double)last_time / 1000.0f;
+
+	for (;;) {
 		// Main stuff.
 		printf("for(;;) - now events\n");
 
-		if (!Events(main_map))
+		if (!Events(*this))
 			break;
 
 		printf("for(;;) - now logic\n");
 
 		//MapRead(Vector3D(5,17,0)).print_zawartosc();
 
-		Logic(main_map);
+		Logic(*this);
 
 		printf("for(;;) - now Scene\n");
 		Scene();
 
 		// Calc time.
 		unsigned int curr_time = SDL_GetTicks();
+
 		ratio = (float)(curr_time - last_time) / 1000.0f;
 		last_time = curr_time;
 		current_time = (float)curr_time / 1000.0f;
 	}
 }
 
-static bool Events(Map & map)
+// Loop functions
+bool GreenEngine::Events(GreenEngine &engine)
 {
 	SDL_Event ev;
 
@@ -107,7 +92,7 @@ static bool Events(Map & map)
 
 	if (win && win_countdown < current_time) {
 		win = false;
-		if (!map.load_next_level()) {
+		if (engine.main_map->load_next_level()) {
 			game_complete = true;
 		}
 	}
@@ -115,19 +100,19 @@ static bool Events(Map & map)
 	return true;
 }
 
-static void Logic(Map & map)
+void GreenEngine::Logic(GreenEngine &engine)
 {
 	Vector3D zmiana = none;
 
 	// TODO this needs to be moved into player.cpp
 	printf("player\n");
-	if (!map_player.animating) {
+	if (!engine.main_player->animating) {
 		printf("access\n");
-		if (map.access(map_player.pos + down).canFall()) {
+		if (engine.main_map->access(engine.main_player->pos + down).canFall()) {
 			fail = true;
-			map_player.setAnimation(map_player.pos,
-						Vector3D(map_player.pos.x,
-							 map_player.pos.y,
+			engine.main_player->setAnimation(engine.main_player->pos,
+						Vector3D(engine.main_player->pos.x,
+							 engine.main_player->pos.y,
 							 -21.0f),
 						ANIM_TIME_FALL);
 		}
@@ -150,20 +135,20 @@ static void Logic(Map & map)
 
 	printf("other\n");
 	if (zmiana != zero) {
-		Vector3D nowaPozycja = map_player.pos + zmiana;
+		Vector3D nowaPozycja = engine.main_player->pos + zmiana;
 
-		if (map.access(nowaPozycja).canEnter(map, zmiana)) {
-			map.access(nowaPozycja).playerEnters(map, zmiana);
-			map_player.setAnimation(map_player.pos,
+		if (engine.main_map->access(nowaPozycja).canEnter(*engine.main_map, zmiana)) {
+			engine.main_map->access(nowaPozycja).playerEnters(*engine.main_map, zmiana);
+			engine.main_player->setAnimation(engine.main_player->pos,
 						nowaPozycja, ANIM_PLAYER_TIME);
 		}
 	}
-	if (map_player.animating) {
-		map_player.animating = map_player.UpdateAnimation();
+	if (engine.main_player->animating) {
+		engine.main_player->animating = engine.main_player->UpdateAnimation();
 	}
 }
 
-static void Scene()
+void GreenEngine::Scene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -191,11 +176,11 @@ static void Scene()
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(-map_player.pos.x, -map_player.pos.y, -0.0f);
+	glTranslatef(-engine.main_player->pos.x, -engine.main_player->pos.y, -0.0f);
 
 	// Draw map
 	// TODO FIXME opuszczamy globale
-	//map.draw_map();
+	//engine.main_map->draw_map();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -295,13 +280,13 @@ static void Scene()
 	//}
 
 	// draw player
-	DrawQuadTexture(map_player.pos + Vector3D(0, 0, 0.5f),
+	DrawQuadTexture(engine.main_player->pos + Vector3D(0, 0, 0.5f),
 			0.8f, 0.8f, TEX_PLAYER);
 
 	if (win) {
 		/*
 		 *DrawQuadTexture(
-		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.5f,
+		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.5f,
 		 *    7.0f, 2.0f,
 		 *    texturki[TEX_LVLCMP]
 		 *);
@@ -310,7 +295,7 @@ static void Scene()
 	if (fail) {
 		/*
 		 *DrawQuadTexture(
-		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.6f,
+		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.6f,
 		 *    7.0f, 2.0f,
 		 *    texturki[TEX_FAIL]
 		 *);
@@ -319,7 +304,7 @@ static void Scene()
 	if (game_complete) {
 		/*
 		 *DrawQuadTexture(
-		 *    (float)map_player.pos.x - 7.5f, (float)map_player.pos.y - 7.5f, 2.7f,
+		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.7f,
 		 *    7.0f, 2.0f,
 		 *    texturki[TEX_WIN]
 		 *);
@@ -333,8 +318,8 @@ static void Scene()
 	//ss << scores << score;
 	std::string scores = "(";
 	std::stringstream ss;
-	ss << scores << map_player.pos.x << "," << map_player.pos.
-	    y << "," << map_player.pos.z << ")";
+	ss << scores << engine.main_player->pos.x << "," << engine.main_player->
+	    pos.y << "," << engine.main_player->pos.z << ")";
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid(fontKomoda, result.c_str(), blueFont);
 	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
@@ -367,7 +352,8 @@ static void Scene()
 	SDL_GL_SwapBuffers();
 }
 
-static bool InitSDL(bool fullscreen, int width, int height)
+// Init
+static bool GreenEngine::InitSDL(bool fullscreen, int width, int height)
 {
 	int screen_bpp;
 	int screen_flag = SDL_OPENGL;
@@ -413,7 +399,7 @@ static bool InitSDL(bool fullscreen, int width, int height)
 	return false;
 }
 
-static bool InitOpenGL()
+static bool GreenEngine::InitOpenGL()
 {
 	float ratio;
 
@@ -438,7 +424,31 @@ static bool InitOpenGL()
 	return true;
 }
 
-unsigned int ImgToTexture(const char *filename)
+static bool GreenEngine::LoadGraphics()
+{
+	texturki[TEX_WALL] = ImgToTexture("gfx/wall.png");
+	texturki[TEX_FLOOR] = ImgToTexture("gfx/floor.png");
+	texturki[TEX_STONE] = ImgToTexture("gfx/ball.png");
+	texturki[TEX_PLAYER] = ImgToTexture("gfx/player.png");
+	texturki[TEX_BACKG] = ImgToTexture("gfx/background.jpg");
+	texturki[TEX_GEM] = ImgToTexture("gfx/gem.png");
+	//kombinowanie
+	texturki[TEX_SCORE] = ImgToTexture("gfx/gem.png");
+
+	// z jakiegoś powodu musi być po score !! FIXME
+	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
+	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
+	texturki[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
+	texturki[TEX_DOOR] = ImgToTexture("gfx/door.png");
+	texturki[TEX_KUCYK] = ImgToTexture("gfx/kucyk.png");
+	texturki[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
+	texturki[TEX_BOX] = ImgToTexture("gfx/box.png");
+
+	fontKomoda = TTF_OpenFont("font/Komoda.ttf", 35);
+}
+
+// Graphic helpers
+unsigned int GreenEngine::ImgToTexture(const char *filename)
 {
 	// Load image.
 	SDL_Surface *img = IMG_Load(filename);
@@ -508,7 +518,8 @@ unsigned int ImgToTexture(const char *filename)
 	return texture_id;
 }
 
-unsigned int SurfaceToTexture(SDL_Surface * img, unsigned int texture_id)
+unsigned int GreenEngine::SurfaceToTexture(SDL_Surface * img,
+					   unsigned int texture_id)
 {
 	// Image type? Only 24 and 32 supported, rest must be converted.
 	unsigned int img_type = 0;
@@ -562,7 +573,7 @@ unsigned int SurfaceToTexture(SDL_Surface * img, unsigned int texture_id)
 	return texture_id + 1;
 }
 
-void DrawCube(float x, float y, float z, float a)
+void GreenEngine::DrawCube(float x, float y, float z, float a)
 {
 	a /= 2.0f;
 
@@ -633,7 +644,8 @@ void DrawCube(float x, float y, float z, float a)
 	glEnd();
 }
 
-void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id)
+void GreenEngine::DrawCubeTexture(Vector3D pos, float a,
+				  unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
@@ -650,7 +662,7 @@ void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id)
 		glDisable(GL_TEXTURE_2D);
 }
 
-void DrawQuad(float x, float y, float z, float w, float h)
+void GreenEngine::DrawQuad(float x, float y, float z, float w, float h)
 {
 	w /= 2.0f;
 	h /= 2.0f;
@@ -667,8 +679,8 @@ void DrawQuad(float x, float y, float z, float w, float h)
 	glEnd();
 }
 
-void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g,
-		  float b, float a)
+void GreenEngine::DrawQuadRGBA(float x, float y, float z, float w, float h,
+			       float r, float g, float b, float a)
 {
 	// Get old color.
 	float current_color[4];
@@ -683,7 +695,8 @@ void DrawQuadRGBA(float x, float y, float z, float w, float h, float r, float g,
 	glColor4fv(current_color);
 }
 
-void DrawQuadTexture(Vector3D vect, float w, float h, unsigned int texture_id)
+void GreenEngine::DrawQuadTexture(Vector3D vect, float w, float h,
+				  unsigned int texture_id)
 {
 	// Enable texturing if needed.
 	bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);

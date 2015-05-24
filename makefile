@@ -15,8 +15,8 @@ CPPFLAGS=-I "$(shell pwd)" -std=c++11 -Wall -g `sdl-config --cflags`
 # Linker flags
 LDFLAGS=`sdl-config --libs` -lSDL -lSDL_image -lglut -lGL -lGLU -lSDL_ttf
 
-all: build/game.cpp
-	$(CC) $(CPPFLAGS) -c build/game.cpp
+all: src/game.cpp
+	$(CC) $(CPPFLAGS) -c src/game.cpp
 	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o $(TARGET)
 
 # testing the code

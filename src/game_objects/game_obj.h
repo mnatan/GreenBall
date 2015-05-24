@@ -1,7 +1,7 @@
 #ifndef GAME_OBJ
 #define GAME_OBJ
 
-#include "build/define.h"
+//#include "src/defines.h"
 #include "src/engine/Vector3D.cpp"
 //#include "src/engine/MapChunk.cpp"
 //#include "src/engine/Map.cpp"

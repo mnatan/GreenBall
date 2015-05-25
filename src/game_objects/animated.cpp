@@ -8,7 +8,7 @@ bool animated::isAnimated()
 	return true;
 }
 
-bool animated::UpdateAnimation()
+bool animated::UpdateAnimation(double ratio)
 {
 	return false;
 }

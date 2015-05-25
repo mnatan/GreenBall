@@ -63,44 +63,36 @@ class Player;
 # define ANIM_BACKG_SPEED    0.1f
 # define ANIM_DOOR_CLOSE 	0.5f
 
-class MapChunk;
-class Map;
-
-bool win = false;
-bool fail = false;
-bool game_complete = false;
-int score = 0;
-
-double win_countdown;
-unsigned int level = 0;
-
-static int screen_width;
-static int screen_height;
-bool keys[SDLK_LAST];
-
-//double ratio;
-double current_time;
-double backdir = 1.0f;
-double background_start_time;
-
-unsigned int texturki[20];
-
 // end old defines
 
 class GreenEngine {
  public:
-	GreenEngine();		// default constuctor
 
-	Map *main_map;
-	Player *main_player;
+	bool win = false;
+	bool fail = false;
+	bool game_complete = false;
+
+	double win_countdown;
+
+	static int screen_width;
+	static int screen_height;
+	bool keys[SDLK_LAST];
+
+	double current_time;
+	double backdir = 1.0f;
+	double background_start_time;
+	unsigned int textures[20];
 	static int level;
 	static int score;
 
 	static bool OK;
 	double ratio = 0.0f;
 
-	bool Events(GreenEngine & engine);
-	static void Logic(GreenEngine &engine);
+	 GreenEngine();		// default constuctor
+	~GreenEngine();		// default destructor
+
+	bool Events();
+	static void Logic();
 	static void Scene();
 
 	void Run();
@@ -115,13 +107,14 @@ class GreenEngine {
 				      unsigned int texture_id);
 
 	static void DrawQuad(float x, float y, float z, float w, float h);
-	static void DrawQuadRGBA(float x, float y, float z, float w, float h, float r,
-			  float g, float b, float a);
+	static void DrawQuadRGBA(float x, float y, float z, float w, float h,
+				 float r, float g, float b, float a);
 	static void DrawQuadTexture(Vector3D vect, float w, float h,
-			     unsigned int texture_id);
+				    unsigned int texture_id);
 
 	static void DrawCube(float x, float y, float z, float a);
-	static void DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id);
+	static void DrawCubeTexture(Vector3D pos, float a,
+				    unsigned int texture_id);
 
 	// Globals TODO
 	//static const SDL_Color redFont(255, 0, 0, 0);
@@ -130,6 +123,8 @@ class GreenEngine {
 	static const SDL_Surface *scoresurf;
 	static const TTF_Font *fontKomoda;
  private:
+	 Map * main_map;
+	Player *main_player;
 };
 
 #endif				/* !GREENENGINE_H */

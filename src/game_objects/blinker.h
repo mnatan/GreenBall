@@ -22,7 +22,7 @@ class Blinker: public scaled
 	stan state; // 1-jest, 2-zmiana, 3-nie ma, 4-zmiana
 
 	Blinker(Vector3D pozycja, float time_dead, float time_alive);
-	bool UpdateAnimation();
+	bool UpdateAnimation(double ratio);
 	bool drawIt();
 
 	bool canEnter(Map & map, Vector3D &zmiana);

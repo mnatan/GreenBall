@@ -10,9 +10,9 @@ class animated: public game_obj
 
 	animated(Vector3D pos, int TEX): game_obj(pos, TEX) {}
 
-	virtual bool UpdateAnimation();
-	bool isAnimated();
+	virtual bool UpdateAnimation(double ratio);
 	virtual std::string typKlasy() { return "animated"; };
+	bool isAnimated();
 };
 
 #endif

@@ -16,7 +16,7 @@ Blinker::Blinker(Vector3D pozycja, float time_dead_, float time_alive_)
 }
 bool Blinker::drawIt()
 {
-	UpdateAnimation();
+	UpdateAnimation(); //TODO
     GreenEngine::DrawCubeTexture(
 	    pos + Vector3D(0, 0, -0.5f),
 	    scale,
@@ -24,7 +24,7 @@ bool Blinker::drawIt()
 	);
 	return true;
 }
-bool Blinker::UpdateAnimation()
+bool Blinker::UpdateAnimation(double ratio)
 {
 	if (current_time > next_switch)
 	{
@@ -62,7 +62,7 @@ bool Blinker::UpdateAnimation()
 		}
 		else
 		{
-			scaled::UpdateAnimation();
+			scaled::UpdateAnimation(ratio);
 		}
 	}
 	else if (state == growing)
@@ -74,7 +74,7 @@ bool Blinker::UpdateAnimation()
 		}
 		else
 		{
-			scaled::UpdateAnimation();
+			scaled::UpdateAnimation(ratio);
 		}
 	}
 	return true;

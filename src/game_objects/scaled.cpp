@@ -11,7 +11,7 @@ void scaled::setAnimation(float start, float end, float timestart, float timeend
 	startTime = timestart;
 	endTime = timeend;
 }
-bool scaled::UpdateAnimation()
+bool scaled::UpdateAnimation(double ratio)
 {
 	if (current_time >= endTime)
 	{

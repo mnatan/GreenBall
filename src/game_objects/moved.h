@@ -13,9 +13,9 @@ class moved: public animated
 	float endTime;
 
 	moved(Vector3D pos, int TEX): animated(pos, TEX), startPos(pos), endPos(pos), startTime(0), endTime(0){};
-	void setAnimation(Vector3D start, Vector3D end, float duration);
+	void setAnimation(Vector3D start, Vector3D end, double startTime, double duration);
 	bool checkFloor(Map & map);
-	bool UpdateAnimation();
+	bool UpdateAnimation(double current_time, double ratio);
 	virtual std::string typKlasy() { return "moved"; };
 };
 

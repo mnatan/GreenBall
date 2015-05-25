@@ -11,7 +11,7 @@
 
 GreenEngine::GreenEngine()
 {
-    OK = true;
+	OK = true;
 	srand(time(NULL));
 
 	// Init SDL.
@@ -28,8 +28,13 @@ GreenEngine::GreenEngine()
 	// Title
 	SDL_WM_SetCaption("<<GreenBall>>", "TEST");
 
-    GreenEngine::LoadGraphics();
+	GreenEngine::LoadGraphics();
 
+}
+
+GreenEngine::~GreenEngine()
+{
+	SDL_Quit();
 }
 
 void GreenEngine::Run()
@@ -37,7 +42,7 @@ void GreenEngine::Run()
 	// Main loop:
 	unsigned int last_time = SDL_GetTicks();
 
-    GreenEngine::ratio = 0.0f;
+	GreenEngine::ratio = 0.0f;
 
 	double current_time = (double)last_time / 1000.0f;
 
@@ -67,7 +72,7 @@ void GreenEngine::Run()
 }
 
 // Loop functions
-bool GreenEngine::Events(GreenEngine &engine)
+bool GreenEngine::Events()
 {
 	SDL_Event ev;
 
@@ -100,7 +105,7 @@ bool GreenEngine::Events(GreenEngine &engine)
 	return true;
 }
 
-void GreenEngine::Logic(GreenEngine &engine)
+void GreenEngine::Logic()
 {
 	Vector3D zmiana = none;
 
@@ -108,13 +113,17 @@ void GreenEngine::Logic(GreenEngine &engine)
 	printf("player\n");
 	if (!engine.main_player->animating) {
 		printf("access\n");
-		if (engine.main_map->access(engine.main_player->pos + down).canFall()) {
+		if (engine.main_map->
+		    access(engine.main_player->pos + down).canFall()) {
 			fail = true;
-			engine.main_player->setAnimation(engine.main_player->pos,
-						Vector3D(engine.main_player->pos.x,
-							 engine.main_player->pos.y,
-							 -21.0f),
-						ANIM_TIME_FALL);
+			engine.main_player->setAnimation(engine.
+							 main_player->pos,
+							 Vector3D
+							 (engine.main_player->pos.
+							  x,
+							  engine.main_player->pos.
+							  y, -21.0f),
+							 ANIM_TIME_FALL);
 		}
 		if (!fail) {
 			if (keys[SDLK_UP]) {
@@ -137,14 +146,20 @@ void GreenEngine::Logic(GreenEngine &engine)
 	if (zmiana != zero) {
 		Vector3D nowaPozycja = engine.main_player->pos + zmiana;
 
-		if (engine.main_map->access(nowaPozycja).canEnter(*engine.main_map, zmiana)) {
-			engine.main_map->access(nowaPozycja).playerEnters(*engine.main_map, zmiana);
-			engine.main_player->setAnimation(engine.main_player->pos,
-						nowaPozycja, ANIM_PLAYER_TIME);
+		if (engine.main_map->
+		    access(nowaPozycja).canEnter(*engine.main_map, zmiana)) {
+			engine.main_map->
+			    access(nowaPozycja).playerEnters(*engine.main_map,
+							     zmiana);
+			engine.main_player->setAnimation(engine.
+							 main_player->pos,
+							 nowaPozycja,
+							 ANIM_PLAYER_TIME);
 		}
 	}
 	if (engine.main_player->animating) {
-		engine.main_player->animating = engine.main_player->UpdateAnimation();
+		engine.main_player->animating =
+		    engine.main_player->UpdateAnimation(ratio);
 	}
 }
 
@@ -176,7 +191,8 @@ void GreenEngine::Scene()
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(-engine.main_player->pos.x, -engine.main_player->pos.y, -0.0f);
+	glTranslatef(-engine.main_player->pos.x, -engine.main_player->pos.y,
+		     -0.0f);
 
 	// Draw map
 	// TODO FIXME opuszczamy globale
@@ -184,100 +200,6 @@ void GreenEngine::Scene()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-
-	//size_t s = blinkery.size();
-	//for (size_t i = 0 ; i < s; i++)
-	//{
-	//blinkery[i].UpdateAnimation();
-	//DrawCubeTexture(
-	//blinkery[i].pos - Vector3D(7.5f, 7.5f, 0.5f),
-	//blinkery[i].scale,
-	//texturki[TEX_FLOOR]
-	//);
-	//}
-	//s = drzwi.size();
-	//for (size_t i = 0 ; i < s; i++)
-	//{
-	//if (drzwi[i].animating)
-	//{
-	//drzwi[i].UpdateAnimation();
-	//}
-	/*
-	 *DrawCubeTexture(
-	 *    (float)drzwi[i].pos.x - 7.5f, (float)drzwi[i].pos.y - 7.5f, (float)drzwi[i].pos.z + 0.5f,
-	 *    0.95f,
-	 *    texturki[drzwi[i].TEX]
-	 *);
-	 */
-	//}
-	//s = guziki.size();
-	//for (size_t i = 0 ; i < s; i++)
-	//{
-	/*
-	 *std::vector<Box>::iterator box = getBoxByVector(guziki[i].pos);
-	 *if ( box != pudelka.end())
-	 *{
-	 *    if (!guziki[i].animating)
-	 *    {
-	 *        //guziki[i].active = true;
-	 *        guziki[i].ActivateTarget();
-	 *        std::cout << "aktywuje" << std::endl;
-	 *    }
-	 *}
-	 *else
-	 *{
-	 *    if (guziki[i].animating)
-	 *    {
-	 *        //guziki[i].active = false;
-	 *        guziki[i].DeactivateTarget();
-	 *        std::cout << "deaktywuje" << std::endl;
-	 *    }
-	 *}
-	 */
-	//DrawQuadTexture(
-	//(float)guziki[i].pos.x - 7.5f, (float)guziki[i].pos.y - 7.5f, (float)guziki[i].pos.z + 0.1f,
-	//1.0f, 1.0f,
-	//texturki[guziki[i].TEX]
-	//);
-	//}
-	//s = pudelka.size();
-	//for (size_t i = 0 ; i < s; i++)
-	//{
-	//if (pudelka[i].animating)
-	//{
-	//pudelka[i].animating = pudelka[i].UpdateAnimation();
-	//}
-	//pudelka[i].checkFloor();
-	/*
-	 *DrawCubeTexture(
-	 *    (float)pudelka[i].pos.x - 7.5f, (float)pudelka[i].pos.y - 7.5f, (float)pudelka[i].pos.z + 0.5f,
-	 *    1.0f,
-	 *    texturki[TEX_BOX]
-	 *);
-	 */
-	//}
-
-	//s = kamienie.size();
-	//for (size_t i = 0 ; i < s; i++)
-	//{
-	//kamienie[i].UpdateAnimation();
-	//glPushMatrix();
-	//glTranslatef((float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f);
-	//glRotatef(
-	//kamienie[i].accumulator,
-	//kamienie[i].rotationVector.x,
-	//kamienie[i].rotationVector.y,
-	//kamienie[i].rotationVector.z
-	//);
-	//glTranslatef(-(float)kamienie[i].pos.x + 7.5f, -(float)kamienie[i].pos.y + 7.5f, -0.5f);
-	////glTranslatef((float)kamienie[i].x, (float)kamienie[i].y, 0.0f);
-	//DrawQuadTexture(
-	//(float)kamienie[i].pos.x - 7.5f, (float)kamienie[i].pos.y - 7.5f, 0.5f,
-	//1.0f, 1.0f,
-	//texturki[TEX_GEM]
-	//);
-	//glPopMatrix();
-	//}
 
 	// draw player
 	DrawQuadTexture(engine.main_player->pos + Vector3D(0, 0, 0.5f),
@@ -288,7 +210,7 @@ void GreenEngine::Scene()
 		 *DrawQuadTexture(
 		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.5f,
 		 *    7.0f, 2.0f,
-		 *    texturki[TEX_LVLCMP]
+		 *    textures[TEX_LVLCMP]
 		 *);
 		 */
 	}
@@ -297,7 +219,7 @@ void GreenEngine::Scene()
 		 *DrawQuadTexture(
 		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.6f,
 		 *    7.0f, 2.0f,
-		 *    texturki[TEX_FAIL]
+		 *    textures[TEX_FAIL]
 		 *);
 		 */
 	}
@@ -306,7 +228,7 @@ void GreenEngine::Scene()
 		 *DrawQuadTexture(
 		 *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.7f,
 		 *    7.0f, 2.0f,
-		 *    texturki[TEX_WIN]
+		 *    textures[TEX_WIN]
 		 *);
 		 */
 	}
@@ -322,7 +244,7 @@ void GreenEngine::Scene()
 	    pos.y << "," << engine.main_player->pos.z << ")";
 	std::string result = ss.str();
 	scoresurf = TTF_RenderText_Solid(fontKomoda, result.c_str(), blueFont);
-	texturki[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
+	textures[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
 	/*
 	 *DrawQuadRGBA(
 	 *    7.0f, -6.0f, 2.1f,
@@ -332,7 +254,7 @@ void GreenEngine::Scene()
 	 *DrawQuadTexture(
 	 *    7.0f, -6.0f, 2.2f,
 	 *    3.0f, 1.0f,
-	 *    texturki[TEX_SCORE]
+	 *    textures[TEX_SCORE]
 	 *);
 	 */
 
@@ -426,23 +348,23 @@ static bool GreenEngine::InitOpenGL()
 
 static bool GreenEngine::LoadGraphics()
 {
-	texturki[TEX_WALL] = ImgToTexture("gfx/wall.png");
-	texturki[TEX_FLOOR] = ImgToTexture("gfx/floor.png");
-	texturki[TEX_STONE] = ImgToTexture("gfx/ball.png");
-	texturki[TEX_PLAYER] = ImgToTexture("gfx/player.png");
-	texturki[TEX_BACKG] = ImgToTexture("gfx/background.jpg");
-	texturki[TEX_GEM] = ImgToTexture("gfx/gem.png");
+	textures[TEX_WALL] = ImgToTexture("gfx/wall.png");
+	textures[TEX_FLOOR] = ImgToTexture("gfx/floor.png");
+	textures[TEX_STONE] = ImgToTexture("gfx/ball.png");
+	textures[TEX_PLAYER] = ImgToTexture("gfx/player.png");
+	textures[TEX_BACKG] = ImgToTexture("gfx/background.jpg");
+	textures[TEX_GEM] = ImgToTexture("gfx/gem.png");
 	//kombinowanie
-	texturki[TEX_SCORE] = ImgToTexture("gfx/gem.png");
+	textures[TEX_SCORE] = ImgToTexture("gfx/gem.png");
 
 	// z jakiegoś powodu musi być po score !! FIXME
-	texturki[TEX_WIN] = ImgToTexture("gfx/win.png");
-	texturki[TEX_FAIL] = ImgToTexture("gfx/fail.png");
-	texturki[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
-	texturki[TEX_DOOR] = ImgToTexture("gfx/door.png");
-	texturki[TEX_KUCYK] = ImgToTexture("gfx/kucyk.png");
-	texturki[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
-	texturki[TEX_BOX] = ImgToTexture("gfx/box.png");
+	textures[TEX_WIN] = ImgToTexture("gfx/win.png");
+	textures[TEX_FAIL] = ImgToTexture("gfx/fail.png");
+	textures[TEX_LVLCMP] = ImgToTexture("gfx/lvlcmp.png");
+	textures[TEX_DOOR] = ImgToTexture("gfx/door.png");
+	textures[TEX_KUCYK] = ImgToTexture("gfx/kucyk.png");
+	textures[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
+	textures[TEX_BOX] = ImgToTexture("gfx/box.png");
 
 	fontKomoda = TTF_OpenFont("font/Komoda.ttf", 35);
 }
@@ -654,7 +576,7 @@ void GreenEngine::DrawCubeTexture(Vector3D pos, float a,
 		glEnable(GL_TEXTURE_2D);
 
 	// Bind texture and draw.
-	glBindTexture(GL_TEXTURE_2D, texturki[texture_id]);
+	glBindTexture(GL_TEXTURE_2D, textures[texture_id]);
 	DrawCube(pos.x, pos.y, pos.z, a);
 
 	// Disable if was disabled.
@@ -705,7 +627,7 @@ void GreenEngine::DrawQuadTexture(Vector3D vect, float w, float h,
 		glEnable(GL_TEXTURE_2D);
 
 	// Bind texture and draw.
-	glBindTexture(GL_TEXTURE_2D, texturki[texture_id]);
+	glBindTexture(GL_TEXTURE_2D, textures[texture_id]);
 	DrawQuad(vect.x, vect.y, vect.z, w, h);
 
 	// Disable if was disabled.

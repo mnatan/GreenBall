@@ -16,7 +16,7 @@ bool EmptySpace::drawIt()
 {
 	return false;
 }
-bool EmptySpace::UpdateAnimation()
+bool EmptySpace::UpdateAnimation(double ratio)
 {
 	return false;
 }

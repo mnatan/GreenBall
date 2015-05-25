@@ -17,18 +17,18 @@
 
 #include "src/engine/GreenEngine.cpp"
 
-int main(int argc, char **argv, char **envp)
+int main()
 {
-	// Unused.
-	UNUSED(argc);
-	UNUSED(argv);
-	UNUSED(envp);
-
     GreenEngine main_engine;
+
+    if (!main_engine.OK){
+        std::cout << "Error creating window!" << std::endl;
+        return 1;
+    }
+
+
 
     main_engine.Run();
 
-	// Done.
-	SDL_Quit();
 	return 0;
 }

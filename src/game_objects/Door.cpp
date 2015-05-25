@@ -50,7 +50,7 @@ bool Door::respondOFF()
 }
 bool Door::drawIt()
 {
-	UpdateAnimation();
+	//UpdateAnimation(ratio); // Why update in draw?
     GreenEngine::DrawCubeTexture(
 	    pos + Vector3D(0, 0, 0.7f),
 	    0.95f,

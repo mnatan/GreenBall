@@ -97,14 +97,17 @@ class GreenEngine
         static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
         static bool InitOpenGL();
 
-        bool Events();
-        void Logic();
-        void Scene();
+        virtual bool Events()
+        {
+            return false;
+        }
+        virtual void Logic() {}
+        virtual void Scene() {}
 
         void Run(); // start main loop
 
         static bool LoadGraphics();
-        void SetTitle(const char *x);
+        void SetTitle(const char* x);
 
         bool load_next_level();
 

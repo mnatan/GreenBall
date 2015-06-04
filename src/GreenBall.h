@@ -1,16 +1,16 @@
 /*
- * MainProject.h
+ * GreenBall.h
  * Copyright (C) 2015 Marcin Natanek <natanek.marcin@gmail.com>
  *
  * Distributed under terms of the GPL license.
  */
 
-#ifndef MAINPROJECT_H
-#define MAINPROJECT_H
+#ifndef GREENBALL_H
+#define GREENBALL_H
 
 #include "src/engine/GreenEngine.cpp"
 
-class MainProject : public GreenEngine
+class GreenBall : public GreenEngine
 {
     public:
         bool Events();
@@ -19,4 +19,4 @@ class MainProject : public GreenEngine
         bool LoadGraphics();
 };
 
-#endif /* !MAINPROJECT_H */
+#endif /* !GREENBALL_H */

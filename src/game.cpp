@@ -15,13 +15,14 @@
  * Copyright (C) Marcin Natanek, 2015
  */
 
-#include "src/MainProject.cpp"
+#include "GreenBall.cpp"
 
 int main()
 {
-    MainProject main_engine;
+    GreenBall main_engine;
 
-    if (!main_engine.OK){
+    if (!main_engine.OK)
+    {
         std::cout << "Error creating window!" << std::endl;
         return 1;
     }
@@ -30,5 +31,5 @@ int main()
 
     main_engine.Run();
 
-	return 0;
+    return 0;
 }

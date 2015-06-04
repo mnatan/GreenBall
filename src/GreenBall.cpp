@@ -1,13 +1,13 @@
 /*
- * MainProject.cpp
+ * GreenBall.cpp
  * Copyright (C) 2015 Marcin Natanek <natanek.marcin@gmail.com>
  *
  * Distributed under terms of the GPL license.
  */
 
-#include "MainProject.h"
+#include "GreenBall.h"
 
-bool MainProject::Events()
+bool GreenBall::Events()
 {
     SDL_Event ev;
 
@@ -46,16 +46,16 @@ bool MainProject::Events()
     return true;
 }
 
-void MainProject::Logic()
+void GreenBall::Logic()
 {
     Vector3D zmiana = none;
 
     // TODO this needs to be moved into player.cpp
-    printf("player\n");
+    //printf("player\n");
 
     if (main_player->animating)
     {
-        printf("access\n");
+        //printf("access\n");
 
         if (main_map->access(main_player->pos + down).canFall())
         {
@@ -90,7 +90,7 @@ void MainProject::Logic()
         }
     }
 
-    printf("other\n");
+    //printf("other\n");
 
     if (zmiana != zero)
     {
@@ -112,7 +112,7 @@ void MainProject::Logic()
     }
 }
 
-void MainProject::Scene()
+void GreenBall::Scene()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);

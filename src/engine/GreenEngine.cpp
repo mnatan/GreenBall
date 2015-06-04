@@ -75,18 +75,18 @@ void GreenEngine::Run()
     for (;;)
     {
         // Main stuff.
-        printf("for(;;) - now events\n");
+        //printf("for(;;) - now events\n");
 
         if (!Events())
             break;
 
-        printf("for(;;) - now logic\n");
+        //printf("for(;;) - now logic\n");
 
         //MapRead(Vector3D(5,17,0)).print_zawartosc();
 
         Logic();
 
-        printf("for(;;) - now Scene\n");
+        //printf("for(;;) - now Scene\n");
         Scene();
 
         // Calc time.

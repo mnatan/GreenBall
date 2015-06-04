@@ -31,15 +31,17 @@ bool moved::UpdateAnimation(double current_time, double ratio)
 	return true;
 }
 
-bool moved::checkFloor(Map & map)
+bool moved::checkFloor()
 {
-	if (map.access(pos + down).canFall())	// Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED
-	{
-		this->setAnimation(pos,
-				   Vector3D(pos.x, pos.y, -22.0f),
-				   ANIM_TIME_FALL);
-		return true;
-	}
+    /*
+	 *if (map.access(pos + down).canFall())	// Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED
+	 *{
+	 *    this->setAnimation(pos,
+	 *               Vector3D(pos.x, pos.y, -22.0f),
+	 *               ANIM_TIME_FALL);
+	 *    return true;
+	 *}
+     */
 	return false;
 }
 

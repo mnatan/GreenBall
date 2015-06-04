@@ -26,7 +26,7 @@ int main()
         return 1;
     }
 
-
+    main_engine.SetTitle("<<GreenEngine>> - GreenBall");
 
     main_engine.Run();
 

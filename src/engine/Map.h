@@ -1,9 +1,9 @@
 #ifndef MAP
-#   define MAP
+# define MAP
 
-#   include "Vector3D.cpp"
-#   include "src/game_objects/game_obj.cpp"
-#   include "src/engine/MapChunk.cpp"
+# include "Vector3D.cpp"
+# include "src/game_objects/game_obj.cpp"
+# include "src/engine/MapChunk.cpp"
 class MapChunk;
 class game_obj;
 

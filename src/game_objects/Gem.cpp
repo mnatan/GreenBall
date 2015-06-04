@@ -12,7 +12,7 @@ bool Gem::drawIt()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Bugi z przezroczystosicia - Element przezroczysty trzeba rysować na końcu. Może wrzucać to na stosik?
 	glEnable(GL_BLEND);
 
-	//UpdateAnimation(double ratio); // not in draw TODO
+	//UpdateAnimation(double current_time, double ratio); // not in draw TODO
 	glPushMatrix();
 	glTranslatef(pos.x, pos.y, pos.z + 0.5f);
 	glRotatef(

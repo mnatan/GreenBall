@@ -8,7 +8,7 @@
  Box::Box(Vector3D pos_):moved(pos_, TEX_BOX)
 {
 	animating = false;
-	endTime = current_time;
+	//endTime = current_time; BUG?
 }
 
 void Box::playerEnters(Map & map, Vector3D & zmiana)
@@ -27,7 +27,7 @@ void Box::playerEnters(Map & map, Vector3D & zmiana)
 	 *}
 	 */
 
-	setAnimation(pos, pos + zmiana, ANIM_PLAYER_TIME);
+	//setAnimation(pos, pos + zmiana, ANIM_PLAYER_TIME); TODO
 }
 
 bool Box::canEnter(Map & map, Vector3D & zmiana)

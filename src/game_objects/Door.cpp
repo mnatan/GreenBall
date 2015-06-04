@@ -32,20 +32,24 @@ Door::Door(Vector3D pos_) : moved(pos_, TEX_DOOR)
 
 bool Door::respondON()
 {
-	setAnimation(
-	    pos,
-	    openPos,
-	    ANIM_DOOR_CLOSE
-	);
+    /* TODO
+	 *setAnimation(
+	 *    pos,
+	 *    openPos,
+	 *    ANIM_DOOR_CLOSE
+	 *);
+     */
 	return true;
 }
 bool Door::respondOFF()
 {
-	setAnimation(
-	    pos,
-	    closedPos,
-	    ANIM_DOOR_CLOSE
-	);
+    /* TODO
+	 *setAnimation(
+	 *    pos,
+	 *    closedPos,
+	 *    ANIM_DOOR_CLOSE
+	 *);
+     */
 	return true;
 }
 bool Door::drawIt()

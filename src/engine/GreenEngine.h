@@ -102,6 +102,9 @@ class GreenEngine {
 	static bool InitOpenGL();
 
 	static bool LoadGraphics();
+
+    void SetTitle(std::string x);
+
 	unsigned int ImgToTexture(const char *filename);
 	unsigned int SurfaceToTexture(SDL_Surface * img,
 				      unsigned int texture_id);

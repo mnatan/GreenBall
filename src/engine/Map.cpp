@@ -1,15 +1,15 @@
 #ifndef MAP_CPP
-#   define MAP_CPP
+# define MAP_CPP
 
-#   include "Map.h"
-#   include "src/game_objects/Floor.cpp"
-#   include "src/game_objects/Wall.cpp"
-#   include "src/game_objects/Gem.cpp"
-#   include "src/game_objects/Door.cpp"
-#   include "src/game_objects/Switch.cpp"
-#   include "src/game_objects/player.cpp"
-#   include "src/game_objects/blinker.cpp"
-#   include "src/game_objects/Box.cpp"
+# include "Map.h"
+# include "src/game_objects/Floor.cpp"
+# include "src/game_objects/Wall.cpp"
+# include "src/game_objects/Gem.cpp"
+# include "src/game_objects/Door.cpp"
+# include "src/game_objects/Switch.cpp"
+# include "src/game_objects/player.cpp"
+# include "src/game_objects/blinker.cpp"
+# include "src/game_objects/Box.cpp"
 
  Map::Map():map_width(0), map_height(0), map_layers(0), level(1)
 {
@@ -35,6 +35,7 @@ bool Map::load_next_level()
 bool Map::load_map(const char *filename)
 {
 	FILE *f = fopen(filename, "r");
+
 	if (!f) {
 		fprintf(stderr, "error: could not open map file: \"%s\"\n",
 			filename);
@@ -44,6 +45,7 @@ bool Map::load_map(const char *filename)
 	fscanf(f, "%d", &map_width);
 	map_layers = 3;
 	char line[128];		// Max map width
+
 	fgets(line, sizeof(line), f);
 	printf("map_height:%d\n", map_height);
 	printf("map_width:%d\n", map_width);
@@ -74,18 +76,21 @@ bool Map::load_map(const char *filename)
 			case 'p':
 				//TODO FIXME player nieglobalny
 				//map_player.pos = Vector3D(j, i, 1);
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				break;
 			case '#':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				map[j][i][1].zawartosc.
 				    push_back(Wall(Vector3D(j, i, 0)));
 				break;
 			case 'g':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				map[j][i][1].zawartosc.push_back(Gem(	// TODO jebnąć to w Gem();
 									    Vector3D
 									    (j,
@@ -109,38 +114,46 @@ bool Map::load_map(const char *filename)
 				    );
 				break;
 			case '.':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				break;
 			case 'b':
-				map[j][i][0].zawartosc.
-				    push_back(Blinker
-					      (Vector3D(j, i, 0),
-					       (((float)(rand() % 200)) / 100) +
-					       1,
-					       (((float)(rand() % 200)) / 100) +
-					       1)
+				map[j][i][0].zawartosc.push_back(Blinker
+								 (Vector3D
+								  (j, i, 0),
+								  (((float)
+								    (rand() %
+								     200)) /
+								   100) + 1,
+								  (((float)
+								    (rand() %
+								     200)) /
+								   100) + 1)
 				    );
 				break;
 			case 'd':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				map[j][i][1].zawartosc.
 				    push_back(Door(Vector3D(j, i, 0)
 					      )
 				    );
 				break;
 			case 'x':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				map[j][i][1].zawartosc.
 				    push_back(Box(Vector3D(j, i, 1)
 					      )
 				    );
 				break;
 			case 's':
-				map[j][i][0].zawartosc.
-				    push_back(Floor(Vector3D(j, i, 0)));
+				map[j][i][0].zawartosc.push_back(Floor
+								 (Vector3D
+								  (j, i, 0)));
 				map[j][i][1].zawartosc.
 				    push_back(Switch
 					      (Vector3D(j, i, 0), Responder()

@@ -16,7 +16,7 @@ bool EmptySpace::drawIt()
 {
 	return false;
 }
-bool EmptySpace::UpdateAnimation(double ratio)
+bool EmptySpace::UpdateAnimation(double current_time, double ratio)
 {
 	return false;
 }

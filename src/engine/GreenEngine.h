@@ -56,78 +56,77 @@ class Player;
 # define MAP_BOX     7
 
 # define ANIM_PLAYER_TIME    0.1f
-# define ANIM_TIME_FALL 		1.0f
+# define ANIM_TIME_FALL         1.0f
 # define BLINK_FADE_TIME     0.5f
 # define WIN_WAIT_TIME       2.0f
 # define ANIM_BACKG_TIME     5.0f
 # define ANIM_BACKG_SPEED    0.1f
-# define ANIM_DOOR_CLOSE 	0.5f
+# define ANIM_DOOR_CLOSE    0.5f
 
 // end old defines
 
-class GreenEngine {
- public:
+class GreenEngine
+{
+    public:
 
-	bool win = false;
-	bool fail = false;
-	bool game_complete = false;
+        static bool win;
+        static bool fail;
+        static bool game_complete;
+        static int level;
+        static int score;
 
-	double win_countdown;
+        static double win_countdown;
 
-	static int screen_width;
-	static int screen_height;
-	bool keys[SDLK_LAST];
+        static int screen_width;
+        static int screen_height;
+        static bool keys[SDLK_LAST];
+        static unsigned int textures[20];
 
-	double current_time;
-	double backdir = 1.0f;
-	double background_start_time;
-	unsigned int textures[20];
-	static int level;
-	static int score;
+        static double current_time;
+        static double ratio;
 
-	static bool OK;
-	double ratio = 0.0f;
+        static double backdir;
+        static double background_start_time;
 
-	 GreenEngine();		// default constuctor
-	~GreenEngine();		// default destructor
 
-	bool Events();
-	static void Logic();
-	static void Scene();
+        static bool OK;
 
-	void Run();
+        GreenEngine();     // default constuctor
+        ~GreenEngine();     // default destructor
 
-	static bool InitSDL(bool fullscreen = false, int width =
-			    860, int height = 640);
-	static bool InitOpenGL();
+        static bool InitSDL(bool fullscreen = false, int width = 860, int height = 640);
+        static bool InitOpenGL();
 
-	static bool LoadGraphics();
+        bool Events();
+        static void Logic();
+        static void Scene();
 
-    void SetTitle(std::string x);
+        void Run(); // start main loop
 
-	unsigned int ImgToTexture(const char *filename);
-	unsigned int SurfaceToTexture(SDL_Surface * img,
-				      unsigned int texture_id);
+        static bool LoadGraphics();
+        void SetTitle(std::string x);
 
-	static void DrawQuad(float x, float y, float z, float w, float h);
-	static void DrawQuadRGBA(float x, float y, float z, float w, float h,
-				 float r, float g, float b, float a);
-	static void DrawQuadTexture(Vector3D vect, float w, float h,
-				    unsigned int texture_id);
+        unsigned int ImgToTexture(const char* filename);
+        unsigned int SurfaceToTexture(SDL_Surface* img, unsigned int texture_id);
 
-	static void DrawCube(float x, float y, float z, float a);
-	static void DrawCubeTexture(Vector3D pos, float a,
-				    unsigned int texture_id);
+        static void DrawQuad(float x, float y, float z, float w, float h);
+        static void DrawQuadRGBA(float x, float y, float z, float w, float h,
+                                 float r, float g, float b, float a);
+        static void DrawQuadTexture(Vector3D vect, float w, float h,
+                                    unsigned int texture_id);
+        static void DrawCube(float x, float y, float z, float a);
+        static void DrawCubeTexture(Vector3D pos, float a,
+                                    unsigned int texture_id);
 
-	// Globals TODO
-	//static const SDL_Color redFont(255, 0, 0, 0);
-	//static const SDL_Color greenFont(0, 255, 0, 0);
-	//static const SDL_Color blueFont(0, 0, 255, 0);
-	static const SDL_Surface *scoresurf;
-	static const TTF_Font *fontKomoda;
- private:
-	 Map * main_map;
-	Player *main_player;
+        // Globals TODO
+        //static const SDL_Color redFont(255, 0, 0, 0);
+        //static const SDL_Color greenFont(0, 255, 0, 0);
+        //static const SDL_Color blueFont(0, 0, 255, 0);
+        //static const SDL_Surface* scoresurf;
+        //static const TTF_Font* fontKomoda;
+    private:
+        Map* main_map;
+        Player* main_player;
 };
 
-#endif				/* !GREENENGINE_H */
+#endif              /* !GREENENGINE_H */

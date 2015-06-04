@@ -12,7 +12,7 @@ Blinker::Blinker(Vector3D pozycja, float time_dead_, float time_alive_)
 	time_alive = time_alive_;
 	scale = 1.0f;
 	state = visible;
-	next_switch = current_time + time_alive;
+	next_switch = GreenEngine::current_time + time_alive;
 }
 
 bool Blinker::drawIt()

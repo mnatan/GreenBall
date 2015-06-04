@@ -1,4 +1,3 @@
-
 /*
  * GreenEngine.cpp
  * Copyright (C) 2015 Marcin Natanek <natanek.marcin@gmail.com>
@@ -27,6 +26,17 @@ GreenEngine::GreenEngine()
 
     GreenEngine::LoadGraphics();
 
+    GreenEngine::ratio = 0.0f;
+    GreenEngine::backdir = 1.0f;
+    GreenEngine::score = 0;
+    GreenEngine::level = 0;
+    GreenEngine::win = false;
+    GreenEngine::fail = false;
+    GreenEngine::game_complete = false;
+
+    GreenEngine::current_time = (double) SDL_GetTicks() / 1000.0f;
+
+
 }
 
 GreenEngine::~GreenEngine()
@@ -39,8 +49,6 @@ void GreenEngine::Run()
     // Main loop:
     unsigned int last_time = SDL_GetTicks();
 
-    GreenEngine::ratio = 0.0f;
-
     double current_time = (double)last_time / 1000.0f;
 
     for (;;)
@@ -48,14 +56,14 @@ void GreenEngine::Run()
         // Main stuff.
         printf("for(;;) - now events\n");
 
-        if (!Events(*this))
+        if (!Events())
             break;
 
         printf("for(;;) - now logic\n");
 
         //MapRead(Vector3D(5,17,0)).print_zawartosc();
 
-        Logic(*this);
+        Logic();
 
         printf("for(;;) - now Scene\n");
         Scene();

@@ -14,7 +14,6 @@ class Map {
 	MapChunk & access(Vector3D pos);
 	bool map_remove(Vector3D where, game_obj what);
 	bool map_insert(Vector3D where, game_obj what);
-	bool load_next_level();
 	bool load_map(const char *filename);
 	bool draw_map();
 

@@ -108,7 +108,7 @@ bool GreenEngine::Events()
     {
         win = false;
 
-        if (engine.main_map->load_next_level())
+        if (main_map->load_next_level())
         {
             game_complete = true;
         }
@@ -411,6 +411,15 @@ static bool GreenEngine::LoadGraphics()
 void GreenEngine::SetTitle(std::string x)
 {
     SDL_WM_SetCaption(x, "");
+}
+
+bool GreenEngine::load_next_level()
+{
+	level++;
+	char filename[256] = { 0 };
+	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
+	// should free last map's memory here TODO
+	return load_map(filename);
 }
 
 // Graphic helpers

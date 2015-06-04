@@ -106,6 +106,8 @@ class GreenEngine
         static bool LoadGraphics();
         void SetTitle(std::string x);
 
+        bool load_next_level();
+
         unsigned int ImgToTexture(const char* filename);
         unsigned int SurfaceToTexture(SDL_Surface* img, unsigned int texture_id);
 

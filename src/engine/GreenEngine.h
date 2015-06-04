@@ -98,18 +98,18 @@ class GreenEngine
         static bool InitOpenGL();
 
         bool Events();
-        static void Logic();
-        static void Scene();
+        void Logic();
+        void Scene();
 
         void Run(); // start main loop
 
         static bool LoadGraphics();
-        void SetTitle(std::string x);
+        void SetTitle(const char *x);
 
         bool load_next_level();
 
-        unsigned int ImgToTexture(const char* filename);
-        unsigned int SurfaceToTexture(SDL_Surface* img, unsigned int texture_id);
+        static unsigned int ImgToTexture(const char* filename);
+        static unsigned int SurfaceToTexture(SDL_Surface* img, unsigned int texture_id);
 
         static void DrawQuad(float x, float y, float z, float w, float h);
         static void DrawQuadRGBA(float x, float y, float z, float w, float h,

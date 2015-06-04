@@ -11,15 +11,16 @@ void scaled::setAnimation(float start, float end, float timestart, float timeend
 	startTime = timestart;
 	endTime = timeend;
 }
-bool scaled::UpdateAnimation(double current_time, double ratio)
+
+bool scaled::UpdateAnimation()
 {
-	if (current_time >= endTime)
+	if (GreenEngine::current_time >= endTime)
 	{
 		scale = endScale;
 		return false;
 	}
 
-	float delta = (current_time  - startTime) / (endTime - startTime);
+	float delta = (GreenEngine::current_time  - startTime) / (endTime - startTime);
 	scale = startScale + delta * (endScale - startScale);
 
 	return true;

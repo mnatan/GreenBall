@@ -23,15 +23,6 @@ MapChunk & Map::access(Vector3D pos)
 	return map[(int)pos.x][(int)pos.y][(int)pos.z];
 }
 
-bool Map::load_next_level()
-{
-	level++;
-	char filename[256] = { 0 };
-	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
-	// should free last map's memory here TODO
-	return load_map(filename);
-}
-
 bool Map::load_map(const char *filename)
 {
 	FILE *f = fopen(filename, "r");

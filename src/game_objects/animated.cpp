@@ -8,7 +8,7 @@ bool animated::isAnimated()
 	return true;
 }
 
-bool animated::UpdateAnimation(double current_time, double ratio)
+bool animated::UpdateAnimation()
 {
 	return false;
 }

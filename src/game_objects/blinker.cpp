@@ -23,39 +23,39 @@ bool Blinker::drawIt()
 	return true;
 }
 
-bool Blinker::UpdateAnimation(double current_time, double ratio)
+bool Blinker::UpdateAnimation()
 {
-	if (current_time > next_switch) {
+	if (GreenEngine::current_time > next_switch) {
 		if (state == visible) {
 			state = shrinking;
 			next_switch =
-			    current_time + BLINK_FADE_TIME + time_dead;
-			scaled::setAnimation(1, 0, current_time,
-					     current_time + BLINK_FADE_TIME);
+			    GreenEngine::current_time + BLINK_FADE_TIME + time_dead;
+			scaled::setAnimation(1, 0, GreenEngine::current_time,
+					     GreenEngine::current_time + BLINK_FADE_TIME);
 		} else if (state == hidden) {
 			state = growing;
 			next_switch =
-			    current_time + BLINK_FADE_TIME + time_alive;
-			setAnimation(0, 1, current_time,
-				     current_time + BLINK_FADE_TIME);
+			    GreenEngine::current_time + BLINK_FADE_TIME + time_alive;
+			setAnimation(0, 1, GreenEngine::current_time,
+				     GreenEngine::current_time + BLINK_FADE_TIME);
 			// TODO Włącz spadanie na tym chunku
 			return true;
 		}
 	} else if (state == shrinking) {
-		if (endTime < current_time) {
+		if (endTime < GreenEngine::current_time) {
 			state = hidden;
 			scale = 0;
 			// TODO Wyłącz spadanie na tym chunku
 			return false;
 		} else {
-			scaled::UpdateAnimation(current_time, ratio);
+			scaled::UpdateAnimation();
 		}
 	} else if (state == growing) {
-		if (endTime < current_time) {
+		if (endTime < GreenEngine::current_time) {
 			state = visible;
 			scale = 1;
 		} else {
-			scaled::UpdateAnimation(current_time,ratio);
+			scaled::UpdateAnimation();
 		}
 	}
 	return true;

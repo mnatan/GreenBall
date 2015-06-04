@@ -10,7 +10,7 @@ class EmptySpace: public game_obj
 
 	bool canEnter(Map & map, Vector3D &zmiana);
 	bool canFall();
-	bool UpdateAnimation(double current_time, double ratio);
+	bool UpdateAnimation();
 	bool drawIt();
 	virtual std::string typKlasy(){ return "EmptySpace";};
 };

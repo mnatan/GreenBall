@@ -17,7 +17,7 @@ class scaled: public animated
 	scaled() : animated(zero,-1){};
 
 	void setAnimation(float start, float end, float timestart, float timeend);
-	bool UpdateAnimation(double current_time, double ratio);
+	bool UpdateAnimation();
 };
 
 #endif

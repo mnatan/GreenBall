@@ -8,6 +8,27 @@
 #include "GreenEngine.h"
 #include "src/engine/Map.cpp"
 
+bool GreenEngine::win;
+bool GreenEngine::fail;
+bool GreenEngine::game_complete;
+int GreenEngine::level;
+int GreenEngine::score;
+
+double GreenEngine::win_countdown;
+
+int GreenEngine::screen_width;
+int GreenEngine::screen_height;
+bool GreenEngine::keys[SDLK_LAST];
+unsigned int GreenEngine::textures[20];
+
+double GreenEngine::current_time;
+double GreenEngine::ratio;
+
+double GreenEngine::backdir;
+double GreenEngine::background_start_time;
+
+bool GreenEngine::OK;
+
 GreenEngine::GreenEngine()
 {
     OK = true;
@@ -108,7 +129,7 @@ bool GreenEngine::Events()
     {
         win = false;
 
-        if (main_map->load_next_level())
+        if (load_next_level())
         {
             game_complete = true;
         }
@@ -124,22 +145,16 @@ void GreenEngine::Logic()
     // TODO this needs to be moved into player.cpp
     printf("player\n");
 
-    if (!engine.main_player->animating)
+    if (main_player->animating)
     {
         printf("access\n");
 
-        if (engine.main_map->
-                access(engine.main_player->pos + down).canFall())
+        if (main_map->access(main_player->pos + down).canFall())
         {
             fail = true;
-            engine.main_player->setAnimation(engine.
-                                             main_player->pos,
-                                             Vector3D
-                                             (engine.main_player->pos.
-                                              x,
-                                              engine.main_player->pos.
-                                              y, -21.0f),
-                                             ANIM_TIME_FALL);
+            main_player->setAnimation( main_player->pos,
+                                       Vector3D (main_player->pos.x, main_player->pos.y, -21.0f),
+                                       ANIM_TIME_FALL);
         }
 
         if (!fail)
@@ -171,25 +186,21 @@ void GreenEngine::Logic()
 
     if (zmiana != zero)
     {
-        Vector3D nowaPozycja = engine.main_player->pos + zmiana;
+        Vector3D nowaPozycja = main_player->pos + zmiana;
 
-        if (engine.main_map->
-                access(nowaPozycja).canEnter(*engine.main_map, zmiana))
+        if (main_map->access(nowaPozycja).canEnter(*main_map, zmiana))
         {
-            engine.main_map->
-            access(nowaPozycja).playerEnters(*engine.main_map,
-                                             zmiana);
-            engine.main_player->setAnimation(engine.
-                                             main_player->pos,
-                                             nowaPozycja,
-                                             ANIM_PLAYER_TIME);
+            main_map->access(nowaPozycja).playerEnters(*main_map, zmiana);
+            main_player->setAnimation( main_player->pos,
+                                       nowaPozycja,
+                                       ANIM_PLAYER_TIME);
         }
     }
 
-    if (engine.main_player->animating)
+    if (main_player->animating)
     {
-        engine.main_player->animating =
-            engine.main_player->UpdateAnimation(ratio);
+        main_player->animating =
+            main_player->UpdateAnimation();
     }
 }
 
@@ -224,8 +235,7 @@ void GreenEngine::Scene()
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-engine.main_player->pos.x, -engine.main_player->pos.y,
-                 -0.0f);
+    glTranslatef(-main_player->pos.x, -main_player->pos.y, -0.0f);
 
     // Draw map
     // TODO FIXME opuszczamy globale
@@ -235,8 +245,7 @@ void GreenEngine::Scene()
     glEnable(GL_BLEND);
 
     // draw player
-    DrawQuadTexture(engine.main_player->pos + Vector3D(0, 0, 0.5f),
-                    0.8f, 0.8f, TEX_PLAYER);
+    DrawQuadTexture(main_player->pos + Vector3D(0, 0, 0.5f), 0.8f, 0.8f, TEX_PLAYER);
 
     if (win)
     {
@@ -278,11 +287,11 @@ void GreenEngine::Scene()
     //ss << scores << score;
     std::string scores = "(";
     std::stringstream ss;
-    ss << scores << engine.main_player->pos.x << "," << engine.main_player->
-       pos.y << "," << engine.main_player->pos.z << ")";
+    ss << scores << main_player->pos.x << "," << main_player-> pos.y << "," << main_player->pos.z << ")";
     std::string result = ss.str();
-    scoresurf = TTF_RenderText_Solid(fontKomoda, result.c_str(), blueFont);
-    textures[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
+    //TODO score display
+    //scoresurf = TTF_RenderText_Solid(fontKomoda, result.c_str(), blueFont);
+    //textures[TEX_SCORE] = SurfaceToTexture(scoresurf, TEX_SCORE);
     /*
      *DrawQuadRGBA(
      *    7.0f, -6.0f, 2.1f,
@@ -313,7 +322,7 @@ void GreenEngine::Scene()
 }
 
 // Init
-static bool GreenEngine::InitSDL(bool fullscreen, int width, int height)
+bool GreenEngine::InitSDL(bool fullscreen, int width, int height)
 {
     int screen_bpp;
     int screen_flag = SDL_OPENGL;
@@ -360,7 +369,7 @@ err:
     return false;
 }
 
-static bool GreenEngine::InitOpenGL()
+bool GreenEngine::InitOpenGL()
 {
     float ratio;
 
@@ -385,7 +394,7 @@ static bool GreenEngine::InitOpenGL()
     return true;
 }
 
-static bool GreenEngine::LoadGraphics()
+bool GreenEngine::LoadGraphics()
 {
     textures[TEX_WALL] = ImgToTexture("gfx/wall.png");
     textures[TEX_FLOOR] = ImgToTexture("gfx/floor.png");
@@ -405,21 +414,22 @@ static bool GreenEngine::LoadGraphics()
     textures[TEX_SWITCH] = ImgToTexture("gfx/switch.png");
     textures[TEX_BOX] = ImgToTexture("gfx/box.png");
 
-    fontKomoda = TTF_OpenFont("font/Komoda.ttf", 35);
+    // TODO fonts
+    //fontKomoda = TTF_OpenFont("font/Komoda.ttf", 35);
+    return true;
 }
 
-void GreenEngine::SetTitle(std::string x)
+void GreenEngine::SetTitle(const char *x)
 {
     SDL_WM_SetCaption(x, "");
 }
 
 bool GreenEngine::load_next_level()
 {
-	level++;
-	char filename[256] = { 0 };
-	snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
-	// should free last map's memory here TODO
-	return load_map(filename);
+    GreenEngine::level++;
+    char filename[256] = { 0 };
+    snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
+    return main_map->load_map(filename);
 }
 
 // Graphic helpers
@@ -637,8 +647,7 @@ void GreenEngine::DrawCube(float x, float y, float z, float a)
     glEnd();
 }
 
-void GreenEngine::DrawCubeTexture(Vector3D pos, float a,
-                                  unsigned int texture_id)
+void GreenEngine::DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id)
 {
     // Enable texturing if needed.
     bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);

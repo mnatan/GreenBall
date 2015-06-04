@@ -3,25 +3,24 @@
 
 # include "moved.h"
 
-void moved::setAnimation(Vector3D start, Vector3D end, double start_time,
-			 double duration)
+void moved::setAnimation(Vector3D start, Vector3D end, double duration)
 {
 	animating = true;
 	startPos = start;
 	endPos = end;
-	startTime = start_time;
-	endTime = start_time + duration;
+	startTime = GreenEngine::current_time;
+	endTime = GreenEngine::current_time + duration;
 }
 
-bool moved::UpdateAnimation(double current_time, double ratio)
+bool moved::UpdateAnimation()
 {
-	if (current_time >= endTime) {
+	if (GreenEngine::current_time >= endTime) {
 		pos = endPos;
 		//checkFloor();
 		return false;
 	}
 
-	float delta = (current_time - startTime) / (endTime - startTime);
+	float delta = (GreenEngine::current_time - startTime) / (endTime - startTime);
 
 	pos = Vector3D(startPos.x + delta * (endPos.x - startPos.x),
 		       startPos.y + delta * (endPos.y - startPos.y),

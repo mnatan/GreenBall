@@ -15,11 +15,11 @@
  * Copyright (C) Marcin Natanek, 2015
  */
 
-#include "src/engine/GreenEngine.cpp"
+#include "src/MainProject.cpp"
 
 int main()
 {
-    GreenEngine main_engine;
+    MainProject main_engine;
 
     if (!main_engine.OK){
         std::cout << "Error creating window!" << std::endl;

@@ -126,7 +126,7 @@ class GreenEngine
         //static const SDL_Color blueFont(0, 0, 255, 0);
         //static const SDL_Surface* scoresurf;
         //static const TTF_Font* fontKomoda;
-    private:
+    protected:
         Map* main_map;
         Player* main_player;
 };

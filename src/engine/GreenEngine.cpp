@@ -8,26 +8,26 @@
 #include "GreenEngine.h"
 #include "src/engine/Map.cpp"
 
-bool GreenEngine::win;
-bool GreenEngine::fail;
-bool GreenEngine::game_complete;
-int GreenEngine::level;
-int GreenEngine::score;
+bool         GreenEngine::win;
+bool         GreenEngine::fail;
+bool         GreenEngine::game_complete;
+int          GreenEngine::level;
+int          GreenEngine::score;
 
-double GreenEngine::win_countdown;
+double       GreenEngine::win_countdown;
 
-int GreenEngine::screen_width;
-int GreenEngine::screen_height;
-bool GreenEngine::keys[SDLK_LAST];
+int          GreenEngine::screen_width;
+int          GreenEngine::screen_height;
+bool         GreenEngine::keys[SDLK_LAST];
 unsigned int GreenEngine::textures[20];
 
-double GreenEngine::current_time;
-double GreenEngine::ratio;
+double       GreenEngine::current_time;
+double       GreenEngine::ratio;
 
-double GreenEngine::backdir;
-double GreenEngine::background_start_time;
+double       GreenEngine::backdir;
+double       GreenEngine::background_start_time;
 
-bool GreenEngine::OK;
+bool         GreenEngine::OK;
 
 GreenEngine::GreenEngine()
 {
@@ -56,8 +56,6 @@ GreenEngine::GreenEngine()
     GreenEngine::game_complete = false;
 
     GreenEngine::current_time = (double) SDL_GetTicks() / 1000.0f;
-
-
 }
 
 GreenEngine::~GreenEngine()
@@ -70,7 +68,7 @@ void GreenEngine::Run()
     // Main loop:
     unsigned int last_time = SDL_GetTicks();
 
-    double current_time = (double)last_time / 1000.0f;
+    current_time = (double)last_time / 1000.0f;
 
     for (;;)
     {
@@ -196,7 +194,7 @@ bool GreenEngine::LoadGraphics()
     return true;
 }
 
-void GreenEngine::SetTitle(const char *x)
+void GreenEngine::SetTitle(const char* x)
 {
     SDL_WM_SetCaption(x, "");
 }
@@ -424,7 +422,8 @@ void GreenEngine::DrawCube(float x, float y, float z, float a)
     glEnd();
 }
 
-void GreenEngine::DrawCubeTexture(Vector3D pos, float a, unsigned int texture_id)
+void GreenEngine::DrawCubeTexture(Vector3D pos, float a,
+                                  unsigned int texture_id)
 {
     // Enable texturing if needed.
     bool texturing_enabled = glIsEnabled(GL_TEXTURE_2D);

@@ -11,7 +11,8 @@
 # include "src/game_objects/blinker.cpp"
 # include "src/game_objects/Box.cpp"
 
-Map::Map(Player* p): map_width(0), map_height(0), map_layers(0), map_player(p) {}
+Map::Map(Player* p): map_width(0), map_height(0), map_layers(0),
+    map_player(p) {}
 
 MapChunk& Map::access(Vector3D pos)
 {
@@ -79,10 +80,12 @@ bool Map::load_map(const char* filename)
                 break;
 
             case 'p':
-                //TODO FIXME player nieglobalny
                 map_player->pos = Vector3D(j, i, 1);
                 map[j][i][0].zawartosc.push_back(
                     new Floor(Vector3D(j, i, 0))
+                );
+                map[j][i][1].zawartosc.push_back(
+                    map_player
                 );
                 break;
 

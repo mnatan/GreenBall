@@ -37,7 +37,7 @@ bool GreenBall::Events()
     {
         win = false;
 
-        if (load_next_level())
+        if (!load_next_level()) // TODO right bool?
         {
             game_complete = true;
         }
@@ -50,19 +50,18 @@ void GreenBall::Logic()
 {
     Vector3D zmiana = none;
 
-    // TODO this needs to be moved into player.cpp
-    //printf("player\n");
-
-    if (main_player->animating)
+    if (!main_player->animating)
     {
         //printf("access\n");
 
         if (main_map->access(main_player->pos + down).canFall())
         {
             fail = true;
-            main_player->setAnimation( main_player->pos,
-                                       Vector3D (main_player->pos.x, main_player->pos.y, -21.0f),
-                                       ANIM_TIME_FALL);
+            main_player->setAnimation(
+                main_player->pos,
+                Vector3D (main_player->pos.x, main_player->pos.y, -21.0f),
+                ANIM_TIME_FALL
+            );
         }
 
         if (!fail)
@@ -89,8 +88,6 @@ void GreenBall::Logic()
             }
         }
     }
-
-    //printf("other\n");
 
     if (zmiana != zero)
     {
@@ -151,16 +148,11 @@ void GreenBall::Scene()
         glTranslatef(-main_player->pos.x, -main_player->pos.y,
                      -0.0f); // center on player
 
-        //main_map->draw_map(); // lags as fuck
+        // TODO problem z przezroczystoscia.
+        main_map->draw_map();
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
-
-        // draw player
-        DrawQuadTexture(
-            main_player->pos + Vector3D(0, 0, 0.5f), 0.8f, 0.8f,
-            TEX_PLAYER
-        );
 
         if (win)
         {
@@ -221,9 +213,9 @@ void GreenBall::Scene()
      *);
      */
 
+    // rotating pony for testing
     glPushMatrix();
     {
-        // just empty braces for readabilty
         gluPerspective(0.0, (float)screen_width / (float)screen_height, 0.0,
                        1024.0);
         static float rotat;

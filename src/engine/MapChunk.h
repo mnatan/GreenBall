@@ -9,7 +9,7 @@
 class MapChunk
 {
 	public:
-	std::vector<game_obj> zawartosc;
+	std::vector<game_obj*> zawartosc;
 
 	MapChunk();
 	bool canFall();

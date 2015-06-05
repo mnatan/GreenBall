@@ -7,70 +7,88 @@
 
 Blinker::Blinker(Vector3D pozycja, float time_dead_, float time_alive_)
 {
-	pos = pozycja;
-	time_dead = time_dead_;
-	time_alive = time_alive_;
-	scale = 1.0f;
-	state = visible;
-	next_switch = GreenEngine::current_time + time_alive;
+    pos = pozycja;
+    time_dead = time_dead_;
+    time_alive = time_alive_;
+    scale = 1.0f;
+    state = visible;
+    next_switch = GreenEngine::current_time + time_alive;
 }
 
 bool Blinker::drawIt()
 {
-	//UpdateAnimation(); //TODO
-	GreenEngine::DrawCubeTexture(pos + Vector3D(0, 0, -0.5f),
-				     scale, TEX_FLOOR);
-	return true;
+    UpdateAnimation();
+    GreenEngine::DrawCubeTexture(
+        pos + Vector3D(0, 0, -0.5f),
+        scale,
+        TEX_FLOOR
+    );
+    return true;
 }
 
 bool Blinker::UpdateAnimation()
 {
-	if (GreenEngine::current_time > next_switch) {
-		if (state == visible) {
-			state = shrinking;
-			next_switch =
-			    GreenEngine::current_time + BLINK_FADE_TIME + time_dead;
-			scaled::setAnimation(1, 0, GreenEngine::current_time,
-					     GreenEngine::current_time + BLINK_FADE_TIME);
-		} else if (state == hidden) {
-			state = growing;
-			next_switch =
-			    GreenEngine::current_time + BLINK_FADE_TIME + time_alive;
-			setAnimation(0, 1, GreenEngine::current_time,
-				     GreenEngine::current_time + BLINK_FADE_TIME);
-			// TODO Włącz spadanie na tym chunku
-			return true;
-		}
-	} else if (state == shrinking) {
-		if (endTime < GreenEngine::current_time) {
-			state = hidden;
-			scale = 0;
-			// TODO Wyłącz spadanie na tym chunku
-			return false;
-		} else {
-			scaled::UpdateAnimation();
-		}
-	} else if (state == growing) {
-		if (endTime < GreenEngine::current_time) {
-			state = visible;
-			scale = 1;
-		} else {
-			scaled::UpdateAnimation();
-		}
-	}
-	return true;
+    if (GreenEngine::current_time > next_switch)
+    {
+        if (state == visible)
+        {
+            state = shrinking;
+            next_switch =
+                GreenEngine::current_time + BLINK_FADE_TIME + time_dead;
+            scaled::setAnimation(1, 0, GreenEngine::current_time,
+                                 GreenEngine::current_time + BLINK_FADE_TIME);
+        }
+        else if (state == hidden)
+        {
+            state = growing;
+            next_switch =
+                GreenEngine::current_time + BLINK_FADE_TIME + time_alive;
+            setAnimation(0, 1, GreenEngine::current_time,
+                         GreenEngine::current_time + BLINK_FADE_TIME);
+            // TODO Włącz spadanie na tym chunku
+            return true;
+        }
+    }
+    else if (state == shrinking)
+    {
+        if (endTime < GreenEngine::current_time)
+        {
+            state = hidden;
+            scale = 0;
+            // TODO Wyłącz spadanie na tym chunku
+            return false;
+        }
+        else
+        {
+            scaled::UpdateAnimation();
+        }
+    }
+    else if (state == growing)
+    {
+        if (endTime < GreenEngine::current_time)
+        {
+            state = visible;
+            scale = 1;
+        }
+        else
+        {
+            scaled::UpdateAnimation();
+        }
+    }
+
+    return true;
 }
 
-bool Blinker::canEnter(Map & map, Vector3D & zmiana)
+bool Blinker::canEnter(Map& map, Vector3D& zmiana)
 {
-	return true;
+    return true;
 }
 
 bool Blinker::canFall()
 {
-	if (state == hidden)
-		return true;
-	else
-		return false;
+    if (state == hidden)
+        return true;
+    else
+        return false;
 }
 #endif

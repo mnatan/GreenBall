@@ -15,61 +15,53 @@
 
 MapChunk::MapChunk()
 {
-	zawartosc = std::vector<game_obj>();
+    zawartosc = std::vector<game_obj*>();
 }
 
-bool MapChunk::canEnter(Map & map, Vector3D &zmiana)       // Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście
+bool MapChunk::canEnter(Map& map,
+                        Vector3D& zmiana)        // Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście
 {
-	bool can = true;
-	auto end = zawartosc.end();
-	for (auto iter = zawartosc.begin(); iter != end; ++iter)
-	{
-		can &= (*iter).canEnter(map, zmiana);
-	}
-	return can;
+    bool can = true;
+
+    for (auto x : zawartosc)
+        can &= x->canEnter(map, zmiana);
+
+    return can;
 }
 
 bool MapChunk::canFall()        // Sprawdza czy to miejsce może utrzymać obiekt
 {
-	bool can = false;
-	auto end = zawartosc.end();
-	for (auto iter = zawartosc.begin(); iter != end; ++iter)
-	{
-		can |= (*iter).canFall();
-	}
-	return can;
+    bool can = false;
+
+    for (auto x : zawartosc)
+        can |= x->canFall();
+
+    return can;
 }
 
 bool MapChunk::drawIt()         // Rysuje cały pion warstw mapy
 {
-	auto end = zawartosc.end();
-	for (auto iter = zawartosc.begin(); iter != end; ++iter)
-	{
-		//std::cout << (*iter)->typKlasy() << std::endl;
-		(*iter).drawIt();
-	}
-	return true;
+    for (auto x : zawartosc)
+        x->drawIt(); // TODO not pointer?
+
+    return true;
 }
 
-bool MapChunk::playerEnters(Map & map, Vector3D &delta)   // Informujemy wszystkie obiekty na polu że wchodzi tam gracz
+bool MapChunk::playerEnters(Map& map,
+                            Vector3D& delta)    // Informujemy wszystkie obiekty na polu że wchodzi tam gracz
 {
-	auto end = zawartosc.end();
-	for (auto iter = zawartosc.begin(); iter != end; ++iter)
-	{
-		//std::cout << (*iter)->typKlasy() << std::endl;
-		(*iter).playerEnters(map, delta);
-	}
-	return true;
+    for (auto x : zawartosc)
+        x->playerEnters(map, delta);
+
+    return true;
 }
 
 void MapChunk::print_zawartosc()
 {
-	auto end = zawartosc.end();
-	std::cout << "MapChunk :" << std::endl;
-	for (auto iter = zawartosc.begin(); iter != end; ++iter)
-	{
-		std::cout << "- " << (*iter).typKlasy() << std::endl;
-	}
+    std::cout << "MapChunk :" << std::endl;
+
+    for (auto x : zawartosc)
+        std::cout << "- " << x->typKlasy() << std::endl;
 }
 
 #endif

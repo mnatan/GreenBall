@@ -9,44 +9,47 @@
 
 bool Gem::drawIt()
 {
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Bugi z przezroczystosicia - Element przezroczysty trzeba rysować na końcu. Może wrzucać to na stosik?
-	glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // FIXME Bugi z przezroczystosicia - Element przezroczysty trzeba rysować na końcu. Może wrzucać to na stosik?
+    glEnable(GL_BLEND);
 
-	//UpdateAnimation(double current_time, double ratio); // not in draw TODO
-	glPushMatrix();
-	glTranslatef(pos.x, pos.y, pos.z + 0.5f);
-	glRotatef(
-	    accumulator,
-	    rotationVector.x,
-	    rotationVector.y,
-	    rotationVector.z
-	);
-	glTranslatef(-pos.x, -pos.y, -pos.z - 0.5f);
-    GreenEngine::DrawQuadTexture(
-	    pos + Vector3D(0, 0, 0.5),
-	    1.0f, 1.0f,
-	    TEX
-	);
-	glPopMatrix();
+    UpdateAnimation();
+    glPushMatrix();
+    {
+        glTranslatef(pos.x, pos.y, pos.z + 0.5f);
+        glRotatef(
+            accumulator,
+            rotationVector.x,
+            rotationVector.y,
+            rotationVector.z
+        );
+        glTranslatef(-pos.x, -pos.y, -pos.z - 0.5f);
+        GreenEngine::DrawQuadTexture(
+            pos + Vector3D(0, 0, 0.5),
+            1.0f, 1.0f,
+            TEX
+        );
+    }
+    glPopMatrix();
 
-	glDisable(GL_BLEND);
-	return true;
+    glDisable(GL_BLEND);
+    return true;
 }
 
-void Gem::playerEnters(Map & map, Vector3D &zmiana)
+void Gem::playerEnters(Map& map, Vector3D& zmiana)
 {
-	/*
-	 *auto iter = std::find(
-	 *                map.access(pos).zawartosc.begin(),
-	 *                map.access(pos).zawartosc.end(),
-	 *                (Box*)this);
-	 *if (iter != map.access(pos).zawartosc.end())
-	 *{
-	 *    map.access(pos).zawartosc.erase(iter);
-	 *}
-	 */
+    /*
+     *auto iter = std::find(
+     *                map.access(pos).zawartosc.begin(),
+     *                map.access(pos).zawartosc.end(),
+     *                (Box*)this);
+     *if (iter != map.access(pos).zawartosc.end())
+     *{
+     *    map.access(pos).zawartosc.erase(iter);
+     *}
+     */
 
-	// TODO GAME ENGINE - increment score
+    // TODO GAME ENGINE - increment score
 }
 
 #endif

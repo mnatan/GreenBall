@@ -12,6 +12,7 @@ class EmptySpace: public game_obj
 	bool canFall();
 	bool UpdateAnimation();
 	bool drawIt();
+
 	virtual std::string typKlasy(){ return "EmptySpace";};
 };
 

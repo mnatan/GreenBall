@@ -45,17 +45,22 @@ GreenEngine::GreenEngine()
     if (TTF_Init() == -1)
         OK = false;
 
-    GreenEngine::LoadGraphics();
+    LoadGraphics();
 
-    GreenEngine::ratio = 0.0f;
-    GreenEngine::backdir = 1.0f;
-    GreenEngine::score = 0;
-    GreenEngine::level = 0;
-    GreenEngine::win = false;
-    GreenEngine::fail = false;
-    GreenEngine::game_complete = false;
+    ratio = 0.0f;
+    backdir = 1.0f;
+    score = 0;
+    level = 0;
+    win = false;
+    fail = false;
+    game_complete = false;
 
-    GreenEngine::current_time = (double) SDL_GetTicks() / 1000.0f;
+    current_time = (double) SDL_GetTicks() / 1000.0f;
+
+    main_player = new Player();
+    main_map = new Map(main_player);
+
+    load_next_level();
 }
 
 GreenEngine::~GreenEngine()
@@ -201,7 +206,7 @@ void GreenEngine::SetTitle(const char* x)
 
 bool GreenEngine::load_next_level()
 {
-    GreenEngine::level++;
+    level++;
     char filename[256] = { 0 };
     snprintf(filename, sizeof(filename) - 1, "maps/map%u.txt", level);
     return main_map->load_map(filename);

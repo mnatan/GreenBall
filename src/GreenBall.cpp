@@ -133,61 +133,68 @@ void GreenBall::Scene()
     }
 
     glPushMatrix();
-    static float trans;
+    {
+        // just empty braces for readabilty
+        static float trans;
 
-    glTranslatef(trans += ANIM_BACKG_SPEED * ratio * backdir, 0.0f, 0.0f);
-    float skalar = 16.5f;
+        glTranslatef(trans += ANIM_BACKG_SPEED * ratio * backdir, 0.0f, 0.0f);
+        float skalar = 16.5f;
 
-    DrawQuadTexture(Vector3D(0.0f, 0.0f, -20.1f),
-                    4.0f * skalar, 3.0f * skalar, TEX_BACKG);
+        DrawQuadTexture(Vector3D(0.0f, 0.0f, -20.1f),
+                        4.0f * skalar, 3.0f * skalar, TEX_BACKG);
+    }
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-main_player->pos.x, -main_player->pos.y, -0.0f);
-
-    // Draw map
-    // TODO FIXME opuszczamy globale
-    //engine.main_map->draw_map();
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-
-    // draw player
-    DrawQuadTexture(main_player->pos + Vector3D(0, 0, 0.5f), 0.8f, 0.8f, TEX_PLAYER);
-
-    if (win)
     {
-        /*
-         *DrawQuadTexture(
-         *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.5f,
-         *    7.0f, 2.0f,
-         *    textures[TEX_LVLCMP]
-         *);
-         */
-    }
+        // just empty braces for readabilty
+        glTranslatef(-main_player->pos.x, -main_player->pos.y,
+                     -0.0f); // center on player
 
-    if (fail)
-    {
-        /*
-         *DrawQuadTexture(
-         *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.6f,
-         *    7.0f, 2.0f,
-         *    textures[TEX_FAIL]
-         *);
-         */
-    }
+        //main_map->draw_map(); // lags as fuck
 
-    if (game_complete)
-    {
-        /*
-         *DrawQuadTexture(
-         *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.7f,
-         *    7.0f, 2.0f,
-         *    textures[TEX_WIN]
-         *);
-         */
-    }
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
 
+        // draw player
+        DrawQuadTexture(
+            main_player->pos + Vector3D(0, 0, 0.5f), 0.8f, 0.8f,
+            TEX_PLAYER
+        );
+
+        if (win)
+        {
+            /*
+             *DrawQuadTexture(
+             *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.5f,
+             *    7.0f, 2.0f,
+             *    textures[TEX_LVLCMP]
+             *);
+             */
+        }
+
+        if (fail)
+        {
+            /*
+             *DrawQuadTexture(
+             *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.6f,
+             *    7.0f, 2.0f,
+             *    textures[TEX_FAIL]
+             *);
+             */
+        }
+
+        if (game_complete)
+        {
+            /*
+             *DrawQuadTexture(
+             *    (float)engine.main_player->pos.x - 7.5f, (float)engine.main_player->pos.y - 7.5f, 2.7f,
+             *    7.0f, 2.0f,
+             *    textures[TEX_WIN]
+             *);
+             */
+        }
+    }
     glPopMatrix();
 
     //std::string scores = "Score: ";
@@ -195,7 +202,8 @@ void GreenBall::Scene()
     //ss << scores << score;
     std::string scores = "(";
     std::stringstream ss;
-    ss << scores << main_player->pos.x << "," << main_player-> pos.y << "," << main_player->pos.z << ")";
+    ss << scores << main_player->pos.x << "," << main_player-> pos.y << "," <<
+       main_player->pos.z << ")";
     std::string result = ss.str();
     //TODO score display
     //scoresurf = TTF_RenderText_Solid(fontKomoda, result.c_str(), blueFont);
@@ -214,14 +222,17 @@ void GreenBall::Scene()
      */
 
     glPushMatrix();
-    gluPerspective(0.0, (float)screen_width / (float)screen_height, 0.0,
-                   1024.0);
-    static float rotat;
+    {
+        // just empty braces for readabilty
+        gluPerspective(0.0, (float)screen_width / (float)screen_height, 0.0,
+                       1024.0);
+        static float rotat;
 
-    glTranslatef(7.0f, 5.0f, 3.0f);
-    glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
-    glTranslatef(-7.0f, -5.0f, -3.0f);
-    DrawCubeTexture(Vector3D(7.0f, 5.0f, 3.0f), 0.8f, TEX_KUCYK);
+        glTranslatef(7.0f, 5.0f, 3.0f);
+        glRotatef(rotat += 50.0f * ratio, 0.5f, 1.0f, 0.6f);
+        glTranslatef(-7.0f, -5.0f, -3.0f);
+        DrawCubeTexture(Vector3D(7.0f, 5.0f, 3.0f), 0.8f, TEX_KUCYK);
+    }
     glPopMatrix();
 
     glDisable(GL_BLEND);

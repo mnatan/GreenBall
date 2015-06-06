@@ -12,14 +12,13 @@
  *#include "EmptySpace.cpp"
  */
 
-
 MapChunk::MapChunk()
 {
     zawartosc = std::vector<game_obj*>();
 }
 
-bool MapChunk::canEnter(Map& map,
-                        Vector3D& zmiana)        // Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście
+// Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście
+bool MapChunk::canEnter(Map& map, Vector3D& zmiana)
 {
     bool can = true;
 
@@ -29,7 +28,8 @@ bool MapChunk::canEnter(Map& map,
     return can;
 }
 
-bool MapChunk::canFall()        // Sprawdza czy to miejsce może utrzymać obiekt
+// Sprawdza czy to miejsce może utrzymać obiekt
+bool MapChunk::canFall()
 {
     bool can = false;
 
@@ -39,7 +39,8 @@ bool MapChunk::canFall()        // Sprawdza czy to miejsce może utrzymać obiek
     return can;
 }
 
-bool MapChunk::drawIt()         // Rysuje cały pion warstw mapy
+// Rysuje cały pion warstw mapy
+bool MapChunk::drawIt()
 {
     for (auto x : zawartosc)
         x->drawIt(); // TODO not pointer?
@@ -47,8 +48,8 @@ bool MapChunk::drawIt()         // Rysuje cały pion warstw mapy
     return true;
 }
 
-bool MapChunk::playerEnters(Map& map,
-                            Vector3D& delta)    // Informujemy wszystkie obiekty na polu że wchodzi tam gracz
+// Informujemy wszystkie obiekty na polu że wchodzi tam gracz
+bool MapChunk::playerEnters(Map& map, Vector3D& delta)
 {
     for (auto x : zawartosc)
         x->playerEnters(map, delta);

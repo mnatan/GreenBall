@@ -96,12 +96,15 @@ void GreenBall::Logic()
         if (main_map->access(nowaPozycja).canEnter(*main_map, zmiana))
         {
             main_map->access(nowaPozycja).playerEnters(*main_map, zmiana);
-            main_player->setAnimation( main_player->pos,
-                                       nowaPozycja,
-                                       ANIM_PLAYER_TIME);
+            main_player->setAnimation(
+                main_player->pos,
+                nowaPozycja,
+                ANIM_PLAYER_TIME
+            );
         }
     }
 
+    // TODO move it into player
     if (main_player->animating)
     {
         main_player->animating =

@@ -36,7 +36,7 @@ bool Gem::drawIt()
     return true;
 }
 
-void Gem::playerEnters(Map& map, Vector3D& zmiana)
+void Gem::playerEnters(Vector3D& zmiana)
 {
     /*
      *auto iter = std::find(

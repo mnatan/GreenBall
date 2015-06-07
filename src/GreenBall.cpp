@@ -91,17 +91,7 @@ void GreenBall::Logic()
 
     if (zmiana != zero)
     {
-        Vector3D nowaPozycja = main_player->pos + zmiana;
-
-        if (main_map->access(nowaPozycja).canEnter(*main_map, zmiana))
-        {
-            main_map->access(nowaPozycja).playerEnters(*main_map, zmiana);
-            main_player->setAnimation(
-                main_player->pos,
-                nowaPozycja,
-                ANIM_PLAYER_TIME
-            );
-        }
+        move(main_player, zmiana);
     }
 
     // TODO move it into player

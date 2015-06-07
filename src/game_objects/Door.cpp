@@ -63,7 +63,7 @@ bool Door::drawIt()
     return true;
 }
 
-bool Door::canEnter(Map& map, Vector3D& zmiana)
+bool Door::canEnter(Vector3D& zmiana)
 {
     if (pos == openPos)
         return true;

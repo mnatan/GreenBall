@@ -18,12 +18,12 @@ MapChunk::MapChunk()
 }
 
 // Sprawdza czy na tym miejscu nie ma elementów uniemożliwiających wejście
-bool MapChunk::canEnter(Map& map, Vector3D& zmiana)
+bool MapChunk::canEnter(Vector3D& zmiana)
 {
     bool can = true;
 
     for (auto x : zawartosc)
-        can &= x->canEnter(map, zmiana);
+        can &= x->canEnter(zmiana);
 
     return can;
 }
@@ -49,10 +49,10 @@ bool MapChunk::drawIt()
 }
 
 // Informujemy wszystkie obiekty na polu że wchodzi tam gracz
-bool MapChunk::playerEnters(Map& map, Vector3D& delta)
+bool MapChunk::playerEnters(Vector3D& delta)
 {
     for (auto x : zawartosc)
-        x->playerEnters(map, delta);
+        x->playerEnters(delta);
 
     return true;
 }
@@ -63,6 +63,28 @@ void MapChunk::print_zawartosc()
 
     for (auto x : zawartosc)
         std::cout << "- " << x->typKlasy() << std::endl;
+}
+
+
+void MapChunk::remove(game_obj* x)
+{
+    auto first = zawartosc.begin();
+    auto last = zawartosc.end();
+
+    while (first != last)
+    {
+        if (*first == x)
+        {
+            zawartosc.erase(first);
+            return;
+        }
+
+        ++first;
+    }
+}
+void MapChunk::add(game_obj* x)
+{
+    zawartosc.push_back(x);
 }
 
 #endif

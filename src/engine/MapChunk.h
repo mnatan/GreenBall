@@ -14,9 +14,11 @@ class MapChunk
 	MapChunk();
 	bool canFall();
 	bool drawIt();
-	bool canEnter(Map & map, Vector3D &zmiana);
-	bool playerEnters(Map & map, Vector3D &zmiana);
+	bool canEnter(Vector3D &zmiana);
+	bool playerEnters(Vector3D &zmiana);
 	void print_zawartosc();
+    void remove(game_obj* x);
+    void add(game_obj* x);
 };
 
 #endif

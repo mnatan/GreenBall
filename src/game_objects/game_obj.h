@@ -16,8 +16,8 @@ class game_obj
 	unsigned int TEX;
 
 	virtual bool canFall();
-	virtual bool canEnter(Map & map, Vector3D &zmiana);
-	virtual void playerEnters(Map & map, Vector3D &zmiana);
+	virtual bool canEnter(Vector3D &zmiana);
+	virtual void playerEnters(Vector3D &zmiana);
 	virtual bool isSolid();
 	virtual bool isAnimated();
 	virtual bool drawIt();

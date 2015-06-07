@@ -212,6 +212,39 @@ bool GreenEngine::load_next_level()
     return main_map->load_map(filename);
 }
 
+bool GreenEngine::move(moved* x, Vector3D dir)
+{
+    if (main_map->access(x->pos + dir).canEnter(dir))
+    {
+        x->setAnimation(x->pos, x->pos + dir, x->anim_time);
+        enterField(x, x->pos + dir, dir);
+
+        //map update:
+        main_map->access(x->pos).remove(x);
+        main_map->access(x->pos + dir).add(x);
+
+        x->pos = x->pos + dir;
+        return true;
+    }
+
+    return false;
+}
+
+bool GreenEngine::enterField(moved* x, Vector3D pos, Vector3D dir)
+{
+    for (auto i : main_map->access(pos).zawartosc)
+    {
+        moved* p = dynamic_cast<moved*>(i);
+
+        if (p != NULL)
+        {
+            move(p, dir);
+        }
+    }
+
+    return false;
+}
+
 // Graphic helpers
 unsigned int GreenEngine::ImgToTexture(const char* filename)
 {

@@ -22,6 +22,8 @@ class Player;
 # include "SDL/SDL_ttf.h"
 
 # include "src/engine/Vector3D.cpp"
+//# include "src/game_objects/moved.cpp"
+class moved;
 
 // old defines
 # define UNUSED(a) ((void)(a))
@@ -110,6 +112,9 @@ class GreenEngine
         void SetTitle(const char* x);
 
         bool load_next_level();
+
+        bool move(moved* x, Vector3D dir);
+        bool enterField(moved* x, Vector3D pos, Vector3D dir);
 
         static unsigned int ImgToTexture(const char* filename);
         static unsigned int SurfaceToTexture(SDL_Surface* img, unsigned int texture_id);

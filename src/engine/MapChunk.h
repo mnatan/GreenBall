@@ -6,6 +6,7 @@
 #include "../game_objects/animated.cpp"
 #include "../game_objects/EmptySpace.cpp"
 
+
 class MapChunk
 {
 	public:

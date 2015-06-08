@@ -36,7 +36,7 @@ bool Box::canEnter(Vector3D& zmiana)
         //return true;
     //else
         //return false;
-    return false;
+    return true; // TODO
 }
 
 bool Box::drawIt()

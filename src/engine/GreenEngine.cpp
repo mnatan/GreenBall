@@ -212,9 +212,37 @@ bool GreenEngine::load_next_level()
     return main_map->load_map(filename);
 }
 
+bool GreenEngine::canEnter(moved* obj, Vector3D dir)
+{
+    bool can = true;
+
+    std::cout << "for:" << std::endl;
+    for (auto i : main_map->access(obj->pos+dir).zawartosc)
+    {
+        std::cout << i->typKlasy() << std::endl;
+        if (i->isSolid())
+        {
+            return false;
+        }
+        else
+        {
+            moved* p = dynamic_cast<moved*>(i);
+
+            std::cout << p->typKlasy() << std::endl;
+            std::cout << p->pos << std::endl;
+            if (p != NULL)
+            {
+                can &= canEnter(p, dir);
+            }
+        }
+    }
+
+    return can;
+}
+
 bool GreenEngine::move(moved* x, Vector3D dir)
 {
-    if (main_map->access(x->pos + dir).canEnter(dir))
+    if (canEnter(x, dir))
     {
         x->setAnimation(x->pos, x->pos + dir, x->anim_time);
         enterField(x, x->pos + dir, dir);
@@ -224,6 +252,9 @@ bool GreenEngine::move(moved* x, Vector3D dir)
         main_map->access(x->pos + dir).add(x);
 
         x->pos = x->pos + dir;
+
+        //TODO falling
+
         return true;
     }
 
@@ -234,6 +265,7 @@ bool GreenEngine::enterField(moved* x, Vector3D pos, Vector3D dir)
 {
     for (auto i : main_map->access(pos).zawartosc)
     {
+        //FIXME
         moved* p = dynamic_cast<moved*>(i);
 
         if (p != NULL)

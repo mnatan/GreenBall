@@ -32,8 +32,10 @@ bool moved::UpdateAnimation()
 
 bool moved::checkFloor()
 {
-    /*
-	 *if (map.access(pos + down).canFall())	// Possible bug FIXME - Czy ja zawsze będę trzymać dane w ten sposób? //AND YES IT HAPPENED
+    /* // Possible bug FIXME - will I always use this data structure? //Yes, wasted time here.
+     * // increment this variable every time you come back to this code >>> 4 <<<
+     *
+	 *if (map.access(pos + down).canFall())	
 	 *{
 	 *    this->setAnimation(pos,
 	 *               Vector3D(pos.x, pos.y, -22.0f),

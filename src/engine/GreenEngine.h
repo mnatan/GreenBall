@@ -1,4 +1,3 @@
-
 /*
  * GreenEngine.h
  * Copyright (C) 2015 Marcin Natanek <natanek.marcin@gmail.com>
@@ -22,7 +21,6 @@ class Player;
 # include "SDL/SDL_ttf.h"
 
 # include "src/engine/Vector3D.cpp"
-//# include "src/game_objects/moved.cpp"
 class moved;
 
 // old defines
@@ -113,6 +111,7 @@ class GreenEngine
 
         bool load_next_level();
 
+        bool canEnter(moved* obj, Vector3D dir);
         bool move(moved* x, Vector3D dir);
         bool enterField(moved* x, Vector3D pos, Vector3D dir);
 
